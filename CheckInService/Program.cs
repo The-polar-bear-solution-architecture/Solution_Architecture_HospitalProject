@@ -1,3 +1,6 @@
+using CheckInService.DBContexts;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -9,6 +12,9 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+string CheckInDB = builder.Configuration.GetConnectionString("CheckInDB");
+//-|| Regular database || Configuration
+builder.Services.AddDbContext<CheckInContextDB>(options => options.UseSqlServer(CheckInDB));
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
