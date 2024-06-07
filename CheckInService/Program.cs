@@ -17,6 +17,9 @@ builder.Services.AddDbContext<CheckInContextDB>(options => options.UseSqlServer(
 
 // Service via dependency injection
 builder.Services.AddScoped<CheckInRepository, CheckInRepository>();
+builder.Services.AddScoped<AppointmentRepository, AppointmentRepository>();
+builder.Services.AddScoped<PhysicianRepo, PhysicianRepo>();
+builder.Services.AddScoped<PatientRepo, PatientRepo>();
 
 var app = builder.Build();
 

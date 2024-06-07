@@ -1,4 +1,7 @@
-﻿using CheckInService.Models;
+﻿using CheckinService.Model;
+using CheckInService.Commands;
+using CheckInService.Mapper;
+using CheckInService.Models;
 using CheckInService.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,14 +40,42 @@ namespace CheckInService.Controllers
 
         // PUT api/<CheckInController>/5
         [HttpPut("{id}/MarkNoShow")]
-        public IActionResult PutNoShow(int id, [FromBody] string value)
+        public IActionResult PutNoShow(int id)
         {
+            CheckIn? checkIn = checkInRepository.Get(id);
+            if(checkIn == null)
+            {
+                return NotFound();
+            }
+
+            checkIn.Status = Status.NOSHOW;
+            checkInRepository.Put(checkIn);
+
             return Ok("Marked appointment as noshow");
         }
 
         [HttpPut("{id}/MarkPresent")]
-        public IActionResult PutPresent(int id, [FromBody] string value)
+        public IActionResult PutPresent(int id)
         {
+            CheckIn? checkIn = checkInRepository.Get(id);
+            if (checkIn == null)
+            {
+                return NotFound();
+            }
+            checkIn.Status = Status.PRESENT;
+            checkInRepository.Put(checkIn);
+            // Event to notification physician.
+            Console.WriteLine("Physician will be notified");
+            return Ok("Marked check-in ready");
+        }
+
+        [HttpPost("")]
+        public IActionResult Post([FromBody] CreateCheckInCommand createCheckInCommand)
+        {
+            CheckIn checkIn = createCheckInCommand.MapToCheckin();
+
+            checkInRepository.Post(checkIn);
+            
             return Ok("Marked check-in ready");
         }
     }

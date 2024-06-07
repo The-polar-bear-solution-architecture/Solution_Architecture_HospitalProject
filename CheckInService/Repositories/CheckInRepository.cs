@@ -16,15 +16,22 @@ namespace CheckInService.Repositories
         // Will be most likely be served via events
         public void Post(CheckIn checkIn)
         {
+            try
+            {
+                checkInContextDB.Add(checkIn);
+                checkInContextDB.SaveChanges();
+            }
+            catch
+            {
+                Console.WriteLine("Create failed");
+            }
             
-            Console.WriteLine("Create the checkin");
         }
 
         public void Put(CheckIn checkIn)
         {
             try
             {
-                
                 checkInContextDB.Update(checkIn);
                 checkInContextDB.SaveChangesAsync().Wait();
             }
@@ -32,7 +39,6 @@ namespace CheckInService.Repositories
             {
                 Console.WriteLine("");
             }
-            
         }
 
         public IEnumerable<CheckInView> Get()
