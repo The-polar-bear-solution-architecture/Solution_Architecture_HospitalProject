@@ -4,6 +4,7 @@ using CheckInService.DBContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CheckInService.Migrations
 {
     [DbContext(typeof(CheckInContextDB))]
-    partial class CheckInContextDBModelSnapshot : ModelSnapshot
+    [Migration("20240607150358_create_added_view_in_db_context")]
+    partial class create_added_view_in_db_context
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,9 +32,6 @@ namespace CheckInService.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("AppointmentDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -96,11 +96,14 @@ namespace CheckInService.Migrations
 
             modelBuilder.Entity("CheckInService.Queries.CheckInView", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<DateTime>("AppointmentDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
 
                     b.Property<string>("PatientFirstName")
                         .IsRequired()
@@ -110,20 +113,16 @@ namespace CheckInService.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PhysicianFirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhysicianLastName")
+                    b.Property<string>("PhysicianFullName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.ToTable((string)null);
+                    b.HasKey("Id");
 
-                    b.ToView("AppointmentCheckInView", (string)null);
+                    b.ToTable("checkInsView");
                 });
 
             modelBuilder.Entity("CheckinService.Model.Physician", b =>

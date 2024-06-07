@@ -35,26 +35,17 @@ namespace CheckInService.Controllers
             return Ok(checkIn);
         }
 
-        // POST api/<CheckInController>
-        [HttpPost]
-        public IActionResult Post([FromBody] string value)
-        {
-            checkInRepository.Post(new CheckIn());
-
-            return Ok();
-        }
-
         // PUT api/<CheckInController>/5
-        [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] string value)
+        [HttpPut("{id}/MarkNoShow")]
+        public IActionResult PutNoShow(int id, [FromBody] string value)
         {
-            return Ok("Update successfull");
+            return Ok("Marked appointment as noshow");
         }
 
-        // DELETE api/<CheckInController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpPut("{id}/MarkPresent")]
+        public IActionResult PutPresent(int id, [FromBody] string value)
         {
+            return Ok("Marked check-in ready");
         }
     }
 }

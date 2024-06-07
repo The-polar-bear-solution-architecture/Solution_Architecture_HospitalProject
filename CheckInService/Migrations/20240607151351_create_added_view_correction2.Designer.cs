@@ -4,6 +4,7 @@ using CheckInService.DBContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CheckInService.Migrations
 {
     [DbContext(typeof(CheckInContextDB))]
-    partial class CheckInContextDBModelSnapshot : ModelSnapshot
+    [Migration("20240607151351_create_added_view_correction2")]
+    partial class create_added_view_correction2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -110,11 +113,7 @@ namespace CheckInService.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PhysicianFirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhysicianLastName")
+                    b.Property<string>("PhysicianFullName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

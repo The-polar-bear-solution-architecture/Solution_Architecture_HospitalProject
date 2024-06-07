@@ -1,5 +1,6 @@
 ﻿using CheckInService.DBContexts;
 using CheckInService.Models;
+using CheckInService.Queries;
 
 namespace CheckInService.Repositories
 {
@@ -34,9 +35,9 @@ namespace CheckInService.Repositories
             
         }
 
-        public IEnumerable<CheckIn> Get()
+        public IEnumerable<CheckInView> Get()
         {
-            return checkInContextDB.checkIns.AsEnumerable();
+            return checkInContextDB.checkInsView.AsEnumerable();
         }
 
         public CheckIn? Get(int id)
