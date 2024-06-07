@@ -1,4 +1,5 @@
 using CheckInService.DBContexts;
+using CheckInService.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,11 +11,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var app = builder.Build();
-
 string CheckInDB = builder.Configuration.GetConnectionString("CheckInDB");
 //-|| Regular database || Configuration
 builder.Services.AddDbContext<CheckInContextDB>(options => options.UseSqlServer(CheckInDB));
+
+// Service via dependency injection
+builder.Services.AddScoped<CheckInRepository, CheckInRepository>();
+
+var app = builder.Build();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

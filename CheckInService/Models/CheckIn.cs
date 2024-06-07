@@ -6,6 +6,7 @@ namespace CheckInService.Models
     {
         public int Id { get; set; }
         public Status Status { get; set; } = Status.AWAIT;
+        
         public Appointment Appointment { get; set; }
     }
 }
