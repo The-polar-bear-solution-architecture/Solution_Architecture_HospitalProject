@@ -1,5 +1,6 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using RabbitMQ.Messages.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,7 @@ namespace RabbitMQ.Infrastructure.MessageHandlers
             Model = Connection.CreateModel();
         }
 
-        public void Start()
+        public void Start(IMessageHandleCallback messageHandleCallback)
         {
             throw new NotImplementedException();
         }

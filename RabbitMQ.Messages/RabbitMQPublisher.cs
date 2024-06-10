@@ -1,5 +1,6 @@
 ﻿using RabbitMQ.Client;
-using RabbitMQ.Infrastructure.Mappers;
+using RabbitMQ.Messages.Interfaces;
+using RabbitMQ.Messages.Mapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;

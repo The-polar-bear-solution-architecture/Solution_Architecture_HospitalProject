@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RabbitMQ.Infrastructure.MessagePublishers
+namespace RabbitMQ.Messages.Interfaces
 {
     public interface IPublisher
     {
