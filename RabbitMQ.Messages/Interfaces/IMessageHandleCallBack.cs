@@ -8,7 +8,6 @@ namespace RabbitMQ.Messages.Interfaces
 {
     public interface IMessageHandleCallback
     {
-        Task<bool> HandleMessageAsync(string messageType, string message);
         Task<bool> HandleMessageAsync(string messageType, object message);
     }
 }

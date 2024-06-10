@@ -1,5 +1,6 @@
 ﻿using Polly;
 using RabbitMQ.Client;
+using RabbitMQ.Messages;
 using RabbitMQ.Messages.Interfaces;
 using RabbitMQ.Messages.Mapper;
 using System;
@@ -21,8 +22,6 @@ namespace RabbitMQ.Infrastructure.MessagePublishers
         public IConnection Connection { get; set; }
         public IModel Model { get; set; }
 
-        public string Exchange { get; set; }
-
         private const int DEFAULT_PORT = 5672;
         private const string DEFAULT_VIRTUAL_HOST = "/";
 
@@ -33,48 +32,44 @@ namespace RabbitMQ.Infrastructure.MessagePublishers
         private readonly string _password;
         private readonly string _exchange;
 
-        
-
-        public void SendMessage(string MessageType, object Message, string routingKey)
-        {
-            Model.ExchangeDeclare(exchange: "logs", type: ExchangeType.Fanout);
-
-            PublishMessageAsync("Hello", Message, routingKey);
-            /* Model.BasicPublish(exchange: Exchange,
-                                 routingKey: routingKey,
-                                 basicProperties: null,
-                                 body: MessageBody); */
-
-            Console.WriteLine($"Message of {MessageType} has send to {routingKey}");
-        }
-
-        public RabbitMQPublisher(string exchange, int port)
+        public RabbitMQPublisher(string exchange, string host,  int port)
         {
             _hosts = new List<string>()
             {
-                "localhost"
+                host
             };
             _port = port;
             _exchange = exchange;
             Connect();
         }
 
-        public RabbitMQPublisher()
+        public RabbitMQPublisher(string exchange)
         {
-            Exchange = "logs";
-            ConnectionFactory = new ConnectionFactory { HostName = "localhost" };
-            Connection = ConnectionFactory.CreateConnection();
-            Model = Connection.CreateModel();
+            _exchange = exchange;
+            _port = DEFAULT_PORT;
+            _hosts = new List<string>()
+            {
+                "localhost"
+            };
+            _virtualHost = DEFAULT_VIRTUAL_HOST;
+            _username = "";
+            _password = "";
+            Console.WriteLine($"Exchange {_exchange}, port is {DEFAULT_PORT}, virt {DEFAULT_VIRTUAL_HOST}, username is {_username}");
+            Connect();
         }
 
-        public Task PublishMessageAsync(string messageType, object message, string routingKey)
+        public Task SendMessage(string MessageType, object Message, string routingKey)
         {
+            Console.WriteLine($"Message of {MessageType} has send to {routingKey}");
+
+            Model.ExchangeDeclare(exchange: _exchange, type: ExchangeType.Fanout);
+
             return Task.Run(() =>
             {
-                byte[] data = message.Serialize();
+                byte[] data = Message.Serialize();
                 var body = data;
                 IBasicProperties properties = Model.CreateBasicProperties();
-                properties.Headers = new Dictionary<string, object> { { "MessageType", messageType } };
+                properties.Headers = new Dictionary<string, object> { { "MessageType", MessageType } };
                 Model.BasicPublish(_exchange, routingKey, properties, body);
             });
         }
@@ -86,11 +81,13 @@ namespace RabbitMQ.Infrastructure.MessagePublishers
                 .WaitAndRetry(9, r => TimeSpan.FromSeconds(5), (ex, ts) => { Console.Error.WriteLine("Error connecting to RabbitMQ. Retrying in 5 sec."); })
                 .Execute(() =>
                 {
-                    var factory = new ConnectionFactory() { VirtualHost = _virtualHost, UserName = _username, Password = _password, Port = _port };
+                    var factory = new ConnectionFactory() { HostName = "localhost" };
                     factory.AutomaticRecoveryEnabled = true;
-                    Connection = factory.CreateConnection(_hosts);
+                    Connection = factory.CreateConnection();
                     Model = Connection.CreateModel();
-                    Model.ExchangeDeclare(_exchange, "fanout", durable: true, autoDelete: false);
+
+                    // TODO: Durable zal uiteindelijk naar true moeten gaan.
+                    Model.ExchangeDeclare(_exchange, "fanout", durable: false, autoDelete: false);
                 });
         }
 

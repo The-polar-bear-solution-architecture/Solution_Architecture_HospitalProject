@@ -8,6 +8,6 @@ namespace RabbitMQ.Messages.Interfaces
 {
     public interface IPublisher
     {
-        void SendMessage(string MessageType, object message, string queueKey);
+        Task SendMessage(string MessageType, object message, string queueKey);
     }
 }

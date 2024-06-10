@@ -32,9 +32,9 @@ namespace RabbitMQ.Messages.Configuration
 
         public static void UseRabbitMQMessagePublisher(this IServiceCollection services, IConfiguration config)
         {
-            // GetRabbitMQSettings(config, "RabbitMQPublisher");
+            GetRabbitMQSettings(config, "RabbitMQPublisher");
             // Makes this service available for dependency injection.
-            services.AddTransient<IPublisher>(_ => new RabbitMQPublisher());
+            services.AddTransient<IPublisher>(_ => new RabbitMQPublisher(_exchange));
         }
 
         private static void GetRabbitMQSettings(IConfiguration config, string sectionName)
@@ -52,6 +52,7 @@ namespace RabbitMQ.Messages.Configuration
             DetermineHost(configSection);
             DeterminePort(configSection);
             DetermineExchange(configSection);
+
             if (sectionName == "RabbitMQHandler")
             {
                 DetermineQueue(configSection);
