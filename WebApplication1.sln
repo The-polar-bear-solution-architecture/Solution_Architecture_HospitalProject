@@ -7,9 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplication1", "WebAppli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplication2", "WebApplication2\WebApplication2.csproj", "{FDD6166D-371D-4D50-8200-8F7C2BFE59D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckInService", "CheckInService\CheckInService.csproj", "{C9A5C07A-36B2-492C-AC98-4E745297E5DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CheckInService", "CheckInService\CheckInService.csproj", "{C9A5C07A-36B2-492C-AC98-4E745297E5DF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RabbitMQ.Messages", "RabbitMQ.Messages\RabbitMQ.Messages.csproj", "{42428DD4-8CA7-48F3-8779-B3399F26502F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestHandler", "TestHandler\TestHandler.csproj", "{32F3FA71-1E22-402A-B6C5-06ED2886A576}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{42428DD4-8CA7-48F3-8779-B3399F26502F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42428DD4-8CA7-48F3-8779-B3399F26502F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42428DD4-8CA7-48F3-8779-B3399F26502F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32F3FA71-1E22-402A-B6C5-06ED2886A576}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32F3FA71-1E22-402A-B6C5-06ED2886A576}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32F3FA71-1E22-402A-B6C5-06ED2886A576}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32F3FA71-1E22-402A-B6C5-06ED2886A576}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
