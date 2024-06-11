@@ -3,6 +3,7 @@ using CheckInService.CommandHandlers;
 using CheckInService.CommandsAndEvents.Commands;
 using CheckInService.Mapper;
 using CheckInService.Models;
+using CheckInService.Models.DTO;
 using CheckInService.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using RabbitMQ.Messages.Interfaces;
