@@ -1,3 +1,4 @@
+using CheckInService.CommandHandlers;
 using CheckInService.DBContexts;
 using CheckInService.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,7 @@ builder.Services.AddScoped<CheckInRepository, CheckInRepository>();
 builder.Services.AddScoped<AppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<PhysicianRepo, PhysicianRepo>();
 builder.Services.AddScoped<PatientRepo, PatientRepo>();
+builder.Services.AddScoped<CheckInCommandHandler, CheckInCommandHandler>();
 
 // Use rabbitMQ Publisher
 builder.Services.UseRabbitMQMessagePublisher(builder.Configuration);

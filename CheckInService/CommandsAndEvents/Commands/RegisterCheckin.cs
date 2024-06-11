@@ -2,9 +2,9 @@
 using CheckInService.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace CheckInService.Commands
+namespace CheckInService.CommandsAndEvents.Commands
 {
-    public class CreateCheckInCommand
+    public class RegisterCheckin
     {
         public int Id { get; set; }
         public Status Status { get; set; } = Status.AWAIT;

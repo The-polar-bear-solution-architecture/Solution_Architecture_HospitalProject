@@ -8,6 +8,9 @@ namespace RabbitMQ.Messages.Messages
 {
     public class Command: Message
     {
+        public Command() { 
+        }
+
         public Command(Guid messageId) : base(messageId)
         {
         }

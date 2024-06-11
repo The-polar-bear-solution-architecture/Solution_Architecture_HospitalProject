@@ -1,11 +1,13 @@
-﻿using CheckInService.Commands;
+﻿using CheckinService.Model;
+using CheckInService.CommandsAndEvents.Commands;
+using CheckInService.CommandsAndEvents.Events;
 using CheckInService.Models;
 
 namespace CheckInService.Mapper
 {
-    public static class DTOMapper
+    public static class Mappers
     {
-        public static CheckIn MapToCheckin(this CreateCheckInCommand createCheckInCommand)
+        public static CheckIn MapToCheckin(this RegisterCheckin createCheckInCommand)
         {
             return new CheckIn
             {
@@ -27,5 +29,17 @@ namespace CheckInService.Mapper
                 }
             };
         }
+        
+        public static PatientHasCheckedIn MapToPatientIsPresent(this CheckIn checkIn)
+        {
+            return new PatientHasCheckedIn(nameof(PatientHasCheckedIn))
+            {
+                PatientFirstName = checkIn.Appointment.Patient.FirstName,
+                PatientLastName = checkIn.Appointment.Patient.LastName,
+                PhysicianFirstName = checkIn.Appointment.Physician.FirstName,
+                PhysicianLastName = checkIn.Appointment.Physician.LastName,
+                PhysicianEmail = checkIn.Appointment.Physician.Email,
+            };
+        } 
     }
 }

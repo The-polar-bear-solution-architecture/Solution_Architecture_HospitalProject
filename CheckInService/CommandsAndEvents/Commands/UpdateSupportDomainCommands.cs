@@ -1,4 +1,4 @@
-﻿namespace CheckInService.Commands
+﻿namespace CheckInService.CommandsAndEvents.Commands
 {
     public class UpdateAppointmentCommand
     {
