@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RabbitMQ.Messages.Messages
 {
-    public class Message
+    public abstract class Message
     {
         public readonly string MessageId;
         public readonly string MessageType;
