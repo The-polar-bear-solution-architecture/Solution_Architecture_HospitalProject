@@ -100,7 +100,7 @@ namespace RabbitMQ.Infrastructure.MessageHandlers
             string messageType = Encoding.UTF8.GetString((byte[])ea.BasicProperties.Headers["MessageType"]);
 
             // get body
-            string body = Encoding.UTF8.GetString(ea.Body.ToArray());
+            byte[] body = ea.Body.ToArray();
             // call callback to handle the message
             return _callBack.HandleMessageAsync(messageType, body);
         }
