@@ -1,4 +1,5 @@
 using CheckInService.CommandHandlers;
+using CheckInService.Controllers;
 using CheckInService.DBContexts;
 using CheckInService.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,9 @@ builder.Services.AddScoped<CheckInCommandHandler, CheckInCommandHandler>();
 
 // Use rabbitMQ Publisher
 builder.Services.UseRabbitMQMessagePublisher(builder.Configuration);
+
+builder.Services.UseRabbitMQMessageHandler(builder.Configuration);
+builder.Services.AddHostedService<CheckInWorker>();
 
 var app = builder.Build();
 

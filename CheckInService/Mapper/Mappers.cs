@@ -2,12 +2,13 @@
 using CheckInService.CommandsAndEvents.Commands;
 using CheckInService.CommandsAndEvents.Events;
 using CheckInService.Models;
+using CheckInService.Models.DTO;
 
 namespace CheckInService.Mapper
 {
     public static class Mappers
     {
-        public static CheckIn MapToCheckin(this RegisterCheckin createCheckInCommand)
+        public static CheckIn MapToCheckin(this CreateCheckInCommandDTO createCheckInCommand)
         {
             return new CheckIn
             {
@@ -20,7 +21,7 @@ namespace CheckInService.Mapper
                         FirstName = createCheckInCommand.PatientFirstName,
                         LastName = createCheckInCommand.PatientLastName,
                     },
-                    Physician = new CheckinService.Model.Physician()
+                    Physician = new Physician()
                     {
                         FirstName = createCheckInCommand.PhysicianFirstName,
                         LastName = createCheckInCommand.PatientLastName,

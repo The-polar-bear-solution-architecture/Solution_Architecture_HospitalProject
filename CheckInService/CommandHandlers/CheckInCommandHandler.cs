@@ -34,6 +34,10 @@ namespace CheckInService.CommandHandlers
             RouterKeyLocator = "Notifications";
         }
 
+        public CheckIn RegisterCheckin(RegisterCheckin command)
+        {
+            return null;
+        }
 
         // Change to noshow
         public CheckIn? ChangeToNoShow(NoShowCheckIn command) {

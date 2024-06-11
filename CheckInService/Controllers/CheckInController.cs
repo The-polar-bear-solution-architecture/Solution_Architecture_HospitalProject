@@ -63,10 +63,10 @@ namespace CheckInService.Controllers
         }
 
         [HttpPut("{id}/MarkPresent")]
-        public IActionResult PutPresent(int id)
+        public async Task<IActionResult> PutPresentAsync(int id)
         {
             var command = new PresentCheckin(Guid.NewGuid(), nameof(PresentCheckin)) { CheckInId = id };
-            CheckIn? checkIn = checkInCommand.ChangeToPresent(command);
+            CheckIn? checkIn = await checkInCommand.ChangeToPresent(command);
             
             if (checkIn == null)
             {
@@ -77,7 +77,7 @@ namespace CheckInService.Controllers
         }
 
         [HttpPost("")]
-        public IActionResult Post([FromBody] RegisterCheckin createCheckInCommand)
+        public IActionResult Post([FromBody] CreateCheckInCommandDTO createCheckInCommand)
         {
             CheckIn checkIn = createCheckInCommand.MapToCheckin();
 
