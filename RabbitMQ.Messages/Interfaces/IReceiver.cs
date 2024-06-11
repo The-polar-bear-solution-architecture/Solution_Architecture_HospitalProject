@@ -10,7 +10,5 @@ namespace RabbitMQ.Messages.Interfaces
     {
         void Start(IMessageHandleCallback CallBack);
         void Stop();
-
-        void StartReceiving();
     }
 }

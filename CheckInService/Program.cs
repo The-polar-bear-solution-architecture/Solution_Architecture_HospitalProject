@@ -1,6 +1,7 @@
 using CheckInService.DBContexts;
 using CheckInService.Repositories;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Messages.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,9 @@ builder.Services.AddScoped<CheckInRepository, CheckInRepository>();
 builder.Services.AddScoped<AppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<PhysicianRepo, PhysicianRepo>();
 builder.Services.AddScoped<PatientRepo, PatientRepo>();
+
+// Use rabbitMQ Publisher
+builder.Services.UseRabbitMQMessagePublisher(builder.Configuration);
 
 var app = builder.Build();
 
