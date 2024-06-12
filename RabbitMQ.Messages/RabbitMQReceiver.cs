@@ -31,6 +31,11 @@ namespace RabbitMQ.Infrastructure.MessageHandlers
         public string routingKey { get; set; }
         private string _consumerTag { get; set; }
 
+        private string _virtual_host { get; set; }
+        private int _port { get; set; }
+
+        private string DEFAULT_VIRTUAL_HOST { get; set; } = "/";
+
         public RabbitMQReceiver(string host, string exchange, string queue, string routingKey) {
             Console.WriteLine("Construct with full details");
             this._hosts = new List<string>() { host };
@@ -38,6 +43,20 @@ namespace RabbitMQ.Infrastructure.MessageHandlers
             this.exchange = exchange;
             this.queue = queue;
             this.routingKey = routingKey;
+            _virtual_host = DEFAULT_VIRTUAL_HOST;
+            _port = 5672;
+        }
+
+        public RabbitMQReceiver(string host, string exchange, string queue, string routingKey, int port, string virtual_host)
+        {
+            Console.WriteLine("Construct with full details");
+            this._hosts = new List<string>() { host };
+            this.host = host;
+            this.exchange = exchange;
+            this.queue = queue;
+            this.routingKey = routingKey;
+            _port = port;
+            _virtual_host = virtual_host;
         }
 
         public RabbitMQReceiver()
@@ -47,6 +66,8 @@ namespace RabbitMQ.Infrastructure.MessageHandlers
             this.exchange = "";
             this.queue = "";
             this.routingKey = "De_Queue";
+            _virtual_host = DEFAULT_VIRTUAL_HOST;
+            _port = 5672;
         }
 
         public void Start(IMessageHandleCallback messageHandleCallback)
@@ -60,11 +81,11 @@ namespace RabbitMQ.Infrastructure.MessageHandlers
             .Execute(() =>
             {
                 var factory = new ConnectionFactory() {  
-                    DispatchConsumersAsync = true,
-                    HostName = host
+                    Port = _port,
+                    VirtualHost = _virtual_host,
+                    DispatchConsumersAsync = true
                 };
-
-                Connection = factory.CreateConnection();
+                Connection = factory.CreateConnection(_hosts);
                 Model = Connection.CreateModel();
 
                 // TODO: Durable zal uiteindelijk naar true moeten gaan.
