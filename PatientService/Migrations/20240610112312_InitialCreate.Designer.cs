@@ -12,7 +12,7 @@ using PatientService.Domain;
 namespace PatientService.Migrations
 {
     [DbContext(typeof(PatientDBContext))]
-    [Migration("20240606114648_InitialCreate")]
+    [Migration("20240610112312_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
