@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RabbitMQ.Infrastructure.Mappers
+namespace RabbitMQ.Messages.Mapper
 {
     public static class ObjectSerializers
     {

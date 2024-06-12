@@ -4,13 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RabbitMQ.Infrastructure.MessageHandlers
+namespace RabbitMQ.Messages.Interfaces
 {
     public interface IReceiver
     {
-        void Start();
+        void Start(IMessageHandleCallback CallBack);
         void Stop();
-
-        void StartReceiving();
     }
 }

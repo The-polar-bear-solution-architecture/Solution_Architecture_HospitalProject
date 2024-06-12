@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RabbitMQ.Infrastructure.MessagePublishers
+namespace RabbitMQ.Messages.Interfaces
 {
     public interface IPublisher
     {
-        void SendMessage(string MessageType, object message, string queueKey);
+        Task SendMessage(string MessageType, object message, string queueKey);
     }
 }

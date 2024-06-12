@@ -1,8 +1,8 @@
 namespace WebApplication1
 {
-    public class WeatherForecast
+    public class WeatherForecastUpdate
     {
-        public int Id { get; set; } 
+        public int Id { get; set; }
         public DateOnly? Date { get; set; }
 
         public int TemperatureC { get; set; }
