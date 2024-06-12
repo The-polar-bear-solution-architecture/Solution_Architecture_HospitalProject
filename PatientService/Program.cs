@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using PatientService.Data;
 using PatientService.Domain;
+using PatientService.DomainServices;
+using PatientService.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<PatientDBContext>(options =>
   options.UseSqlServer(builder.Configuration.GetConnectionString("PatientDBContext")));
+
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 
 var app = builder.Build();
 

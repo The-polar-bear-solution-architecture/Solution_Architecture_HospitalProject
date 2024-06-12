@@ -8,6 +8,11 @@ namespace PatientService.Domain
             : base(options)
         {
         }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer(
+                @"Server=(localdb)\mssqllocaldb;Database=Braphia_PatientService;Trusted_Connection=True;ConnectRetryCount=0");
+        }
 
         public DbSet<Patient> Patients { get; set; }
         public DbSet<GeneralPractitioner> GeneralPractitioners { get; set; }
