@@ -83,7 +83,10 @@ namespace RabbitMQ.Infrastructure.MessageHandlers
                 var factory = new ConnectionFactory() {  
                     Port = _port,
                     VirtualHost = _virtual_host,
-                    DispatchConsumersAsync = true
+                    DispatchConsumersAsync = true,
+                    UserName = "guest",
+                    Password = "guest",
+                    HostName = "rabbit"
                 };
                 Connection = factory.CreateConnection(_hosts);
                 Model = Connection.CreateModel();

@@ -55,7 +55,7 @@ services:
     container_name: rabbitmqmessages
     ports:
       - 8043:443
-    image: ${DOCKER_REGISTRY-}rabbitmqmessages
+    image: localhost:5000/rabbitmqmessages
     build:
       context: .
       dockerfile: RabbitMQ.Messages/Dockerfile
@@ -70,6 +70,21 @@ services:
   rabbitmq:
     image: rabbitmq:3.13-management
     container_name: rabbitmq
+    hostname: "rabbit"
     ports:
     - 5672:5672
     - 15672:15672 
+
+  mssql:
+    container_name: sql
+    hostname: sql
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Testerino@8"
+    ports:
+      - 1433:1433
+    volumes:
+      - sql:/var/opt/mssql
+volumes:
+  sql:
