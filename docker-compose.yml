@@ -1,0 +1,29 @@
+version: '3.4'
+
+services:
+  dockerdemo:
+    image: localhost:5000/dockerdemo
+    build:
+      context: .
+      dockerfile: DockerDemo/Dockerfile
+
+  eventstoredemo:
+    image: localhost:5000/eventstoredemo
+    build:
+      context: .
+      dockerfile: WebApplication1/Dockerfile
+
+
+  checkinservice:
+    image: localhost:5000/checkinservice
+    build:
+      context: .
+      dockerfile: CheckInService/Dockerfile
+
+
+  rabbitmq.messages:
+    image: ${DOCKER_REGISTRY-}rabbitmqmessages
+    build:
+      context: .
+      dockerfile: RabbitMQ.Messages/Dockerfile
+
