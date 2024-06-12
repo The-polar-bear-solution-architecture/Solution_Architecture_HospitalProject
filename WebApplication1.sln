@@ -5,7 +5,7 @@ VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStoreDemo", "WebApplication1\EventStoreDemo.csproj", "{2B3187CC-A542-4202-87A4-48673D68D158}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplication2", "WebApplication2\WebApplication2.csproj", "{FDD6166D-371D-4D50-8200-8F7C2BFE59D1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DockerDemo", "WebApplication2\DockerDemo.csproj", "{FDD6166D-371D-4D50-8200-8F7C2BFE59D1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CheckInService", "CheckInService\CheckInService.csproj", "{C9A5C07A-36B2-492C-AC98-4E745297E5DF}"
 EndProject
