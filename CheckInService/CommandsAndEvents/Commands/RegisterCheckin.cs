@@ -1,12 +1,13 @@
 ﻿using CheckinService.Model;
 using CheckInService.Models;
+using RabbitMQ.Messages.Messages;
 using System.ComponentModel.DataAnnotations;
 
-namespace CheckInService.Commands
+namespace CheckInService.CommandsAndEvents.Commands
 {
-    public class CreateCheckInCommand
+    public class RegisterCheckin: Command
     {
-        public int Id { get; set; }
+        public int CheckInId { get; set; }
         public Status Status { get; set; } = Status.AWAIT;
 
         [Required]
@@ -28,5 +29,21 @@ namespace CheckInService.Commands
 
         [Required]
         public string PhysicianEmail { get; set; }
+
+        public RegisterCheckin()
+        {
+        }
+
+        public RegisterCheckin(Guid messageId) : base(messageId)
+        {
+        }
+
+        public RegisterCheckin(string messageType) : base(messageType)
+        {
+        }
+
+        public RegisterCheckin(Guid messageId, string messageType) : base(messageId, messageType)
+        {
+        }
     }
 }
