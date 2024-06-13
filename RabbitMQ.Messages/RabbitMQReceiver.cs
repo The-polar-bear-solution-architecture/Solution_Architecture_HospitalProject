@@ -4,11 +4,7 @@ using RabbitMQ.Client.Events;
 using RabbitMQ.Messages.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
 using System.Text;
-using System.Threading.Channels;
-using System.Threading.Tasks;
 
 namespace RabbitMQ.Infrastructure.MessageHandlers
 {
@@ -34,40 +30,15 @@ namespace RabbitMQ.Infrastructure.MessageHandlers
         private string _virtual_host { get; set; }
         private int _port { get; set; }
 
-        private string DEFAULT_VIRTUAL_HOST { get; set; } = "/";
-
-        public RabbitMQReceiver(string host, string exchange, string queue, string routingKey) {
-            Console.WriteLine("Construct with full details");
-            this._hosts = new List<string>() { host };
-            this.host = host;
-            this.exchange = exchange;
-            this.queue = queue;
-            this.routingKey = routingKey;
-            _virtual_host = DEFAULT_VIRTUAL_HOST;
-            _port = 5672;
-        }
-
         public RabbitMQReceiver(string host, string exchange, string queue, string routingKey, int port, string virtual_host)
         {
-            Console.WriteLine("Construct with full details");
-            this._hosts = new List<string>() { host };
+            _hosts = new List<string>() { host };
             this.host = host;
             this.exchange = exchange;
             this.queue = queue;
             this.routingKey = routingKey;
             _port = port;
             _virtual_host = virtual_host;
-        }
-
-        public RabbitMQReceiver()
-        {
-            Console.WriteLine("Construct for test");
-            this.host = "";
-            this.exchange = "";
-            this.queue = "";
-            this.routingKey = "De_Queue";
-            _virtual_host = DEFAULT_VIRTUAL_HOST;
-            _port = 5672;
         }
 
         public void Start(IMessageHandleCallback messageHandleCallback)

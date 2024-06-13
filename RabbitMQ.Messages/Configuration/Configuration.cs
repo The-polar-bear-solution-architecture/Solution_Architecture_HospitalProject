@@ -36,7 +36,7 @@ namespace RabbitMQ.Messages.Configuration
         {
             GetRabbitMQSettings(config, "RabbitMQPublisher");
             // Makes this service available for dependency injection.
-            services.AddTransient<IPublisher>(_ => new RabbitMQPublisher(_exchange));
+            services.AddTransient<IPublisher>(_ => new RabbitMQPublisher(_host, _exchange, _port, _virtualHost));
         }
 
         private static void GetRabbitMQSettings(IConfiguration config, string sectionName)
