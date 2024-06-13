@@ -3,9 +3,9 @@ using CheckInService.Models;
 using RabbitMQ.Messages.Messages;
 using System.ComponentModel.DataAnnotations;
 
-namespace CheckInService.CommandsAndEvents.Commands
+namespace CheckInService.CommandsAndEvents.Events
 {
-    public class RegisterCheckin: Command
+    public class PatientCheckinRegistered : Event
     {
         public int CheckInId { get; init; }
         public Status Status { get; init; } = Status.AWAIT;
@@ -30,19 +30,21 @@ namespace CheckInService.CommandsAndEvents.Commands
         [Required]
         public string PhysicianEmail { get; init; }
 
-        public RegisterCheckin()
+        public static string MessageStream = nameof(CheckIn);
+
+        public PatientCheckinRegistered()
         {
         }
 
-        public RegisterCheckin(Guid messageId) : base(messageId)
+        public PatientCheckinRegistered(Guid messageId) : base(messageId)
         {
         }
 
-        public RegisterCheckin(string messageType) : base(messageType)
+        public PatientCheckinRegistered(string messageType) : base(messageType)
         {
         }
 
-        public RegisterCheckin(Guid messageId, string messageType) : base(messageId, messageType)
+        public PatientCheckinRegistered(Guid messageId, string messageType) : base(messageId, messageType)
         {
         }
     }

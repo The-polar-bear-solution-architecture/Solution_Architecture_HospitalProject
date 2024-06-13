@@ -78,13 +78,11 @@ namespace CheckInService.Controllers
         }
 
         [HttpPost("")]
-        public IActionResult Post([FromBody] CreateCheckInCommandDTO createCheckInCommand)
+        public async Task<IActionResult> Post([FromBody] CreateCheckInCommandDTO createCheckInCommand)
         {
-            CheckIn checkIn = createCheckInCommand.MapToCheckin();
-
-            checkInRepository.Post(checkIn);
+            await checkInCommand.RegisterCheckin(createCheckInCommand);
             
-            return Ok("Marked check-in ready");
+            return Ok("Checkin has created.");
         }
     }
 }

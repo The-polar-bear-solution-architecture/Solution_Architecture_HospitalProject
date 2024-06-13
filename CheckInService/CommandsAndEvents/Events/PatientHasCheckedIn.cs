@@ -1,15 +1,12 @@
-﻿using RabbitMQ.Messages.Messages;
+﻿using CheckinService.Model;
+using RabbitMQ.Messages.Messages;
 
 namespace CheckInService.CommandsAndEvents.Events
 {
     public class PatientHasCheckedIn : Event
     {
-        public int PatientId { get; set; }
-        public string PatientFirstName { get; set; }
-        public string PatientLastName { get; set; }
-        public string PhysicianFirstName { get; set; }
-        public string PhysicianLastName { get; set; }
-        public string PhysicianEmail { get; set; }
+        public int CheckInId { get; init; }
+        public Status Status { get; init; } = Status.PRESENT;
 
         public PatientHasCheckedIn()
         {

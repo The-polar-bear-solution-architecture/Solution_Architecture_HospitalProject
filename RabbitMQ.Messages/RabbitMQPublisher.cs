@@ -81,7 +81,7 @@ namespace RabbitMQ.Infrastructure.MessagePublishers
                 .WaitAndRetry(9, r => TimeSpan.FromSeconds(5), (ex, ts) => { Console.Error.WriteLine("Error connecting to RabbitMQ. Retrying in 5 sec."); })
                 .Execute(() =>
                 {
-                    var factory = new ConnectionFactory() { HostName = "rabbit", UserName = "guest", Password = "guest", Port=5672};
+                    var factory = new ConnectionFactory() { HostName = "localhost", UserName = "guest", Password = "guest", Port=5672};
                     factory.AutomaticRecoveryEnabled = true;
                     Connection = factory.CreateConnection();
                     Model = Connection.CreateModel();

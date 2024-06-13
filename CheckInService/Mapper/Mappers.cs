@@ -30,7 +30,61 @@ namespace CheckInService.Mapper
                 }
             };
         }
-        
+
+        public static CheckIn MapToRegister(this RegisterCheckin createCheckInCommand)
+        {
+            return new CheckIn
+            {
+                Appointment = new Appointment()
+                {
+                    Name = createCheckInCommand.ApointmentName,
+                    AppointmentDate = createCheckInCommand.AppointmentDate,
+                    Patient = new Patient()
+                    {
+                        FirstName = createCheckInCommand.PatientFirstName,
+                        LastName = createCheckInCommand.PatientLastName,
+                    },
+                    Physician = new Physician()
+                    {
+                        FirstName = createCheckInCommand.PhysicianFirstName,
+                        LastName = createCheckInCommand.PatientLastName,
+                        Email = createCheckInCommand.PhysicianEmail
+                    }
+                },
+                Status = Status.AWAIT
+            };
+        }
+
+        public static RegisterCheckin MapToRegister(this CreateCheckInCommandDTO createCheckInCommand)
+        {
+            return new RegisterCheckin(Guid.NewGuid(), nameof(RegisterCheckin))
+            {
+                ApointmentName = createCheckInCommand.ApointmentName,
+                AppointmentDate = createCheckInCommand.AppointmentDate,
+                PatientFirstName = createCheckInCommand.PatientFirstName,
+                PatientLastName = createCheckInCommand.PatientLastName,
+                PhysicianEmail = createCheckInCommand.PhysicianEmail,
+                PhysicianFirstName = createCheckInCommand.PhysicianFirstName,
+                PhysicianLastName = createCheckInCommand.PatientLastName,
+                Status = Status.AWAIT
+            };
+        }
+
+        public static PatientCheckinRegistered MapCheckinRegistered(this RegisterCheckin createCheckInCommand)
+        {
+            return new PatientCheckinRegistered(Guid.NewGuid(), nameof(PatientCheckinRegistered))
+            {
+                ApointmentName = createCheckInCommand.ApointmentName,
+                AppointmentDate = createCheckInCommand.AppointmentDate,
+                PatientFirstName = createCheckInCommand.PatientFirstName,
+                PatientLastName = createCheckInCommand.PatientLastName,
+                PhysicianEmail = createCheckInCommand.PhysicianEmail,
+                PhysicianFirstName = createCheckInCommand.PhysicianFirstName,
+                PhysicianLastName = createCheckInCommand.PatientLastName,
+                Status = Status.AWAIT
+            };
+        }
+
         public static PatientHasCheckedIn MapToPatientIsPresent(this CheckIn checkIn)
         {
             return new PatientHasCheckedIn(nameof(PatientHasCheckedIn))

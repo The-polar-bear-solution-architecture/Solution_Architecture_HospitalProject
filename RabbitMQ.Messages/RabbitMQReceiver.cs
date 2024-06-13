@@ -72,7 +72,7 @@ namespace RabbitMQ.Infrastructure.MessageHandlers
 
         public void Start(IMessageHandleCallback messageHandleCallback)
         {
-            Console.WriteLine($"Queue is: {queue}, routingKey is {routingKey} and Exchange is {exchange}");
+            Console.WriteLine($"Host is {host} Queue is: {queue}, routingKey is {routingKey} and Exchange is {exchange}");
             _callBack = messageHandleCallback;
 
             Polly.Policy
@@ -85,8 +85,7 @@ namespace RabbitMQ.Infrastructure.MessageHandlers
                     VirtualHost = _virtual_host,
                     DispatchConsumersAsync = true,
                     UserName = "guest",
-                    Password = "guest",
-                    HostName = "rabbit"
+                    Password = "guest"
                 };
                 Connection = factory.CreateConnection(_hosts);
                 Model = Connection.CreateModel();
