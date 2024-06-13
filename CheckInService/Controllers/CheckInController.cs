@@ -47,14 +47,14 @@ namespace CheckInService.Controllers
 
         // PUT api/<CheckInController>/5
         [HttpPut("{id}/MarkNoShow")]
-        public IActionResult PutNoShow(int id)
+        public async Task<IActionResult> PutNoShow(int id)
         {
             var command = new NoShowCheckIn(Guid.NewGuid(), nameof(NoShowCheckIn))
             {
                 CheckInId = id
             };
 
-            CheckIn? checkIn = checkInCommand.ChangeToNoShow(command);
+            CheckIn? checkIn = await checkInCommand.ChangeToNoShow(command);
             if (checkIn == null)
             {
                 return NotFound();

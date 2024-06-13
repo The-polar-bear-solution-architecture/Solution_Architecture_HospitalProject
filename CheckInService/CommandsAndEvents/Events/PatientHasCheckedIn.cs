@@ -8,6 +8,13 @@ namespace CheckInService.CommandsAndEvents.Events
         public int CheckInId { get; init; }
         public Status Status { get; init; } = Status.PRESENT;
 
+        public string PatientFirstName { get; init; }
+        public string PatientLastName { get; init; }
+
+        public string PhysicianFirstName { get; init; }
+        public string PhysicianLastName { get; init; }
+        public string PhysicianEmail { get; init; }
+
         public PatientHasCheckedIn()
         {
         }

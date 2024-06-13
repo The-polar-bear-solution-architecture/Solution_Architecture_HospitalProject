@@ -45,30 +45,43 @@ namespace CheckInService.CommandHandlers
             // Converts DTO/Command to an proper domain entity, with the status AWAIT.
             CheckIn checkIn = registerCheckinCommand.MapToRegister();
 
-            var patient = patientRepo.Get(checkIn.Appointment.Patient.Id);
-            var physician = physicianRepo.Get(checkIn.Appointment.Physician.Id);
+            var patient = patientRepo.Get(registerCheckinCommand.PatientId);
+            var physician = physicianRepo.Get(registerCheckinCommand.PhysicianId);
 
+            Console.WriteLine(patient);
             if(patient != null)
             {
-                patientRepo.Put(checkIn.Appointment.Patient);
+                Console.WriteLine("Patient is updated");
+                // Overwrite the current patients info to local patient
+                Patient tempPatient = checkIn.Appointment.Patient;
+                patient.FirstName = tempPatient.FirstName;
+                patient.LastName = tempPatient.LastName;
+                patientRepo.Put(patient);
                 checkIn.Appointment.Patient = patient;
             }
 
             if(physician != null)
             {
-                physicianRepo.Put(checkIn.Appointment.Physician);
+                Console.WriteLine("Physician is updated");
+                Physician tempPhysician = checkIn.Appointment.Physician;
+                physician.FirstName = tempPhysician.FirstName;
+                physician.LastName = tempPhysician.LastName;
+                physician.Email = tempPhysician.Email;
+                physicianRepo.Put(physician);
+                //
                 checkIn.Appointment.Physician = physician;
             }
 
             checkInRepository.Post(checkIn);
 
             // Store event within event source
-            byte[] byteData = registerCheckinCommand.Serialize();
+            var eventBody  = registerCheckinCommand.MapCheckinRegistered(checkIn.Id);
+            byte[] byteData = eventBody.Serialize();
             var eventData = new EventData(Uuid.NewUuid(), registerCheckinCommand.MessageType, byteData);
             await eventStore.AppendToStreamAsync(nameof(CheckIn), StreamState.Any, [eventData]);
 
             // Send event to Notification service
-            var checkInEvent = registerCheckinCommand.MapCheckinRegistered();
+            Console.WriteLine("Important: Send to notification service so user will receive message evening before Appointment");
 
             return checkIn;
         }
@@ -101,6 +114,7 @@ namespace CheckInService.CommandHandlers
         // Change to noshow
         public async Task<CheckIn?> ChangeToPresent(PresentCheckin command)
         {
+            Console.WriteLine("Start checkin to present");
             // Validate if checkin even exists.
             CheckIn? checkIn = checkInRepository.Get(command.CheckInId);
             if (checkIn == null)
@@ -113,16 +127,17 @@ namespace CheckInService.CommandHandlers
 
             // Update check in.
             checkInRepository.Put(checkIn);
+
             // Add event to event source, for event sourcing
-            // Add guid, date of event, Operation: POST or PUT, ClassType, all the data.
             Console.WriteLine("Add no show to the event source.");
-            // Fill in event source
             byte[] byteData = command.Serialize();
             var eventData = new EventData(Uuid.NewUuid(), command.MessageType, byteData);
             await eventStore.AppendToStreamAsync(nameof(CheckIn), StreamState.Any, [eventData]);
 
             // Send notification to physician.
-            Event checkInEvent = checkIn.MapToPatientIsPresent();
+            Console.WriteLine(checkIn);
+
+            PatientHasCheckedIn checkInEvent = checkIn.MapToPatientIsPresent();
             await publisher.SendMessage(checkInEvent.MessageType, checkInEvent, RouterKeyLocator);
 
             return checkIn;

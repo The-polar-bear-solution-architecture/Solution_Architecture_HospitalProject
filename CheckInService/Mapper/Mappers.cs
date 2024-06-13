@@ -59,25 +59,31 @@ namespace CheckInService.Mapper
         {
             return new RegisterCheckin(Guid.NewGuid(), nameof(RegisterCheckin))
             {
+                PatientId = createCheckInCommand.PatientId,
+                PhysicianId = createCheckInCommand.PhysicianId,
+                AppointmentId = createCheckInCommand.AppointmentId,
                 ApointmentName = createCheckInCommand.ApointmentName,
                 AppointmentDate = createCheckInCommand.AppointmentDate,
                 PatientFirstName = createCheckInCommand.PatientFirstName,
                 PatientLastName = createCheckInCommand.PatientLastName,
                 PhysicianEmail = createCheckInCommand.PhysicianEmail,
                 PhysicianFirstName = createCheckInCommand.PhysicianFirstName,
-                PhysicianLastName = createCheckInCommand.PatientLastName,
+                PhysicianLastName = createCheckInCommand.PhysicianLastName,
                 Status = Status.AWAIT
             };
         }
 
-        public static PatientCheckinRegistered MapCheckinRegistered(this RegisterCheckin createCheckInCommand)
+        public static PatientCheckinRegistered MapCheckinRegistered(this RegisterCheckin createCheckInCommand, int checkInId)
         {
             return new PatientCheckinRegistered(Guid.NewGuid(), nameof(PatientCheckinRegistered))
             {
+                CheckInId = checkInId,
                 ApointmentName = createCheckInCommand.ApointmentName,
                 AppointmentDate = createCheckInCommand.AppointmentDate,
+                PatientId = createCheckInCommand.PatientId,
                 PatientFirstName = createCheckInCommand.PatientFirstName,
                 PatientLastName = createCheckInCommand.PatientLastName,
+                PhysicianId = createCheckInCommand.PhysicianId,
                 PhysicianEmail = createCheckInCommand.PhysicianEmail,
                 PhysicianFirstName = createCheckInCommand.PhysicianFirstName,
                 PhysicianLastName = createCheckInCommand.PatientLastName,
@@ -87,14 +93,19 @@ namespace CheckInService.Mapper
 
         public static PatientHasCheckedIn MapToPatientIsPresent(this CheckIn checkIn)
         {
-            return new PatientHasCheckedIn(nameof(PatientHasCheckedIn))
+            Console.WriteLine("Change to event");
+            var p = new PatientHasCheckedIn(Guid.NewGuid(), nameof(PatientHasCheckedIn));
+            return p;
+            /* return new PatientHasCheckedIn(Guid.NewGuid(), nameof(PatientHasCheckedIn))
             {
+                CheckInId = checkIn.Id,
+                Status = checkIn.Status,
                 PatientFirstName = checkIn.Appointment.Patient.FirstName,
                 PatientLastName = checkIn.Appointment.Patient.LastName,
                 PhysicianFirstName = checkIn.Appointment.Physician.FirstName,
                 PhysicianLastName = checkIn.Appointment.Physician.LastName,
                 PhysicianEmail = checkIn.Appointment.Physician.Email,
-            };
+            }; */
         } 
     }
 }
