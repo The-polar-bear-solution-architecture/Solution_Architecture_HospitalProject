@@ -47,13 +47,8 @@ namespace CheckInService.Controllers
 
         // PUT api/<CheckInController>/5
         [HttpPut("{id}/MarkNoShow")]
-        public async Task<IActionResult> PutNoShow(int id)
+        public async Task<IActionResult> PutNoShow(int id, [FromBody] NoShowCheckIn command)
         {
-            var command = new NoShowCheckIn(Guid.NewGuid(), nameof(NoShowCheckIn))
-            {
-                CheckInId = id
-            };
-
             CheckIn? checkIn = await checkInCommand.ChangeToNoShow(command);
             if (checkIn == null)
             {
@@ -64,11 +59,9 @@ namespace CheckInService.Controllers
         }
 
         [HttpPut("{id}/MarkPresent")]
-        public async Task<IActionResult> PutPresentAsync(int id)
+        public async Task<IActionResult> PutPresentAsync(int id, [FromBody] PresentCheckin command)
         {
-            var command = new PresentCheckin(Guid.NewGuid(), nameof(PresentCheckin)) { CheckInId = id };
             CheckIn? checkIn = await checkInCommand.ChangeToPresent(command);
-            
             if (checkIn == null)
             {
                 return NotFound();

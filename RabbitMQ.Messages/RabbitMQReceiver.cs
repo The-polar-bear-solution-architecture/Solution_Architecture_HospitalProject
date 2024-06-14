@@ -43,7 +43,7 @@ namespace RabbitMQ.Infrastructure.MessageHandlers
 
         public void Start(IMessageHandleCallback messageHandleCallback)
         {
-            Console.WriteLine($"Host is {host} Queue is: {queue}, routingKey is {routingKey} and Exchange is {exchange}");
+            Console.WriteLine($"Host is {host} Queue is: {queue}, routingKey is {routingKey} and Exchange is {exchange}, port is {_port}");
             _callBack = messageHandleCallback;
 
             Polly.Policy
@@ -51,13 +51,15 @@ namespace RabbitMQ.Infrastructure.MessageHandlers
                 .WaitAndRetry(9, r => TimeSpan.FromSeconds(5), (ex, ts) => { Console.Error.WriteLine("Error connecting to RabbitMQ. Retrying in 5 sec."); })
             .Execute(() =>
             {
-                var factory = new ConnectionFactory() {  
+                var factory = new ConnectionFactory() {
+                    HostName = host,
                     Port = _port,
                     VirtualHost = _virtual_host,
                     DispatchConsumersAsync = true,
                     UserName = "guest",
                     Password = "guest"
                 };
+
                 Connection = factory.CreateConnection(_hosts);
                 Model = Connection.CreateModel();
 

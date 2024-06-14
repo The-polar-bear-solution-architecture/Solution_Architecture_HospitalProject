@@ -8,6 +8,7 @@ namespace CheckInService.CommandsAndEvents.Events
     public class PatientCheckinRegistered : Event
     {
         public int CheckInId { get; init; }
+        public string CheckInSerialNr { get; init; }
         public Status Status { get; init; } = Status.AWAIT;
 
         [Required]

@@ -6,6 +6,7 @@ namespace CheckInService.CommandsAndEvents.Events
     public class PatientIsNotPresent : Event
     {
         public int CheckInId { get; init; }
+        public string CheckInSerialNr { get; init; }
         public Status Status { get; init; } = Status.NOSHOW;
 
         public PatientIsNotPresent()

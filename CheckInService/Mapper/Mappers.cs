@@ -35,6 +35,7 @@ namespace CheckInService.Mapper
         {
             return new CheckIn
             {
+                SerialNr = createCheckInCommand.CheckinSerialNr,
                 Appointment = new Appointment()
                 {
                     Name = createCheckInCommand.ApointmentName,
@@ -73,11 +74,12 @@ namespace CheckInService.Mapper
             };
         }
 
-        public static PatientCheckinRegistered MapCheckinRegistered(this RegisterCheckin createCheckInCommand, int checkInId)
+        public static PatientCheckinRegistered MapCheckinRegistered(this RegisterCheckin createCheckInCommand, int checkInId, string serialNr)
         {
             return new PatientCheckinRegistered(Guid.NewGuid(), nameof(PatientCheckinRegistered))
             {
                 CheckInId = checkInId,
+                CheckInSerialNr = serialNr,
                 ApointmentName = createCheckInCommand.ApointmentName,
                 AppointmentDate = createCheckInCommand.AppointmentDate,
                 PatientId = createCheckInCommand.PatientId,
@@ -94,9 +96,7 @@ namespace CheckInService.Mapper
         public static PatientHasCheckedIn MapToPatientIsPresent(this CheckIn checkIn)
         {
             Console.WriteLine("Change to event");
-            var p = new PatientHasCheckedIn(Guid.NewGuid(), nameof(PatientHasCheckedIn));
-            return p;
-            /* return new PatientHasCheckedIn(Guid.NewGuid(), nameof(PatientHasCheckedIn))
+            return new PatientHasCheckedIn(Guid.NewGuid(), nameof(PatientHasCheckedIn))
             {
                 CheckInId = checkIn.Id,
                 Status = checkIn.Status,
@@ -105,7 +105,7 @@ namespace CheckInService.Mapper
                 PhysicianFirstName = checkIn.Appointment.Physician.FirstName,
                 PhysicianLastName = checkIn.Appointment.Physician.LastName,
                 PhysicianEmail = checkIn.Appointment.Physician.Email,
-            }; */
+            };
         } 
     }
 }

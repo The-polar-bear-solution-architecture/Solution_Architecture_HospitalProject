@@ -75,7 +75,7 @@ namespace CheckInService.CommandHandlers
             checkInRepository.Post(checkIn);
 
             // Store event within event source
-            var eventBody  = registerCheckinCommand.MapCheckinRegistered(checkIn.Id);
+            var eventBody  = registerCheckinCommand.MapCheckinRegistered(checkIn.Id, checkIn.SerialNr);
             byte[] byteData = eventBody.Serialize();
             var eventData = new EventData(Uuid.NewUuid(), registerCheckinCommand.MessageType, byteData);
             await eventStore.AppendToStreamAsync(nameof(CheckIn), StreamState.Any, [eventData]);
