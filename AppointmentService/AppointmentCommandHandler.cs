@@ -28,5 +28,16 @@ namespace AppointmentService
         {
             this.publisher.SendMessage(appointmentCreated.MessageType, appointmentCreated, RouterKeyLocator);
         }
+
+        public void AppointmentDeleted(AppointmentDeleted appointmentDeleted)
+        {
+            this.publisher.SendMessage(appointmentDeleted.MessageType, appointmentDeleted, RouterKeyLocator);
+
+        }
+        public void AppointmentUpdated(AppointmentUpdated appointmentUpdated)
+        {
+            this.publisher.SendMessage(appointmentUpdated.MessageType, appointmentUpdated, RouterKeyLocator);
+
+        }
     }
 }

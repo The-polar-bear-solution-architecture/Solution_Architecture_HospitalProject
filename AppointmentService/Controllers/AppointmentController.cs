@@ -80,7 +80,24 @@ namespace AppointmentService.Controllers
             appointmentToUpdate.Id = Id;
             try
             {
-                repo.UpdateAppointment(appointmentToUpdate); 
+                var updatedAppointment = repo.UpdateAppointment(appointmentToUpdate);
+                var appointmentUpdated = new AppointmentUpdated()
+                {
+                    AppointmentId = updatedAppointment.Id,
+                    ApointmentName = updatedAppointment.Name,
+                    AppointmentDate = updatedAppointment.AppointmentDate,
+                    PatientId = updatedAppointment.Patient.Id,
+                    PatientFirstName = updatedAppointment.Patient.FirstName,
+                    PatientLastName = updatedAppointment.Patient.LastName,
+                    PhysicianId = updatedAppointment.Physician.Id,
+                    PhysicianFirstName = updatedAppointment.Physician.FirstName,
+                    PhysicianLastName = updatedAppointment.Physician.LastName,
+                    PhysicianEmail = updatedAppointment.Physician.Email,
+
+                };
+
+                commandHandler.AppointmentUpdated(appointmentUpdated);
+
                 return Ok(appointmentToUpdate);
             } catch(Exception e)
             {
@@ -94,6 +111,12 @@ namespace AppointmentService.Controllers
             try
             {
                 repo.DeleteAppointment(Id);
+                var appointmentDeleted = new AppointmentDeleted()
+                {
+                    AppointmentId = Id
+                };
+
+                commandHandler.AppointmentDeleted(appointmentDeleted);
                 return Ok("Appointment deleted");
             } catch (Exception e) { 
                 return BadRequest(e.Message);
