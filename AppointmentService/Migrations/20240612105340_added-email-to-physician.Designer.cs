@@ -4,6 +4,7 @@ using AppointmentService.DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AppointmentService.Migrations
 {
     [DbContext(typeof(AppointmentServiceContext))]
-    partial class AppointmentServiceContextModelSnapshot : ModelSnapshot
+    [Migration("20240612105340_added-email-to-physician")]
+    partial class addedemailtophysician
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

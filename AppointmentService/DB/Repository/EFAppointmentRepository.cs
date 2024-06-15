@@ -14,10 +14,11 @@ namespace AppointmentService.DB.Repository
             this.context = context;
         }
 
-        public void AddAppointment(Appointment appointment)
+        public Appointment AddAppointment(Appointment appointment)
         {
             context.Appointments.Add(appointment);
             context.SaveChanges();
+            return appointment;
         }
 
         public void DeleteAppointment(int id)

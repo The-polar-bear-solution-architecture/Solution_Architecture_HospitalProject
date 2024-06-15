@@ -1,7 +1,9 @@
+using AppointmentService;
 using AppointmentService.DB;
 using AppointmentService.DB.Repository;
 using AppointmentService.DomainServices;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Messages.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +19,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IAppointmentRepository, EFAppointmentRepository>();
 builder.Services.AddScoped<IPhysicianRepository, EFPhysicianRepository>();
 builder.Services.AddScoped<IPatientRepository, EFPatientRepository>();
+builder.Services.AddScoped<AppointmentCommandHandler, AppointmentCommandHandler>();
+builder.Services.UseRabbitMQMessagePublisher(builder.Configuration);
 
+//builder.Services.UseRabbitMQMessageHandler(builder.Configuration);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

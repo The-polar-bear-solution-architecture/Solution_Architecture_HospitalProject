@@ -1,4 +1,5 @@
-﻿using AppointmentService.DB;
+﻿using AppointmentService.CommandsAndEvents.Events;
+using AppointmentService.DB;
 using AppointmentService.Domain;
 using AppointmentService.Domain.DTO;
 using AppointmentService.DomainServices;
@@ -17,11 +18,13 @@ namespace AppointmentService.Controllers
         private readonly IAppointmentRepository repo;
         private readonly IPhysicianRepository physicianRepo;
         private readonly IPatientRepository patientRepo;
-        public AppointmentController(IAppointmentRepository repo, IPhysicianRepository physicianRepo, IPatientRepository patientRepo)
+        private readonly AppointmentCommandHandler commandHandler;
+        public AppointmentController(IAppointmentRepository repo, IPhysicianRepository physicianRepo, IPatientRepository patientRepo, AppointmentCommandHandler commandHandler)
         {
             this.repo = repo;
             this.physicianRepo = physicianRepo;
             this.patientRepo = patientRepo;
+            this.commandHandler = commandHandler;
         }
 
         [HttpGet]
@@ -43,10 +46,27 @@ namespace AppointmentService.Controllers
         [HttpPost]
         public ActionResult<Appointment> PostAppointment(AppointmentDTO appointmentDTO) {
             var appointmentToAdd = TurnDTOToAppointment(appointmentDTO);
+
+
             try
             {
-                repo.AddAppointment(appointmentToAdd);
-                return Ok(appointmentToAdd);
+                var createdAppointment = repo.AddAppointment(appointmentToAdd);
+                var appointmentCreated = new AppointmentCreated()
+                {
+                    AppointmentId = createdAppointment.Id,
+                    ApointmentName = createdAppointment.Name,
+                    AppointmentDate = createdAppointment.AppointmentDate,
+                    PatientId = createdAppointment.Patient.Id,
+                    PatientFirstName = createdAppointment.Patient.FirstName,
+                    PatientLastName = createdAppointment.Patient.LastName,
+                    PhysicianId = createdAppointment.Physician.Id,
+                    PhysicianFirstName = createdAppointment.Physician.FirstName,
+                    PhysicianLastName = createdAppointment.Physician.LastName,
+                    PhysicianEmail = createdAppointment.Physician.Email,
+
+                };
+                commandHandler.AppointmentCreated(appointmentCreated);
+                return Ok(createdAppointment);
             } catch (Exception e)
             {
                 return BadRequest(e.Message);
@@ -60,7 +80,7 @@ namespace AppointmentService.Controllers
             appointmentToUpdate.Id = Id;
             try
             {
-                repo.UpdateAppointment(appointmentToUpdate);
+                repo.UpdateAppointment(appointmentToUpdate); 
                 return Ok(appointmentToUpdate);
             } catch(Exception e)
             {
