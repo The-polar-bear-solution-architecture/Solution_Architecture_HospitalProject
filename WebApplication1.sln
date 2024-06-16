@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitMQ.Messages", "Rabbit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestHandler", "TestHandler\TestHandler.csproj", "{32F3FA71-1E22-402A-B6C5-06ED2886A576}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppointmentService", "AppointmentService\AppointmentService.csproj", "{9EB89DA4-C229-4610-ADB9-2B16BDDC984F}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DockerDemo", "DockerDemo\DockerDemo.csproj", "{C52D1FC4-9091-427A-A57F-A4427F4BC7E8}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{8A77F774-A900-41E8-91D6-0D6300ED7108}"
@@ -37,6 +39,10 @@ Global
 		{32F3FA71-1E22-402A-B6C5-06ED2886A576}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32F3FA71-1E22-402A-B6C5-06ED2886A576}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32F3FA71-1E22-402A-B6C5-06ED2886A576}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EB89DA4-C229-4610-ADB9-2B16BDDC984F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EB89DA4-C229-4610-ADB9-2B16BDDC984F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EB89DA4-C229-4610-ADB9-2B16BDDC984F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EB89DA4-C229-4610-ADB9-2B16BDDC984F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C52D1FC4-9091-427A-A57F-A4427F4BC7E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C52D1FC4-9091-427A-A57F-A4427F4BC7E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C52D1FC4-9091-427A-A57F-A4427F4BC7E8}.Release|Any CPU.ActiveCfg = Release|Any CPU

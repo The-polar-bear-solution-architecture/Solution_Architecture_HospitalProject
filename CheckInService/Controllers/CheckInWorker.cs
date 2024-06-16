@@ -28,6 +28,7 @@ namespace CheckInService.Controllers
         public async Task<bool> HandleMessageAsync(string messageType, object message)
         {
             await handle();
+            Console.WriteLine(messageType);  
             Console.WriteLine("This message has been received on the Check in service");
             return true;
         }
