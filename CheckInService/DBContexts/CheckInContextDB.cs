@@ -29,12 +29,13 @@ namespace CheckInService.DBContexts
         {
             base.OnModelCreating(modelBuilder);
 
-
+            
             modelBuilder.Entity<Appointment>().HasOne(physician => physician.Physician);
             modelBuilder.Entity<Appointment>().HasOne(patient => patient.Patient);
-        
-                
+            
             modelBuilder.Entity<CheckIn>().HasOne<Appointment>(appointment => appointment.Appointment);
+            modelBuilder.Entity<CheckIn>().HasAlternateKey(ci => ci.SerialNr);
+
             CreateViews(modelBuilder);
         }
 

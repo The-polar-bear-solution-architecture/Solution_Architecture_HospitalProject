@@ -1,9 +1,14 @@
-﻿using RabbitMQ.Messages.Messages;
+﻿using CheckinService.Model;
+using RabbitMQ.Messages.Messages;
 
 namespace CheckInService.CommandsAndEvents.Events
 {
     public class PatientIsNotPresent : Event
     {
+        public int CheckInId { get; init; }
+        public string CheckInSerialNr { get; init; }
+        public Status Status { get; init; } = Status.NOSHOW;
+
         public PatientIsNotPresent()
         {
         }

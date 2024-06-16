@@ -47,14 +47,9 @@ namespace CheckInService.Controllers
 
         // PUT api/<CheckInController>/5
         [HttpPut("{id}/MarkNoShow")]
-        public IActionResult PutNoShow(int id)
+        public async Task<IActionResult> PutNoShow(int id, [FromBody] NoShowCheckIn command)
         {
-            var command = new NoShowCheckIn(Guid.NewGuid(), nameof(NoShowCheckIn))
-            {
-                CheckInId = id
-            };
-
-            CheckIn? checkIn = checkInCommand.ChangeToNoShow(command);
+            CheckIn? checkIn = await checkInCommand.ChangeToNoShow(command);
             if (checkIn == null)
             {
                 return NotFound();
@@ -64,11 +59,9 @@ namespace CheckInService.Controllers
         }
 
         [HttpPut("{id}/MarkPresent")]
-        public async Task<IActionResult> PutPresentAsync(int id)
+        public async Task<IActionResult> PutPresentAsync(int id, [FromBody] PresentCheckin command)
         {
-            var command = new PresentCheckin(Guid.NewGuid(), nameof(PresentCheckin)) { CheckInId = id };
             CheckIn? checkIn = await checkInCommand.ChangeToPresent(command);
-            
             if (checkIn == null)
             {
                 return NotFound();
@@ -78,13 +71,11 @@ namespace CheckInService.Controllers
         }
 
         [HttpPost("")]
-        public IActionResult Post([FromBody] CreateCheckInCommandDTO createCheckInCommand)
+        public async Task<IActionResult> Post([FromBody] CreateCheckInCommandDTO createCheckInCommand)
         {
-            CheckIn checkIn = createCheckInCommand.MapToCheckin();
-
-            checkInRepository.Post(checkIn);
+            await checkInCommand.RegisterCheckin(createCheckInCommand);
             
-            return Ok("Marked check-in ready");
+            return Ok("Checkin has created.");
         }
     }
 }
