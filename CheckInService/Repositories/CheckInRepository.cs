@@ -1,6 +1,8 @@
 ﻿using CheckInService.DBContexts;
 using CheckInService.Models;
 using CheckInService.Queries;
+using Microsoft.AspNetCore.Routing.Patterns;
+using Microsoft.EntityFrameworkCore;
 
 namespace CheckInService.Repositories
 {
@@ -48,7 +50,16 @@ namespace CheckInService.Repositories
 
         public CheckIn? Get(int id)
         {
-            return checkInContextDB.checkIns.Find(id);
+            var jj = checkInContextDB.checkIns.
+                Include(p => p.Appointment.Physician).
+                Include(ppp => ppp.Appointment.Patient)
+                .Where(Patient => Patient.Id == id).First();
+            return jj;
+        }
+
+        public CheckInView GetView(int id)
+        {
+            return checkInContextDB.checkInsView.Find(id);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace RabbitMQ.Messages.Mapper
 {
@@ -10,12 +11,12 @@ namespace RabbitMQ.Messages.Mapper
     {
         public static byte[] Serialize(this object objectToBeSerialized)
         {
-            return System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(objectToBeSerialized);
+            return JsonSerializer.SerializeToUtf8Bytes(objectToBeSerialized);
         }
 
         public static T Deserialize<T>(this byte[] objectToBeSerialize)
         {
-            return System.Text.Json.JsonSerializer.Deserialize<T>(objectToBeSerialize);
+            return JsonSerializer.Deserialize<T>(objectToBeSerialize);
         }
     }
 }
