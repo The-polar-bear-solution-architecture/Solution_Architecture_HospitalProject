@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CheckInService.Migrations
 {
     [DbContext(typeof(CheckInContextDB))]
-    [Migration("20240607151351_create_added_view_correction2")]
-    partial class create_added_view_correction2
+    [Migration("20240616090242_create_view_tables")]
+    partial class create_view_tables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -58,18 +58,21 @@ namespace CheckInService.Migrations
             modelBuilder.Entity("CheckInService.Models.CheckIn", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AppointmentId")
                         .HasColumnType("int");
+
+                    b.Property<string>("SerialNr")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasAlternateKey("SerialNr");
 
                     b.HasIndex("AppointmentId");
 
@@ -113,7 +116,11 @@ namespace CheckInService.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PhysicianFullName")
+                    b.Property<string>("PhysicianFirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhysicianLastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

@@ -21,7 +21,7 @@ namespace CheckInService.CommandsAndEvents.Commands
         {
         }
 
-        public NoShowCheckIn(): base(Guid.NewGuid(), nameof(NoShowCheckIn)) { }
+        public NoShowCheckIn(): base(Guid.NewGuid(), nameof(NoShowCheckIn))
         {
 
         }
