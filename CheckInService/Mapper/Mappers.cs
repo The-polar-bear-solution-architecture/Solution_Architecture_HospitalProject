@@ -48,7 +48,7 @@ namespace CheckInService.Mapper
                     Physician = new Physician()
                     {
                         FirstName = createCheckInCommand.PhysicianFirstName,
-                        LastName = createCheckInCommand.PatientLastName,
+                        LastName = createCheckInCommand.PhysicianLastName,
                         Email = createCheckInCommand.PhysicianEmail
                     }
                 },
@@ -74,12 +74,13 @@ namespace CheckInService.Mapper
             };
         }
 
-        public static PatientCheckinRegistered MapCheckinRegistered(this RegisterCheckin createCheckInCommand, int checkInId, string serialNr)
+        public static CheckInRegistrationEvent MapCheckinRegistered(this RegisterCheckin createCheckInCommand, int checkInId, string serialNr, int apointmentId)
         {
-            return new PatientCheckinRegistered(Guid.NewGuid(), nameof(PatientCheckinRegistered))
+            return new CheckInRegistrationEvent(Guid.NewGuid(), nameof(CheckInRegistrationEvent))
             {
                 CheckInId = checkInId,
                 CheckInSerialNr = serialNr,
+                AppointmentId = apointmentId,
                 ApointmentName = createCheckInCommand.ApointmentName,
                 AppointmentDate = createCheckInCommand.AppointmentDate,
                 PatientId = createCheckInCommand.PatientId,
@@ -93,19 +94,24 @@ namespace CheckInService.Mapper
             };
         }
 
-        public static PatientHasCheckedIn MapToPatientIsPresent(this CheckIn checkIn)
+        public static CheckInPresentEvent MapToPatientIsPresent(this CheckIn checkIn)
         {
-            Console.WriteLine("Change to event");
-            return new PatientHasCheckedIn(Guid.NewGuid(), nameof(PatientHasCheckedIn))
+            return new CheckInPresentEvent(Guid.NewGuid(), nameof(CheckInPresentEvent))
             {
                 CheckInId = checkIn.Id,
-                Status = checkIn.Status,
-                PatientFirstName = checkIn.Appointment.Patient.FirstName,
-                PatientLastName = checkIn.Appointment.Patient.LastName,
-                PhysicianFirstName = checkIn.Appointment.Physician.FirstName,
-                PhysicianLastName = checkIn.Appointment.Physician.LastName,
-                PhysicianEmail = checkIn.Appointment.Physician.Email,
+                CheckInSerialNr = checkIn.SerialNr,
+                Status = checkIn.Status
             };
-        } 
+        }
+
+        public static CheckInNoShowEvent MapPatientNoShow(this CheckIn checkIn)
+        {
+            return new CheckInNoShowEvent(Guid.NewGuid(), nameof(CheckInNoShowEvent))
+            {
+                CheckInId = checkIn.Id,
+                CheckInSerialNr = checkIn.SerialNr,
+                Status = checkIn.Status
+            };
+        }
     }
 }

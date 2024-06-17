@@ -48,12 +48,12 @@ namespace CheckInService.Repositories
             return checkInContextDB.checkInsView.AsEnumerable();
         }
 
-        public CheckIn? Get(int id)
+        public CheckIn? Get(string serialNumber)
         {
             var jj = checkInContextDB.checkIns.
                 Include(p => p.Appointment.Physician).
                 Include(ppp => ppp.Appointment.Patient)
-                .Where(Patient => Patient.Id == id).First();
+                .Where(Patient => Patient.SerialNr.Equals(serialNumber)).First();
             return jj;
         }
 
