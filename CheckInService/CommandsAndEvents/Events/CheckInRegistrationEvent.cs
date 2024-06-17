@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CheckInService.CommandsAndEvents.Events
 {
-    public class PatientCheckinRegistered : Event
+    public class CheckInRegistrationEvent : Event
     {
         public int CheckInId { get; init; }
         public string CheckInSerialNr { get; init; }
@@ -31,21 +31,19 @@ namespace CheckInService.CommandsAndEvents.Events
         [Required]
         public string PhysicianEmail { get; init; }
 
-        public static string MessageStream = nameof(CheckIn);
-
-        public PatientCheckinRegistered()
+        public CheckInRegistrationEvent(): base(Guid.NewGuid(), nameof(CheckInRegistrationEvent))
         {
         }
 
-        public PatientCheckinRegistered(Guid messageId) : base(messageId)
+        public CheckInRegistrationEvent(Guid messageId) : base(messageId)
         {
         }
 
-        public PatientCheckinRegistered(string messageType) : base(messageType)
+        public CheckInRegistrationEvent(string messageType) : base(messageType)
         {
         }
 
-        public PatientCheckinRegistered(Guid messageId, string messageType) : base(messageId, messageType)
+        public CheckInRegistrationEvent(Guid messageId, string messageType) : base(messageId, messageType)
         {
         }
     }

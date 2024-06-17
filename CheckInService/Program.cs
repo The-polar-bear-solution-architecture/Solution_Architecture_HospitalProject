@@ -5,6 +5,7 @@ using CheckInService.Repositories;
 using EventStore.Client;
 using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Messages.Configuration;
+using RabbitMQ.Messages.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,21 +20,23 @@ string CheckInDB = builder.Configuration.GetConnectionString("CheckInDB");
 string eventSourceConnection = builder.Configuration.GetConnectionString("EventSourceDB");
 
 //-|| Regular database || Configuration
-builder.Services.AddDbContext<CheckInContextDB>(options => options.UseSqlServer(CheckInDB));
+builder.Services.AddDbContext<CheckInContextDB>(options => options.UseSqlServer(CheckInDB), ServiceLifetime.Singleton);
 var settings = EventStoreClientSettings.Create(eventSourceConnection);
 var client = new EventStoreClient(settings);
 
 // Service via dependency injection
-builder.Services.AddScoped<CheckInRepository, CheckInRepository>();
-builder.Services.AddScoped<AppointmentRepository, AppointmentRepository>();
-builder.Services.AddScoped<PhysicianRepo, PhysicianRepo>();
-builder.Services.AddScoped<PatientRepo, PatientRepo>();
-builder.Services.AddScoped<CheckInCommandHandler, CheckInCommandHandler>();
+builder.Services.AddTransient<CheckInRepository, CheckInRepository>();
+builder.Services.AddTransient<AppointmentRepository, AppointmentRepository>();
+builder.Services.AddTransient<PhysicianRepo, PhysicianRepo>();
+builder.Services.AddTransient<PatientRepo, PatientRepo>();
+builder.Services.AddTransient<CheckInCommandHandler, CheckInCommandHandler>();
+builder.Services.AddTransient<EventStoreRepository, EventStoreRepository>();
+builder.Services.AddTransient<ReplayHandler, ReplayHandler>();
 
 // Use rabbitMQ Publisher
 builder.Services.UseRabbitMQMessagePublisher(builder.Configuration);
-
 builder.Services.UseRabbitMQMessageHandler(builder.Configuration);
+
 builder.Services.AddHostedService<CheckInWorker>();
 builder.Services.AddSingleton<EventStoreClient>(client);
 

@@ -5,8 +5,10 @@ using CheckInService.Mapper;
 using CheckInService.Models;
 using CheckInService.Models.DTO;
 using CheckInService.Repositories;
+using EventStore.Client;
 using Microsoft.AspNetCore.Mvc;
 using RabbitMQ.Messages.Interfaces;
+using RabbitMQ.Messages.Mapper;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -34,10 +36,10 @@ namespace CheckInService.Controllers
         }
 
         // GET api/<CheckInController>/5
-        [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        [HttpGet("{serialNr}")]
+        public IActionResult Get(string serialNr)
         {
-            var checkIn = checkInRepository.Get(id);
+            var checkIn = checkInRepository.Get(serialNr);
             if(checkIn == null)
             {
                 return BadRequest("CheckIn not found");
@@ -46,9 +48,12 @@ namespace CheckInService.Controllers
         }
 
         // PUT api/<CheckInController>/5
-        [HttpPut("{id}/MarkNoShow")]
-        public async Task<IActionResult> PutNoShow(int id, [FromBody] NoShowCheckIn command)
+        [HttpPut("{serialNr}/MarkNoShow")]
+        public async Task<IActionResult> PutNoShow(string serialNr)
         {
+            NoShowCheckIn command = new NoShowCheckIn() { 
+                CheckInSerialNr = serialNr, Status = Status.NOSHOW
+            };
             CheckIn? checkIn = await checkInCommand.ChangeToNoShow(command);
             if (checkIn == null)
             {
@@ -58,9 +63,10 @@ namespace CheckInService.Controllers
             return Ok("Marked appointment as noshow");
         }
 
-        [HttpPut("{id}/MarkPresent")]
-        public async Task<IActionResult> PutPresentAsync(int id, [FromBody] PresentCheckin command)
+        [HttpPut("{serialNr}/MarkPresent")]
+        public async Task<IActionResult> PutPresentAsync(string serialNr)
         {
+            PresentCheckin command = new PresentCheckin() { CheckInSerialNr = serialNr, Status = Status.PRESENT };
             CheckIn? checkIn = await checkInCommand.ChangeToPresent(command);
             if (checkIn == null)
             {
@@ -68,14 +74,6 @@ namespace CheckInService.Controllers
             }
 
             return Ok("Marked check-in ready");
-        }
-
-        [HttpPost("")]
-        public async Task<IActionResult> Post([FromBody] CreateCheckInCommandDTO createCheckInCommand)
-        {
-            await checkInCommand.RegisterCheckin(createCheckInCommand);
-            
-            return Ok("Checkin has created.");
         }
     }
 }
