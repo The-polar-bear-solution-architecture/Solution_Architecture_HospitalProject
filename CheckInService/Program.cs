@@ -51,6 +51,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// auto migrate db
+using (var scope = app.Services.CreateScope())
+{
+    Console.WriteLine("Start migrations Checkin service.");
+    var db = scope.ServiceProvider.GetService<CheckInContextDB>();
+    // Will perform a migration when booting up the api.
+    db.MigrateDB();
+    Console.WriteLine("Ended migrations Checkin service.");
+}
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
