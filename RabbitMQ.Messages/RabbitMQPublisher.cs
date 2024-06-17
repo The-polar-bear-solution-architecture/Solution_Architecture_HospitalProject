@@ -3,13 +3,6 @@ using RabbitMQ.Client;
 using RabbitMQ.Messages;
 using RabbitMQ.Messages.Interfaces;
 using RabbitMQ.Messages.Mapper;
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Threading.Channels;
-using System.Threading.Tasks;
 
 namespace RabbitMQ.Infrastructure.MessagePublishers
 {
@@ -22,9 +15,7 @@ namespace RabbitMQ.Infrastructure.MessagePublishers
         public IConnection Connection { get; set; }
         public IModel Model { get; set; }
 
-        private const int DEFAULT_PORT = 5672;
-        private const string DEFAULT_VIRTUAL_HOST = "/";
-
+        private readonly string _the_host;
         private readonly List<string> _hosts;
         private readonly string _virtualHost;
         private readonly int _port;
@@ -32,29 +23,16 @@ namespace RabbitMQ.Infrastructure.MessagePublishers
         private readonly string _password;
         private readonly string _exchange;
 
-        public RabbitMQPublisher(string exchange, string host,  int port)
+        public RabbitMQPublisher(string host, string exchange, int port, string virtual_host)
         {
+            _the_host = host;
             _hosts = new List<string>()
             {
                 host
             };
+            _virtualHost = virtual_host;
             _port = port;
             _exchange = exchange;
-            Connect();
-        }
-
-        public RabbitMQPublisher(string exchange)
-        {
-            _exchange = exchange;
-            _port = DEFAULT_PORT;
-            _hosts = new List<string>()
-            {
-                "localhost"
-            };
-            _virtualHost = DEFAULT_VIRTUAL_HOST;
-            _username = "";
-            _password = "";
-            Console.WriteLine($"Exchange {_exchange}, port is {DEFAULT_PORT}, virt {DEFAULT_VIRTUAL_HOST}, username is {_username}");
             Connect();
         }
 
@@ -81,7 +59,7 @@ namespace RabbitMQ.Infrastructure.MessagePublishers
                 .WaitAndRetry(9, r => TimeSpan.FromSeconds(5), (ex, ts) => { Console.Error.WriteLine("Error connecting to RabbitMQ. Retrying in 5 sec."); })
                 .Execute(() =>
                 {
-                    var factory = new ConnectionFactory() { HostName = "localhost" };
+                    var factory = new ConnectionFactory() { HostName = _the_host, UserName = "guest", Password = "guest", Port=_port};
                     factory.AutomaticRecoveryEnabled = true;
                     Connection = factory.CreateConnection();
                     Model = Connection.CreateModel();

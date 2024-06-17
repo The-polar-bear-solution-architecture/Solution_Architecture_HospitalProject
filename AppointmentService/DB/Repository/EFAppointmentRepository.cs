@@ -14,16 +14,19 @@ namespace AppointmentService.DB.Repository
             this.context = context;
         }
 
-        public void AddAppointment(Appointment appointment)
+        public Appointment AddAppointment(Appointment appointment)
         {
             context.Appointments.Add(appointment);
             context.SaveChanges();
+            return appointment;
         }
 
-        public void DeleteAppointment(int id)
+        public Appointment DeleteAppointment(int id)
         {
-            context.Remove(GetAppointmentById(id));
+            var appointment = GetAppointmentById(id);
+            context.Remove(appointment);
             context.SaveChanges();
+            return appointment;
         }
 
         public IEnumerable<Appointment> GetAllAppointments()
@@ -36,13 +39,14 @@ namespace AppointmentService.DB.Repository
             return context.Appointments.Include(c => c.Patient).Include(c => c.Physician).Include(c => c.PreviousAppointment).Include(c => c.Patient.GP).Where(a => a.Id == id).FirstOrDefault(); 
         }
 
-        public void UpdateAppointment(Appointment appointment)
+        public Appointment UpdateAppointment(Appointment appointment)
         {
             //var edit = GetAppointmentById(appointment.Id);
             context.Update(appointment);
             //context.Update(edit);
             //edit = appointment;
             context.SaveChanges();
+            return appointment;
         }
     }
 }

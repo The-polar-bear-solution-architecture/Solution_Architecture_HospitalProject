@@ -1,0 +1,120 @@
+version: '3.4'
+
+services:
+  dockerdemo:
+    container_name: dockerdemo
+    ports:
+    - 8040:443
+    image: localhost:5000/dockerdemo
+    build:
+      context: .
+      dockerfile: DockerDemo/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=test
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ~/.aspnet/https:/https:ro
+
+  eventstoredemo:
+    container_name: evenstoredemo
+    ports:
+      - 8041:443
+    image: localhost:5000/eventstoredemo
+    build:
+      context: .
+      dockerfile: WebApplication1/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=test
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ~/.aspnet/https:/https:ro
+
+
+  checkinservice:
+    ports:
+      - 8042:443
+    container_name: checkinservice
+    image: localhost:5000/checkinservice
+    build:
+      context: .
+      dockerfile: CheckInService/Dockerfile
+    depends_on:
+    - eventstore.db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=test
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ~/.aspnet/https:/https:ro
+
+  rabbitmq.messages:
+    container_name: rabbitmqmessages
+    ports:
+      - 8043:443
+    image: localhost:5000/rabbitmqmessages
+    build:
+      context: .
+      dockerfile: RabbitMQ.Messages/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=test
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ~/.aspnet/https:/https:ro
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    hostname: "rabbit"
+    ports:
+    - 5672:5672
+    - 15672:15672 
+
+  mssql:
+    container_name: sql
+    hostname: sql
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Testerino@8"
+    ports:
+      - 1433:1433
+    volumes:
+      - sql:/var/opt/mssql
+  
+  eventstore.db:
+    image: eventstore/eventstore:release-v5
+    environment:
+      - EVENTSTORE_CLUSTER_SIZE=1
+      - EVENTSTORE_RUN_PROJECTIONS=All
+      - EVENTSTORE_START_STANDARD_PROJECTIONS=True
+      - EVENTSTORE_DB=/var/lib/eventstore-data
+      - EVENTSTORE_INDEX=/var/lib/eventstore-index
+      - EVENTSTORE_LOG=/var/log/eventstore
+      - EVENTSTORE_EXT_TCP_PORT=1113
+      - EVENTSTORE_EXT_HTTP_PORT=2113
+    ports:
+      - "1113:1113"
+      - "2113:2113"
+    volumes:
+      - type: volume
+        source: eventstore-volume-data
+        target: /var/lib/eventstore-data
+      - type: volume
+        source: eventstore-volume-index
+        target: /var/lib/eventstore-index
+      - type: volume
+        source: eventstore-volume-logs
+        target: /var/log/eventstore
+
+volumes:
+  sql:
+  eventstore-volume-data:
+  eventstore-volume-index:
+  eventstore-volume-logs:  

@@ -21,20 +21,22 @@ namespace RabbitMQ.Messages.Configuration
         private static string _queue;
         private static string _routingKey;
         private static int _port;
+        private static string _virtualHost;
+
         private static List<string> _errors;
         private static bool _isValid;
 
         public static void UseRabbitMQMessageHandler(this IServiceCollection services, IConfiguration config)
         {
             GetRabbitMQSettings(config, "RabbitMQHandler");
-            services.AddTransient<IReceiver>(_ => new RabbitMQReceiver(_host, _exchange, _queue, _routingKey));
+            services.AddTransient<IReceiver>(_ => new RabbitMQReceiver(_host, _exchange, _queue, _routingKey, _port, _virtualHost));
         }
 
         public static void UseRabbitMQMessagePublisher(this IServiceCollection services, IConfiguration config)
         {
             GetRabbitMQSettings(config, "RabbitMQPublisher");
             // Makes this service available for dependency injection.
-            services.AddTransient<IPublisher>(_ => new RabbitMQPublisher(_exchange));
+            services.AddTransient<IPublisher>(_ => new RabbitMQPublisher(_host, _exchange, _port, _virtualHost));
         }
 
         private static void GetRabbitMQSettings(IConfiguration config, string sectionName)
@@ -50,6 +52,7 @@ namespace RabbitMQ.Messages.Configuration
 
             // get configuration settings
             DetermineHost(configSection);
+            DetermineVirtualHost(configSection);
             DeterminePort(configSection);
             DetermineExchange(configSection);
 
@@ -116,6 +119,19 @@ namespace RabbitMQ.Messages.Configuration
             {
                 _isValid = false;
                 _errors.Add("Required config-setting 'Queue' not found.");
+            }
+        }
+
+        private static void DetermineVirtualHost(IConfigurationSection configSection)
+        {
+            string vhostSetting = configSection["VirtualHost"];
+            if (string.IsNullOrEmpty(vhostSetting))
+            {
+                _virtualHost = DEFAULT_VIRTUAL_HOST;
+            }
+            else
+            {
+                _virtualHost = configSection["VirtualHost"];
             }
         }
 

@@ -5,7 +5,7 @@
 namespace CheckInService.Migrations
 {
     /// <inheritdoc />
-    public partial class create_view : Migration
+    public partial class create_view_tables : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

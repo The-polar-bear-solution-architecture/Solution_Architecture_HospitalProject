@@ -6,6 +6,7 @@ namespace CheckInService.CommandsAndEvents.Commands
     public class NoShowCheckIn : Command
     {
         public int CheckInId { get; init; }
+        public string CheckInSerialNr { get; init; }
         public Status Status { get; init; } = Status.NOSHOW;
 
         public NoShowCheckIn(Guid messageId) : base(messageId)
@@ -20,7 +21,7 @@ namespace CheckInService.CommandsAndEvents.Commands
         {
         }
 
-        public NoShowCheckIn()
+        public NoShowCheckIn(): base(Guid.NewGuid(), nameof(NoShowCheckIn))
         {
 
         }

@@ -20,8 +20,8 @@ namespace CheckInService.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            publisher.SendMessage("Yo", "Welkom wereld. Dit is een wereld", "Appointments_Checkin");
-            return new string[] { "value1", "value2" };
+            // publisher.SendMessage("Yo", "Welkom wereld. Dit is een wereld", "Appointments_Checkin");
+            return new string[] { Guid.NewGuid().ToString() };
         }
     }
 }

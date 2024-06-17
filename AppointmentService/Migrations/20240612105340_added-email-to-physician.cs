@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace CheckInService.Migrations
+namespace AppointmentService.Migrations
 {
     /// <inheritdoc />
-    public partial class create_checkin_2 : Migration
+    public partial class addedemailtophysician : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

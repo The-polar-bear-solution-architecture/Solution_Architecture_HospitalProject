@@ -6,6 +6,7 @@ namespace CheckInService.CommandsAndEvents.Commands
     public class ChangeCheckInCommand : Command
     {
         public int CheckInId { get; init; }
+        public string CheckInSerialNr { get; init; }
         public Status Status { get; init; }
 
         public ChangeCheckInCommand(Guid messageId) : base(messageId)

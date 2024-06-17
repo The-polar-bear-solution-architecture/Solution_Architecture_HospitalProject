@@ -63,10 +63,16 @@ namespace CheckInService.Migrations
                     b.Property<int>("AppointmentId")
                         .HasColumnType("int");
 
+                    b.Property<string>("SerialNr")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasAlternateKey("SerialNr");
 
                     b.HasIndex("AppointmentId");
 

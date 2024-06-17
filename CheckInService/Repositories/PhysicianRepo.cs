@@ -40,7 +40,7 @@ namespace CheckInService.Repositories
             try
             {
                 checkInContextDB.Update(entity);
-                checkInContextDB.SaveChangesAsync().Wait();
+                checkInContextDB.SaveChanges();
             }
             catch
             {

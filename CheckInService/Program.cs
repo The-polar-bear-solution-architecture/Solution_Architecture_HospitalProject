@@ -2,6 +2,7 @@ using CheckInService.CommandHandlers;
 using CheckInService.Controllers;
 using CheckInService.DBContexts;
 using CheckInService.Repositories;
+using EventStore.Client;
 using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Messages.Configuration;
 
@@ -15,8 +16,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 string CheckInDB = builder.Configuration.GetConnectionString("CheckInDB");
+string eventSourceConnection = builder.Configuration.GetConnectionString("EventSourceDB");
+
 //-|| Regular database || Configuration
 builder.Services.AddDbContext<CheckInContextDB>(options => options.UseSqlServer(CheckInDB));
+var settings = EventStoreClientSettings.Create(eventSourceConnection);
+var client = new EventStoreClient(settings);
 
 // Service via dependency injection
 builder.Services.AddScoped<CheckInRepository, CheckInRepository>();
@@ -30,6 +35,9 @@ builder.Services.UseRabbitMQMessagePublisher(builder.Configuration);
 
 builder.Services.UseRabbitMQMessageHandler(builder.Configuration);
 builder.Services.AddHostedService<CheckInWorker>();
+builder.Services.AddSingleton<EventStoreClient>(client);
+
+
 
 var app = builder.Build();
 
