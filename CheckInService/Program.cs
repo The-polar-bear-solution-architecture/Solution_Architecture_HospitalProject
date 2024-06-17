@@ -16,6 +16,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 string CheckInDB = builder.Configuration.GetConnectionString("CheckInDB");
+Console.WriteLine(CheckInDB);
 string eventSourceConnection = builder.Configuration.GetConnectionString("EventSourceDB");
 
 //-|| Regular database || Configuration

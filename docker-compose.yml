@@ -42,8 +42,6 @@ services:
     build:
       context: .
       dockerfile: CheckInService/Dockerfile
-    depends_on:
-    - eventstore.db
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
@@ -82,39 +80,11 @@ services:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "Testerino@8"
+      MSSQL_SA_PASSWORD: "Rick@Sanchez"
     ports:
       - 1433:1433
     volumes:
       - sql:/var/opt/mssql
-  
-  eventstore.db:
-    image: eventstore/eventstore:release-v5
-    environment:
-      - EVENTSTORE_CLUSTER_SIZE=1
-      - EVENTSTORE_RUN_PROJECTIONS=All
-      - EVENTSTORE_START_STANDARD_PROJECTIONS=True
-      - EVENTSTORE_DB=/var/lib/eventstore-data
-      - EVENTSTORE_INDEX=/var/lib/eventstore-index
-      - EVENTSTORE_LOG=/var/log/eventstore
-      - EVENTSTORE_EXT_TCP_PORT=1113
-      - EVENTSTORE_EXT_HTTP_PORT=2113
-    ports:
-      - "1113:1113"
-      - "2113:2113"
-    volumes:
-      - type: volume
-        source: eventstore-volume-data
-        target: /var/lib/eventstore-data
-      - type: volume
-        source: eventstore-volume-index
-        target: /var/lib/eventstore-index
-      - type: volume
-        source: eventstore-volume-logs
-        target: /var/log/eventstore
 
 volumes:
   sql:
-  eventstore-volume-data:
-  eventstore-volume-index:
-  eventstore-volume-logs:  
