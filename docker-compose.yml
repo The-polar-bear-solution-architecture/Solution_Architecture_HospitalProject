@@ -34,6 +34,7 @@ services:
       - ~/.aspnet/https:/https:ro
 
   eventstoredb:
+    container_name: CannonEvents
     image: eventstore/eventstore:latest
     environment:
       - EVENTSTORE_INSECURE=true 
