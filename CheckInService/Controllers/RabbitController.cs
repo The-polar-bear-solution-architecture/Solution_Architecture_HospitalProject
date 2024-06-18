@@ -17,11 +17,17 @@ namespace CheckInService.Controllers
         }
 
         // GET: api/<RabbitController>
-        [HttpGet]
+        [HttpGet(Name = "Rabbit")]
         public IEnumerable<string> Get()
         {
+            string guid_string = "52c24165-be89-4001-8455-09d678cea45e";
+
+            Console.WriteLine(guid_string);
+
+            Guid.TryParse(guid_string, out var guid);
+
             // publisher.SendMessage("Yo", "Welkom wereld. Dit is een wereld", "Appointments_Checkin");
-            return new string[] { Guid.NewGuid().ToString() };
+            return new string[] { guid.ToString() };
         }
     }
 }

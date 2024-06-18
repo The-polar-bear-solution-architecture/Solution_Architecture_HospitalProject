@@ -37,7 +37,7 @@ namespace CheckInService.Controllers
 
         // GET api/<CheckInController>/5
         [HttpGet("{serialNr}")]
-        public IActionResult Get(string serialNr)
+        public IActionResult Get(Guid serialNr)
         {
             var checkIn = checkInRepository.Get(serialNr);
             if(checkIn == null)
@@ -49,7 +49,7 @@ namespace CheckInService.Controllers
 
         // PUT api/<CheckInController>/5
         [HttpPut("{serialNr}/MarkNoShow")]
-        public async Task<IActionResult> PutNoShow(string serialNr)
+        public async Task<IActionResult> PutNoShow(Guid serialNr)
         {
             NoShowCheckIn command = new NoShowCheckIn() { 
                 CheckInSerialNr = serialNr, Status = Status.NOSHOW
@@ -64,7 +64,7 @@ namespace CheckInService.Controllers
         }
 
         [HttpPut("{serialNr}/MarkPresent")]
-        public async Task<IActionResult> PutPresentAsync(string serialNr)
+        public async Task<IActionResult> PutPresentAsync(Guid serialNr)
         {
             PresentCheckin command = new PresentCheckin() { CheckInSerialNr = serialNr, Status = Status.PRESENT };
             CheckIn? checkIn = await checkInCommand.ChangeToPresent(command);

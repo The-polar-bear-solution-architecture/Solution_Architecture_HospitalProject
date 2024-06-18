@@ -95,7 +95,7 @@ namespace CheckInService.Mapper
             };
         }
 
-        public static CheckInRegistrationEvent MapCheckinRegistered(this RegisterCheckin createCheckInCommand, int checkInId, string serialNr, int apointmentId)
+        public static CheckInRegistrationEvent MapCheckinRegistered(this RegisterCheckin createCheckInCommand, int checkInId, Guid serialNr, int apointmentId)
         {
             var apppointment_guid = createCheckInCommand.AppointmentGuid;
             var physician_guid = createCheckInCommand.PhysicianGuid;

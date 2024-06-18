@@ -6,7 +6,7 @@ namespace CheckInService.CommandsAndEvents.Events
     public class CheckInNoShowEvent : Event
     {
         public int CheckInId { get; init; }
-        public string CheckInSerialNr { get; init; }
+        public Guid CheckInSerialNr { get; init; }
         public Status Status { get; init; } = Status.NOSHOW;
 
         public CheckInNoShowEvent(): base(Guid.NewGuid(), nameof(CheckInPresentEvent))

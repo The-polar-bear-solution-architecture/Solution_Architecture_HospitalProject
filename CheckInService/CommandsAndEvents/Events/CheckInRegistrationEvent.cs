@@ -8,7 +8,7 @@ namespace CheckInService.CommandsAndEvents.Events
     public class CheckInRegistrationEvent : Event
     {
         public int CheckInId { get; init; }
-        public string CheckInSerialNr { get; init; }
+        public Guid CheckInSerialNr { get; init; }
         public Status Status { get; init; } = Status.AWAIT;
 
         [Required]

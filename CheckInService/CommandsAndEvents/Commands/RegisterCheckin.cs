@@ -8,7 +8,7 @@ namespace CheckInService.CommandsAndEvents.Commands
     public class RegisterCheckin: Command
     {
         public int CheckInId { get; init; }
-        public string CheckinSerialNr { get; init; } = Guid.NewGuid().ToString();
+        public Guid CheckinSerialNr { get; init; } = Guid.NewGuid();
         public Status Status { get; init; } = Status.AWAIT;
 
         // Alleen Gebruikt.

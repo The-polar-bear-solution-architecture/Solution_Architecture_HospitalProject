@@ -6,7 +6,7 @@ namespace CheckInService.CommandsAndEvents.Commands
     public class PresentCheckin : Command
     {
         public int CheckInId { get; init; }
-        public string CheckInSerialNr { get; init; }
+        public Guid CheckInSerialNr { get; init; }
         public Status Status { get; init; } = Status.PRESENT;
 
         public PresentCheckin(Guid messageId) : base(messageId)

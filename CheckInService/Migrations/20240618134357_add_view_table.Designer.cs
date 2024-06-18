@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CheckInService.Migrations
 {
     [DbContext(typeof(CheckInContextDB))]
-    [Migration("20240618124249_corrected_ids")]
-    partial class corrected_ids
+    [Migration("20240618134357_add_view_table")]
+    partial class add_view_table
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -69,9 +69,8 @@ namespace CheckInService.Migrations
                     b.Property<int>("AppointmentId")
                         .HasColumnType("int");
 
-                    b.Property<string>("SerialNr")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("SerialNr")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
