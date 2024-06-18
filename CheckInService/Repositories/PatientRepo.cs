@@ -22,6 +22,19 @@ namespace CheckInService.Repositories
             return checkInContextDB.Patients.Find(id);
         }
 
+        public Patient? Get(Guid guid)
+        {
+            try
+            {
+                return checkInContextDB.Patients.Where(p => p.PatientSerialNr.Equals(guid)).First();
+            }
+            catch
+            {
+                Console.WriteLine("Patient is not found");
+                return null;
+            }
+        }
+
         public void Post(Patient entity)
         {
             try
@@ -46,6 +59,11 @@ namespace CheckInService.Repositories
             {
                 Console.WriteLine("");
             }
+        }
+
+        public void Delete(Guid guid)
+        {
+
         }
     }
 }

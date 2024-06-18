@@ -60,6 +60,10 @@ services:
     build:
       context: .
       dockerfile: CheckInService/Dockerfile
+    depends_on:
+      - mssql
+      - eventstoredb
+      - rabbitmq
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
