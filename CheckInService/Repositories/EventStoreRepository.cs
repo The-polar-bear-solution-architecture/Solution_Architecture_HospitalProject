@@ -2,6 +2,7 @@
 using EventStore.Client;
 using RabbitMQ.Messages.Mapper;
 using RabbitMQ.Messages.Messages;
+using System.Collections.Specialized;
 
 namespace CheckInService.Repositories
 {
@@ -13,14 +14,13 @@ namespace CheckInService.Repositories
         public EventStoreRepository(EventStoreClient eventStore)
         {
             this.eventStore = eventStore;
-            Collection = nameof(CheckIn);
         }
 
-        public async Task StoreMessage(string MessageType, Message command)
+        public async Task StoreMessage(String collection, string MessageType, Message command)
         {
             byte[] data = command.Serialize();
             var eventData = new EventData(Uuid.NewUuid(), MessageType, data);
-            await eventStore.AppendToStreamAsync(Collection, StreamState.Any, [eventData]);
+            await eventStore.AppendToStreamAsync(collection, StreamState.Any, [eventData]);
         }
     }
 }

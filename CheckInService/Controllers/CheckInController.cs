@@ -1,6 +1,7 @@
 ﻿using CheckinService.Model;
 using CheckInService.CommandHandlers;
-using CheckInService.CommandsAndEvents.Commands;
+using CheckInService.CommandsAndEvents.Commands.Appointment;
+using CheckInService.CommandsAndEvents.Commands.CheckIn;
 using CheckInService.Mapper;
 using CheckInService.Models;
 using CheckInService.Models.DTO;
@@ -74,6 +75,16 @@ namespace CheckInService.Controllers
             }
 
             return Ok("Marked check-in ready");
+        }
+
+        [HttpPut("{serialNr}")]
+        public async Task<IActionResult> DeleteAppointment(Guid serialNr)
+        {
+            AppointmentDeleteCommand command = new AppointmentDeleteCommand() { AppointmentSerialNr = serialNr };
+            
+            await checkInCommand.DeleteAppointment(command);
+
+            return Ok("Appointment deleted.");
         }
     }
 }

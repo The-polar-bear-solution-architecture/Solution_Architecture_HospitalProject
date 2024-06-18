@@ -1,6 +1,7 @@
 ﻿using CheckinService.Model;
-using CheckInService.CommandsAndEvents.Commands;
-using CheckInService.CommandsAndEvents.Events;
+using CheckInService.CommandsAndEvents.Commands.Appointment;
+using CheckInService.CommandsAndEvents.Commands.CheckIn;
+using CheckInService.CommandsAndEvents.Events.CheckIn;
 using CheckInService.Mapper;
 using CheckInService.Models;
 using CheckInService.Models.DTO;
@@ -72,8 +73,8 @@ namespace CheckInService.CommandHandlers
 
             // Checkin registration event.
             var RegisterEvent  = command.MapCheckinRegistered(checkIn.Id, checkIn.SerialNr, checkIn.Appointment.Id);
-            await eventStoreRepository.StoreMessage(RegisterEvent.MessageType, RegisterEvent);
-            Console.WriteLine($"Type of event is {RegisterEvent.MessageType}");
+            await eventStoreRepository.StoreMessage(nameof(CheckIn), RegisterEvent.MessageType, RegisterEvent);
+
             // Send event to Notification service
             Console.WriteLine("Important: Send to notification service so user will receive message evening before Appointment");
 
@@ -100,7 +101,7 @@ namespace CheckInService.CommandHandlers
             var NoShowEvent = checkIn.MapPatientNoShow();
 
             // Add event to event store.
-            await eventStoreRepository.StoreMessage(NoShowEvent.MessageType, NoShowEvent);
+            await eventStoreRepository.StoreMessage(nameof(CheckIn), NoShowEvent.MessageType, NoShowEvent);
 
             return checkIn;
         }
@@ -130,7 +131,7 @@ namespace CheckInService.CommandHandlers
             var PresentEvent = checkIn.MapToPatientIsPresent();
 
             // Add event to event store.
-            await eventStoreRepository.StoreMessage(PresentEvent.MessageType, PresentEvent);
+            await eventStoreRepository.StoreMessage(nameof(CheckIn), PresentEvent.MessageType, PresentEvent);
 
             // Send notification to physician.
             Console.WriteLine(checkIn);
@@ -142,6 +143,46 @@ namespace CheckInService.CommandHandlers
             return checkIn;
         }
 
+        public async Task UpdateAppointment(AppointmentUpdateCommand appointmentUpdateCommand)
+        {
+            Appointment? appointment = appointmentRepository.Get(appointmentUpdateCommand.AppointmentSerialNr);
+            if (appointment == null)
+            {
+                return;
+            }
+            Console.WriteLine("Appointment is found");
 
+            appointment.AppointmentDate = appointmentUpdateCommand.AppointmentDate;
+            appointment.Name = appointmentUpdateCommand.AppointmentName;
+            
+            var retrieved_physician = physicianRepo.Get(appointmentUpdateCommand.PhysicianSerialNr);
+            // Will only change physician of appointment if it exists or is a different one then currently assigned to the appointment.
+            if (retrieved_physician != null && !retrieved_physician.PhysicianSerialNr.Equals(appointmentUpdateCommand.PhysicianSerialNr))
+            {
+                appointment.Physician = retrieved_physician;
+            }
+            // Update appointment
+            appointmentRepository.Put(appointment);
+
+            // Store event into event store database
+            Event updateEvent = appointmentUpdateCommand.MapToUpdatedEvent();
+            await eventStoreRepository.StoreMessage(nameof(CheckIn), updateEvent.MessageType, updateEvent);
+        }
+
+        public async Task DeleteAppointment(AppointmentDeleteCommand appointmentDeleteCommand)
+        {
+            Appointment? appointment = appointmentRepository.Get(appointmentDeleteCommand.AppointmentSerialNr);
+            if (appointment == null)
+            {
+                return;
+            }
+
+            // Delete appointment.
+            appointmentRepository.Delete(appointmentDeleteCommand.CheckInSerialNr);
+
+            // Store event into event store database
+            // Event updateEvent = appointmentDeleteCommand.MapToAppointmentDeleted();
+            // await eventStoreRepository.StoreMessage(nameof(CheckIn), updateEvent.MessageType, updateEvent);
+        }
     }
 }

@@ -14,8 +14,8 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using CheckInService.DBContexts;
 using Microsoft.EntityFrameworkCore;
 using CheckInService.CommandHandlers;
-using CheckInService.CommandsAndEvents.Events;
 using Event = RabbitMQ.Messages.Messages.Event;
+using CheckInService.CommandsAndEvents.Events.CheckIn;
 
 namespace CheckInService.Controllers
 {

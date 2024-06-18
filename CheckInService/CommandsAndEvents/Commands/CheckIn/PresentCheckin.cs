@@ -1,7 +1,7 @@
 ﻿using CheckinService.Model;
 using RabbitMQ.Messages.Messages;
 
-namespace CheckInService.CommandsAndEvents.Commands
+namespace CheckInService.CommandsAndEvents.Commands.CheckIn
 {
     public class PresentCheckin : Command
     {

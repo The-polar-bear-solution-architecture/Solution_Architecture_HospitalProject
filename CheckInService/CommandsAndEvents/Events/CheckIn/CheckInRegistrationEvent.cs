@@ -3,27 +3,28 @@ using CheckInService.Models;
 using RabbitMQ.Messages.Messages;
 using System.ComponentModel.DataAnnotations;
 
-namespace CheckInService.CommandsAndEvents.Commands
+namespace CheckInService.CommandsAndEvents.Events.CheckIn
 {
-    public class RegisterCheckin: Command
+    public class CheckInRegistrationEvent : Event
     {
         public int CheckInId { get; init; }
-        public Guid CheckinSerialNr { get; init; } = Guid.NewGuid();
+        public Guid CheckInSerialNr { get; init; }
         public Status Status { get; init; } = Status.AWAIT;
-
-        // Alleen Gebruikt.
-        public Guid AppointmentGuid { get; init; } = Guid.NewGuid();
 
         [Required]
         public int AppointmentId { get; init; }
+
+        [Required]
+        public Guid AppointmentGuid { get; init; }
+
         public string ApointmentName { get; init; }
         public DateTime AppointmentDate { get; init; }
 
         [Required]
         public int PatientId { get; init; }
 
-        public Guid PatientGuid { get; init; } = Guid.NewGuid();
-        public Guid PhysicianGuid { get; init; } = Guid.NewGuid();
+        public Guid PatientGuid { get; init; }
+        public Guid PhysicianGuid { get; init; }
 
         [Required]
         public string PatientFirstName { get; init; }
@@ -38,19 +39,19 @@ namespace CheckInService.CommandsAndEvents.Commands
         [Required]
         public string PhysicianEmail { get; init; }
 
-        public RegisterCheckin()
+        public CheckInRegistrationEvent() : base(Guid.NewGuid(), nameof(CheckInRegistrationEvent))
         {
         }
 
-        public RegisterCheckin(Guid messageId) : base(messageId)
+        public CheckInRegistrationEvent(Guid messageId) : base(messageId)
         {
         }
 
-        public RegisterCheckin(string messageType) : base(messageType)
+        public CheckInRegistrationEvent(string messageType) : base(messageType)
         {
         }
 
-        public RegisterCheckin(Guid messageId, string messageType) : base(messageId, messageType)
+        public CheckInRegistrationEvent(Guid messageId, string messageType) : base(messageId, messageType)
         {
         }
     }

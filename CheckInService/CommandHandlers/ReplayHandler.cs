@@ -1,6 +1,6 @@
 ﻿using CheckinService.Model;
 using CheckInService.CommandsAndEvents.Commands;
-using CheckInService.CommandsAndEvents.Events;
+using CheckInService.CommandsAndEvents.Events.CheckIn;
 using CheckInService.Mapper;
 using CheckInService.Models;
 using CheckInService.Repositories;

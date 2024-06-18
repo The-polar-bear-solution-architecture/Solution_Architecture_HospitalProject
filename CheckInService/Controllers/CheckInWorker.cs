@@ -1,5 +1,7 @@
 ﻿using CheckInService.CommandHandlers;
 using CheckInService.CommandsAndEvents.Commands;
+using CheckInService.CommandsAndEvents.Commands.Appointment;
+using CheckInService.CommandsAndEvents.Events.Appointment;
 using CheckInService.Mapper;
 using CheckInService.Models.DTO;
 using CheckInService.Repositories;
@@ -53,16 +55,18 @@ namespace CheckInService.Controllers
                     break;
                 case "AppointmentDeleted":
                     // Will delete appointment and checkin.
+                    var deleteCommand = body.Deserialize<AppointmentDeleteCommand>();
+                    await checkInCommandHandler.DeleteAppointment(deleteCommand);
                     break;
                 case "AppointmentUpdated":
                     // Will update the appointment.
+                    var updateCommand = body.Deserialize<UpdateCheckInDTO>();
+                    await checkInCommandHandler.UpdateAppointment(updateCommand.MapToAppointmentUpdateCommand());
                     break;
                 default:
                     Console.WriteLine("No one");
                     break;
             }
-
-
             return true;
         }
 

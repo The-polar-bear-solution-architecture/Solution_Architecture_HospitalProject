@@ -1,4 +1,4 @@
-﻿using CheckInService.CommandsAndEvents.Commands;
+﻿using CheckInService.CommandsAndEvents.Commands.CheckIn;
 using CheckInService.Models;
 
 namespace CheckInService.CommandHandlers

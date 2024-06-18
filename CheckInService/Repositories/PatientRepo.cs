@@ -60,5 +60,10 @@ namespace CheckInService.Repositories
                 Console.WriteLine("");
             }
         }
+
+        public void Delete(Guid guid)
+        {
+
+        }
     }
 }

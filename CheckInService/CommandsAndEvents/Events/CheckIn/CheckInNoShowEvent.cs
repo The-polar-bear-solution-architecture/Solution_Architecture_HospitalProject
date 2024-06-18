@@ -1,7 +1,7 @@
 ﻿using CheckinService.Model;
 using RabbitMQ.Messages.Messages;
 
-namespace CheckInService.CommandsAndEvents.Events
+namespace CheckInService.CommandsAndEvents.Events.CheckIn
 {
     public class CheckInNoShowEvent : Event
     {
@@ -9,7 +9,7 @@ namespace CheckInService.CommandsAndEvents.Events
         public Guid CheckInSerialNr { get; init; }
         public Status Status { get; init; } = Status.NOSHOW;
 
-        public CheckInNoShowEvent(): base(Guid.NewGuid(), nameof(CheckInPresentEvent))
+        public CheckInNoShowEvent() : base(Guid.NewGuid(), nameof(CheckInPresentEvent))
         {
         }
 
