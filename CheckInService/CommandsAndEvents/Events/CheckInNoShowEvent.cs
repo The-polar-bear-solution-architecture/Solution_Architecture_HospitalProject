@@ -3,25 +3,25 @@ using RabbitMQ.Messages.Messages;
 
 namespace CheckInService.CommandsAndEvents.Events
 {
-    public class PatientIsNotPresent : Event
+    public class CheckInNoShowEvent : Event
     {
         public int CheckInId { get; init; }
         public string CheckInSerialNr { get; init; }
         public Status Status { get; init; } = Status.NOSHOW;
 
-        public PatientIsNotPresent()
+        public CheckInNoShowEvent(): base(Guid.NewGuid(), nameof(CheckInPresentEvent))
         {
         }
 
-        public PatientIsNotPresent(Guid messageId) : base(messageId)
+        public CheckInNoShowEvent(Guid messageId) : base(messageId)
         {
         }
 
-        public PatientIsNotPresent(string messageType) : base(messageType)
+        public CheckInNoShowEvent(string messageType) : base(messageType)
         {
         }
 
-        public PatientIsNotPresent(Guid messageId, string messageType) : base(messageId, messageType)
+        public CheckInNoShowEvent(Guid messageId, string messageType) : base(messageId, messageType)
         {
         }
     }

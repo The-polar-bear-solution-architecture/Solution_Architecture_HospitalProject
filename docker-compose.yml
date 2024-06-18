@@ -33,6 +33,24 @@ services:
     volumes:
       - ~/.aspnet/https:/https:ro
 
+  eventstoredb:
+    container_name: CannonEvents
+    image: eventstore/eventstore:latest
+    environment:
+      - EVENTSTORE_INSECURE=true 
+      - EVENTSTORE_INT_TCP_PORT=1113
+      - EVENTSTORE_HTTP_PORT=2113 
+      - EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP=true
+    ports:
+      - "1113:1113"
+      - "2113:2113"
+    volumes:
+      - type: volume
+        source: eventstore-data
+        target: /var/lib/eventstore
+      - type: volume
+        source: eventstore-logs
+        target: /var/log/eventstore
 
   checkinservice:
     ports:
@@ -80,13 +98,14 @@ services:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "Testerino@8"
+      MSSQL_SA_PASSWORD: "Rick@Sanchez"
     ports:
       - 1433:1433
     volumes:
       - sql:/var/opt/mssql
-  
-
 
 volumes:
-  sql: 
+  sql:
+  eventstore-volume-data:
+  eventstore-volume-index:
+  eventstore-volume-logs:  
