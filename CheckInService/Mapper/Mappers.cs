@@ -10,9 +10,9 @@ namespace CheckInService.Mapper
     {
         public static CheckIn MapToCheckin(this CreateCheckInCommandDTO createCheckInCommand)
         {
-            var guid = createCheckInCommand.AppointmentGuid;
-            var physician_guid = createCheckInCommand.PhysicianGuid.ToString();
-            var patient_guid = createCheckInCommand.PatientGuid.ToString();
+            var appointment_guid = createCheckInCommand.AppointmentGuid;
+            var physician_guid = createCheckInCommand.PhysicianGuid;
+            var patient_guid = createCheckInCommand.PatientGuid;
 
             return new CheckIn
             {
@@ -20,13 +20,16 @@ namespace CheckInService.Mapper
                 {
                     Name = createCheckInCommand.ApointmentName,
                     AppointmentDate = createCheckInCommand.AppointmentDate,
+                    AppointmentSerialNr = appointment_guid,
                     Patient = new Patient()
                     {
+                        PatientSerialNr = patient_guid,
                         FirstName = createCheckInCommand.PatientFirstName,
                         LastName = createCheckInCommand.PatientLastName,
                     },
                     Physician = new Physician()
                     {
+                        PhysicianSerialNr = physician_guid,
                         FirstName = createCheckInCommand.PhysicianFirstName,
                         LastName = createCheckInCommand.PatientLastName,
                         Email = createCheckInCommand.PhysicianEmail
@@ -37,23 +40,27 @@ namespace CheckInService.Mapper
 
         public static CheckIn MapToRegister(this RegisterCheckin createCheckInCommand)
         {
-            // var appointment_guid = createCheckInCommand.AppointmentGuid;
-            // var physician_guid = createCheckInCommand.PhysicianGuid.ToString();
-            // var patient_guid = createCheckInCommand.PatientGuid.ToString();
+            var appointment_guid = createCheckInCommand.AppointmentGuid;
+            var physician_guid = createCheckInCommand.PhysicianGuid;
+            var patient_guid = createCheckInCommand.PatientGuid;
+
             return new CheckIn
             {
                 SerialNr = createCheckInCommand.CheckinSerialNr,
                 Appointment = new Appointment()
                 {
+                    AppointmentSerialNr = appointment_guid,
                     Name = createCheckInCommand.ApointmentName,
                     AppointmentDate = createCheckInCommand.AppointmentDate,
                     Patient = new Patient()
                     {
+                        PatientSerialNr = patient_guid,
                         FirstName = createCheckInCommand.PatientFirstName,
                         LastName = createCheckInCommand.PatientLastName,
                     },
                     Physician = new Physician()
                     {
+                        PhysicianSerialNr = physician_guid,
                         FirstName = createCheckInCommand.PhysicianFirstName,
                         LastName = createCheckInCommand.PhysicianLastName,
                         Email = createCheckInCommand.PhysicianEmail
@@ -65,18 +72,22 @@ namespace CheckInService.Mapper
 
         public static RegisterCheckin MapToRegister(this CreateCheckInCommandDTO createCheckInCommand)
         {
-            // var apppointment_guid = createCheckInCommand.AppointmentGuid.ToString();
-            // var physician_guid = createCheckInCommand.PhysicianGuid.ToString();
-            // var patient_guid = createCheckInCommand.PatientGuid.ToString();
+            var apppointment_guid = createCheckInCommand.AppointmentGuid;
+            var physician_guid = createCheckInCommand.PhysicianGuid;
+            var patient_guid = createCheckInCommand.PatientGuid;
+
             return new RegisterCheckin(Guid.NewGuid(), nameof(RegisterCheckin))
             {
                 PatientId = createCheckInCommand.PatientId,
                 PhysicianId = createCheckInCommand.PhysicianId,
                 AppointmentId = createCheckInCommand.AppointmentId,
+                AppointmentGuid = apppointment_guid,
                 ApointmentName = createCheckInCommand.ApointmentName,
                 AppointmentDate = createCheckInCommand.AppointmentDate,
+                PatientGuid = physician_guid,
                 PatientFirstName = createCheckInCommand.PatientFirstName,
                 PatientLastName = createCheckInCommand.PatientLastName,
+                PhysicianGuid = physician_guid,
                 PhysicianEmail = createCheckInCommand.PhysicianEmail,
                 PhysicianFirstName = createCheckInCommand.PhysicianFirstName,
                 PhysicianLastName = createCheckInCommand.PhysicianLastName,
@@ -86,21 +97,24 @@ namespace CheckInService.Mapper
 
         public static CheckInRegistrationEvent MapCheckinRegistered(this RegisterCheckin createCheckInCommand, int checkInId, string serialNr, int apointmentId)
         {
-            // var apppointment_guid = createCheckInCommand.AppointmentGuid.ToString();
-            // var physician_guid = createCheckInCommand.PhysicianGuid.ToString();
-            // var patient_guid = createCheckInCommand.PatientGuid.ToString();
+            var apppointment_guid = createCheckInCommand.AppointmentGuid;
+            var physician_guid = createCheckInCommand.PhysicianGuid;
+            var patient_guid = createCheckInCommand.PatientGuid;
 
             return new CheckInRegistrationEvent(Guid.NewGuid(), nameof(CheckInRegistrationEvent))
             {
                 CheckInId = checkInId,
                 CheckInSerialNr = serialNr,
                 AppointmentId = apointmentId,
+                AppointmentGuid = apppointment_guid,
                 ApointmentName = createCheckInCommand.ApointmentName,
                 AppointmentDate = createCheckInCommand.AppointmentDate,
                 PatientId = createCheckInCommand.PatientId,
+                PatientGuid = patient_guid,
                 PatientFirstName = createCheckInCommand.PatientFirstName,
                 PatientLastName = createCheckInCommand.PatientLastName,
                 PhysicianId = createCheckInCommand.PhysicianId,
+                PhysicianGuid = physician_guid,
                 PhysicianEmail = createCheckInCommand.PhysicianEmail,
                 PhysicianFirstName = createCheckInCommand.PhysicianFirstName,
                 PhysicianLastName = createCheckInCommand.PatientLastName,

@@ -25,17 +25,18 @@ namespace CheckInService.Repositories
             }
         }
 
-        /* public Appointment? Get(string guid)
+        public Appointment? Get(Guid guid)
         {
             try
             {
-                return checkInContextDB.Appointments.Where(p => p.AppointmentGuid == guid).First();
+                return checkInContextDB.Appointments.Where(p => p.AppointmentSerialNr.Equals(guid)).First();
             }
             catch
             {
+                Console.WriteLine("Appointment is not found");
                 return null;
             }
-        } */
+        }
 
         // Not being used.
         public IEnumerable<Appointment> Get()

@@ -46,26 +46,24 @@ namespace CheckInService.CommandHandlers
             // Converts DTO/Command to an proper domain entity, with the status AWAIT.
             CheckIn checkIn = command.MapToRegister();
 
-            var patient = patientRepo.Get(command.PatientId);
-            var physician = physicianRepo.Get(command.PhysicianId);
+            var patient = patientRepo.Get(command.PatientGuid);
+            var physician = physicianRepo.Get(command.PhysicianGuid);
 
-            Console.WriteLine(patient);
             if(patient != null)
             {
                 // Overwrite the current patients info to local patient
-                Patient tempPatient = checkIn.Appointment.Patient;
-                patient.FirstName = tempPatient.FirstName;
-                patient.LastName = tempPatient.LastName;
+                patient.FirstName = command.PatientFirstName;
+                patient.LastName = command.PatientLastName;
                 patientRepo.Put(patient);
                 checkIn.Appointment.Patient = patient;
             }
 
             if(physician != null)
             {
-                Physician tempPhysician = checkIn.Appointment.Physician;
-                physician.FirstName = tempPhysician.FirstName;
-                physician.LastName = tempPhysician.LastName;
-                physician.Email = tempPhysician.Email;
+                physician.FirstName = command.PhysicianFirstName;
+                physician.LastName = command.PhysicianLastName;
+                physician.Email = command.PhysicianEmail;
+
                 physicianRepo.Put(physician);
                 checkIn.Appointment.Physician = physician;
             }

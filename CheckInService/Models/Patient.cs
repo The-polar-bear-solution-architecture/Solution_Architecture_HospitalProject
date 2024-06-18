@@ -6,6 +6,6 @@
         public string FirstName { get; set; }
         public string LastName { get; set; }
 
-        // public string AppointmentSerialNr { get; set; }
+        public Guid PatientSerialNr { get; set; }
     }
 }

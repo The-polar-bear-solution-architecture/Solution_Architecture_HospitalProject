@@ -15,7 +15,7 @@ namespace CheckInService.CommandsAndEvents.Events
         public int AppointmentId { get; init; }
 
         [Required]
-        public string AppointmentGuid { get; init; }
+        public Guid AppointmentGuid { get; init; }
 
         public string ApointmentName { get; init; }
         public DateTime AppointmentDate { get; init; }
@@ -23,8 +23,8 @@ namespace CheckInService.CommandsAndEvents.Events
         [Required]
         public int PatientId { get; init; }
 
-        // public string PatientGuid { get; init; }
-        // public string PhysicianGuid { get; init; }
+        public Guid PatientGuid { get; init; }
+        public Guid PhysicianGuid { get; init; }
 
         [Required]
         public string PatientFirstName { get; init; }

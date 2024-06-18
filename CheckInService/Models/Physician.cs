@@ -9,6 +9,6 @@ namespace CheckinService.Model
         public string LastName { get; set; }
         public string Email { get; set; }
 
-        // public string AppointmentSerialNr { get; set; }
+        public Guid PhysicianSerialNr { get; set; }
     }
 }
