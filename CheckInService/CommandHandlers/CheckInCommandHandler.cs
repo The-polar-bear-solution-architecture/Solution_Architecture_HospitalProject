@@ -169,20 +169,22 @@ namespace CheckInService.CommandHandlers
             await eventStoreRepository.StoreMessage(nameof(CheckIn), updateEvent.MessageType, updateEvent);
         }
 
-        public async Task DeleteAppointment(AppointmentDeleteCommand appointmentDeleteCommand)
+        public async Task<Appointment?> DeleteAppointment(AppointmentDeleteCommand appointmentDeleteCommand)
         {
             Appointment? appointment = appointmentRepository.Get(appointmentDeleteCommand.AppointmentSerialNr);
             if (appointment == null)
             {
-                return;
+                return null;
             }
 
             // Delete appointment.
-            appointmentRepository.Delete(appointmentDeleteCommand.CheckInSerialNr);
+            appointmentRepository.Delete(appointmentDeleteCommand.AppointmentSerialNr);
 
             // Store event into event store database
-            // Event updateEvent = appointmentDeleteCommand.MapToAppointmentDeleted();
-            // await eventStoreRepository.StoreMessage(nameof(CheckIn), updateEvent.MessageType, updateEvent);
+            Event updateEvent = appointmentDeleteCommand.MapToAppointmentDeleted();
+            await eventStoreRepository.StoreMessage(nameof(CheckIn), updateEvent.MessageType, updateEvent);
+
+            return appointment;
         }
     }
 }

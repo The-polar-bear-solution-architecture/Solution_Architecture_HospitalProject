@@ -77,12 +77,12 @@ namespace CheckInService.Controllers
             return Ok("Marked check-in ready");
         }
 
-        [HttpPut("{serialNr}")]
+        [HttpDelete("{serialNr}")]
         public async Task<IActionResult> DeleteAppointment(Guid serialNr)
         {
             AppointmentDeleteCommand command = new AppointmentDeleteCommand() { AppointmentSerialNr = serialNr };
             
-            await checkInCommand.DeleteAppointment(command);
+            var result = await checkInCommand.DeleteAppointment(command);
 
             return Ok("Appointment deleted.");
         }

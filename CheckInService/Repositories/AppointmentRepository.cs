@@ -18,10 +18,15 @@ namespace CheckInService.Repositories
         {
             try
             {
-                checkInContextDB.Appointments.Where(e => e.AppointmentSerialNr == id).ExecuteDelete();
+                
+                int i = checkInContextDB.Appointments.Where(e => e.AppointmentSerialNr.Equals(id)).ExecuteDelete();
+
+                Console.WriteLine($"Deletion rows {i}");
+
             }
             catch
             {
+                Console.WriteLine("Deletion failed");
                 return;
             }
         }

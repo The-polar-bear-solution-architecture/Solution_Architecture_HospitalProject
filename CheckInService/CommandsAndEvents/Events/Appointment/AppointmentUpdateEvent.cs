@@ -7,9 +7,8 @@ namespace CheckInService.CommandsAndEvents.Events.Appointment
         public AppointmentUpdateEvent(string messageType) : base(messageType)
         {
         }
-
-        public Guid CheckInSerialNr { get; set; }
         public Guid AppointmentSerialNr { get; set; }
+        public string AppointmentName { get; set; }
         public DateTime AppointmentDate { get; set; }
         public Guid PhysicianSerialNr { get; set; }
     }

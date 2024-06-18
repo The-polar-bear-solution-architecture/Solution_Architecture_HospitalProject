@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore;
 using CheckInService.CommandHandlers;
 using Event = RabbitMQ.Messages.Messages.Event;
 using CheckInService.CommandsAndEvents.Events.CheckIn;
+using CheckInService.CommandsAndEvents.Events.Appointment;
+using CheckInService.CommandsAndEvents.Commands.Appointment;
 
 namespace CheckInService.Controllers
 {
@@ -25,13 +27,18 @@ namespace CheckInService.Controllers
     {
         private readonly EventStoreClient client;
         private readonly CheckInContextDB checkInContext;
-        private readonly ReplayHandler checkInCommandHandler;
+        private readonly ReplayHandler replayEventHandler;
+        private readonly CheckInCommandHandler checkInCommandHandler;
 
-        public ReplayController(EventStoreClient client, CheckInContextDB checkInContext, ReplayHandler replayEventHandler)
+        public ReplayController(EventStoreClient client, 
+            CheckInContextDB checkInContext, 
+            ReplayHandler replayEventHandler,
+            CheckInCommandHandler checkInCommandHandler)
         {
             this.client = client;
             this.checkInContext = checkInContext;
-            this.checkInCommandHandler = replayEventHandler;
+            this.replayEventHandler = replayEventHandler;
+            this.checkInCommandHandler = checkInCommandHandler;
         }
 
         [HttpGet(Name = "GetAllEvents")]
@@ -81,15 +88,23 @@ namespace CheckInService.Controllers
                 {
                     case nameof(CheckInNoShowEvent):
                         checkInEvent = data.Deserialize<CheckInNoShowEvent>();
-                        await checkInCommandHandler.ChangeToNoShow((CheckInNoShowEvent)checkInEvent);
+                        await replayEventHandler.ChangeToNoShow((CheckInNoShowEvent)checkInEvent);
                         break;
                     case nameof(CheckInPresentEvent):
                         checkInEvent = data.Deserialize<CheckInPresentEvent>();
-                        await checkInCommandHandler.ChangeToPresent((CheckInPresentEvent)checkInEvent);
+                        await replayEventHandler.ChangeToPresent((CheckInPresentEvent)checkInEvent);
                         break;
                     case nameof(CheckInRegistrationEvent):
                         checkInEvent = data.Deserialize<CheckInRegistrationEvent>();
-                        await checkInCommandHandler.RegisterCheckin((CheckInRegistrationEvent)checkInEvent);
+                        await replayEventHandler.RegisterCheckin((CheckInRegistrationEvent)checkInEvent);
+                        break;
+                    case nameof(AppointmentDeleteEvent):
+                        var delete_command = data.Deserialize<AppointmentDeleteCommand>();
+                        await checkInCommandHandler.DeleteAppointment(delete_command);
+                        break;
+                    case nameof(AppointmentUpdateEvent):
+                        var update_command = data.Deserialize<AppointmentDeleteCommand>();
+                        await checkInCommandHandler.DeleteAppointment(update_command);
                         break;
                     default:
                         Console.WriteLine($"No object convertion possible with {EventType}");

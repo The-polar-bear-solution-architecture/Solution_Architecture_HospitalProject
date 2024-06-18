@@ -24,6 +24,7 @@ namespace CheckInService.Mapper
             return new AppointmentUpdateEvent(nameof(AppointmentUpdateEvent))
             {
                 AppointmentDate = appointmentUpdateCommand.AppointmentDate,
+                AppointmentName = appointmentUpdateCommand.AppointmentName,
                 AppointmentSerialNr = appointmentUpdateCommand.AppointmentSerialNr,
                 PhysicianSerialNr = appointmentUpdateCommand.PhysicianSerialNr
             };
