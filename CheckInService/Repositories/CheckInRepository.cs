@@ -50,11 +50,19 @@ namespace CheckInService.Repositories
 
         public CheckIn? Get(Guid serialNumber)
         {
-            var jj = checkInContextDB.checkIns.
+            try
+            {
+                var jj = checkInContextDB.checkIns.
                 Include(p => p.Appointment.Physician).
                 Include(ppp => ppp.Appointment.Patient)
                 .Where(Patient => Patient.SerialNr.Equals(serialNumber)).First();
-            return jj;
+                return jj;
+            }
+            catch
+            {
+                return null;
+            }
+            
         }
 
         public CheckInView GetView(int id)

@@ -46,7 +46,8 @@ namespace CheckInService.Mapper
 
             return new CheckIn
             {
-                SerialNr = createCheckInCommand.CheckinSerialNr,
+                Status = createCheckInCommand.Status,
+                SerialNr = createCheckInCommand.CheckInSerialNr,
                 Appointment = new Appointment()
                 {
                     AppointmentSerialNr = appointment_guid,
@@ -66,7 +67,6 @@ namespace CheckInService.Mapper
                         Email = createCheckInCommand.PhysicianEmail
                     }
                 },
-                Status = Status.AWAIT
             };
         }
 
@@ -84,7 +84,7 @@ namespace CheckInService.Mapper
                 AppointmentGuid = apppointment_guid,
                 ApointmentName = createCheckInCommand.ApointmentName,
                 AppointmentDate = createCheckInCommand.AppointmentDate,
-                PatientGuid = physician_guid,
+                PatientGuid = patient_guid,
                 PatientFirstName = createCheckInCommand.PatientFirstName,
                 PatientLastName = createCheckInCommand.PatientLastName,
                 PhysicianGuid = physician_guid,

@@ -3,10 +3,12 @@ using CheckInService.CommandsAndEvents.Commands;
 using CheckInService.CommandsAndEvents.Commands.Appointment;
 using CheckInService.CommandsAndEvents.Events.Appointment;
 using CheckInService.Mapper;
+using CheckInService.Models;
 using CheckInService.Models.DTO;
 using CheckInService.Repositories;
 using RabbitMQ.Messages.Interfaces;
 using RabbitMQ.Messages.Mapper;
+using RabbitMQ.Messages.Messages;
 using System.Text.Json;
 
 namespace CheckInService.Controllers
@@ -42,26 +44,36 @@ namespace CheckInService.Controllers
         public async Task<bool> HandleMessageAsync(string messageType, object message)
         {
             await handle();
-            Console.WriteLine(messageType);  
-            Console.WriteLine("This message has been received on the Check in service");
             byte[] body =  message as byte[];
-
             switch (messageType)
             {
                 case "AppointmentCreated":
                     var post_Command = body.Deserialize<CreateCheckInCommandDTO>().MapToRegister();
                     // This will create a checkin for its appointmentment
-                    await checkInCommandHandler.RegisterCheckin(post_Command);
+                    Event RegisterEvent = await checkInCommandHandler.RegisterCheckin(post_Command);
+
+                    await EventStoreRepository.StoreMessage(nameof(CheckIn), RegisterEvent.MessageType, RegisterEvent);
+
+                    // Send event to Notification service
+                    Console.WriteLine("Important: Send to notification service so user will receive message evening before Appointment");
                     break;
                 case "AppointmentDeleted":
                     // Will delete appointment and checkin.
                     var deleteCommand = body.Deserialize<AppointmentDeleteCommand>();
-                    await checkInCommandHandler.DeleteAppointment(deleteCommand);
+                    Event? delete_Event = await checkInCommandHandler.DeleteAppointment(deleteCommand);
+                    if(delete_Event != null)
+                    {
+                        await EventStoreRepository.StoreMessage(nameof(CheckIn), delete_Event.MessageType, delete_Event);
+                    }
                     break;
                 case "AppointmentUpdated":
                     // Will update the appointment.
                     var updateCommand = body.Deserialize<UpdateCheckInDTO>();
-                    await checkInCommandHandler.UpdateAppointment(updateCommand.MapToAppointmentUpdateCommand());
+                    Event? updateEvent = await checkInCommandHandler.UpdateAppointment(updateCommand.MapToAppointmentUpdateCommand());
+                    if (updateEvent != null)
+                    {
+                        await EventStoreRepository.StoreMessage(nameof(CheckIn), updateEvent.MessageType, updateEvent);
+                    }
                     break;
                 default:
                     Console.WriteLine("No one");

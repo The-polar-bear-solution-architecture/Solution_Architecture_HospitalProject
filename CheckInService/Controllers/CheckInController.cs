@@ -2,6 +2,7 @@
 using CheckInService.CommandHandlers;
 using CheckInService.CommandsAndEvents.Commands.Appointment;
 using CheckInService.CommandsAndEvents.Commands.CheckIn;
+using CheckInService.CommandsAndEvents.Events.CheckIn;
 using CheckInService.Mapper;
 using CheckInService.Models;
 using CheckInService.Models.DTO;
@@ -21,12 +22,20 @@ namespace CheckInService.Controllers
     {
         private readonly CheckInRepository checkInRepository;
         private readonly CheckInCommandHandler checkInCommand;
+        private readonly EventStoreRepository eventStoreRepository;
+        private readonly IPublisher publisher;
+        private readonly string RouterKeyLocator;
 
         public CheckInController(
             CheckInRepository checkInRepository, 
-            CheckInCommandHandler checkInCommand) {
+            CheckInCommandHandler checkInCommand,
+            EventStoreRepository eventStoreRepository,
+            IPublisher publisher) {
             this.checkInRepository = checkInRepository;
             this.checkInCommand = checkInCommand;
+            this.eventStoreRepository = eventStoreRepository;
+            this.publisher = publisher;
+            RouterKeyLocator = "Notifications";
         }
 
         // GET: api/<CheckInController>
@@ -55,11 +64,13 @@ namespace CheckInService.Controllers
             NoShowCheckIn command = new NoShowCheckIn() { 
                 CheckInSerialNr = serialNr, Status = Status.NOSHOW
             };
-            CheckIn? checkIn = await checkInCommand.ChangeToNoShow(command);
-            if (checkIn == null)
+            CheckInNoShowEvent? NoShowEvent = await checkInCommand.ChangeToNoShow(command);
+            if (NoShowEvent == null)
             {
                 return NotFound();
             }
+            // Add event to event store.
+            await eventStoreRepository.StoreMessage(nameof(CheckIn), NoShowEvent.MessageType, NoShowEvent);
 
             return Ok("Marked appointment as noshow");
         }
@@ -68,15 +79,21 @@ namespace CheckInService.Controllers
         public async Task<IActionResult> PutPresentAsync(Guid serialNr)
         {
             PresentCheckin command = new PresentCheckin() { CheckInSerialNr = serialNr, Status = Status.PRESENT };
-            CheckIn? checkIn = await checkInCommand.ChangeToPresent(command);
-            if (checkIn == null)
+            CheckInPresentEvent? PresentEvent = await checkInCommand.ChangeToPresent(command);
+            if (PresentEvent == null)
             {
                 return NotFound();
             }
+            // Add event to event store.
+            await eventStoreRepository.StoreMessage(nameof(CheckIn), PresentEvent.MessageType, PresentEvent);
+
+            // Send notification to physician.
+            await publisher.SendMessage(PresentEvent.MessageType, PresentEvent, RouterKeyLocator);
 
             return Ok("Marked check-in ready");
         }
 
+        /*
         [HttpDelete("{serialNr}")]
         public async Task<IActionResult> DeleteAppointment(Guid serialNr)
         {
@@ -86,5 +103,7 @@ namespace CheckInService.Controllers
 
             return Ok("Appointment deleted.");
         }
+        */
+
     }
 }

@@ -12,27 +12,20 @@ namespace CheckInService.CommandsAndEvents.Events.CheckIn
         public Status Status { get; init; } = Status.AWAIT;
 
         [Required]
-        public int AppointmentId { get; init; }
-
-        [Required]
         public Guid AppointmentGuid { get; init; }
-
+        public int AppointmentId { get; init; }
         public string ApointmentName { get; init; }
         public DateTime AppointmentDate { get; init; }
 
         [Required]
         public int PatientId { get; init; }
-
         public Guid PatientGuid { get; init; }
-        public Guid PhysicianGuid { get; init; }
-
-        [Required]
         public string PatientFirstName { get; init; }
-        [Required]
         public string PatientLastName { get; init; }
 
         [Required]
         public int PhysicianId { get; init; }
+        public Guid PhysicianGuid { get; init; }
         public string PhysicianFirstName { get; init; }
         public string PhysicianLastName { get; init; }
 

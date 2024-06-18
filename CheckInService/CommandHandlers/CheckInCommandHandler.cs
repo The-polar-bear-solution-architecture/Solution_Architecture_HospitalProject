@@ -1,6 +1,7 @@
 ﻿using CheckinService.Model;
 using CheckInService.CommandsAndEvents.Commands.Appointment;
 using CheckInService.CommandsAndEvents.Commands.CheckIn;
+using CheckInService.CommandsAndEvents.Events.Appointment;
 using CheckInService.CommandsAndEvents.Events.CheckIn;
 using CheckInService.Mapper;
 using CheckInService.Models;
@@ -19,38 +20,30 @@ namespace CheckInService.CommandHandlers
         private readonly CheckInRepository checkInRepository;
         private readonly PatientRepo patientRepo;
         private readonly PhysicianRepo physicianRepo;
-        private readonly IPublisher publisher;
-        private readonly EventStoreClient eventStore;
-        private readonly EventStoreRepository eventStoreRepository;
-        private readonly string RouterKeyLocator;
+        
 
         public CheckInCommandHandler(
             AppointmentRepository appointmentRepository,
             CheckInRepository checkInRepository, 
             PatientRepo patientRepo, 
-            PhysicianRepo physicianRepo,
-            IPublisher publisher,
-            EventStoreClient eventStore,
-            EventStoreRepository eventStoreRepository) {
+            PhysicianRepo physicianRepo) {
             this.appointmentRepository = appointmentRepository;
             this.checkInRepository = checkInRepository;
             this.patientRepo = patientRepo;
             this.physicianRepo = physicianRepo;
-            this.publisher = publisher;
-            this.eventStore = eventStore;
-            this.eventStoreRepository = eventStoreRepository;
-            RouterKeyLocator = "Notifications";
+            
         }
 
-        public async Task<CheckIn> RegisterCheckin(RegisterCheckin command)
+        public async Task<CheckInRegistrationEvent> RegisterCheckin(RegisterCheckin command)
         {
             // Converts DTO/Command to an proper domain entity, with the status AWAIT.
             CheckIn checkIn = command.MapToRegister();
 
             var patient = patientRepo.Get(command.PatientGuid);
             var physician = physicianRepo.Get(command.PhysicianGuid);
+            var ExistingAppointment = appointmentRepository.Get(command.AppointmentGuid);
 
-            if(patient != null)
+            if (patient != null)
             {
                 // Overwrite the current patients info to local patient
                 patient.FirstName = command.PatientFirstName;
@@ -69,20 +62,21 @@ namespace CheckInService.CommandHandlers
                 checkIn.Appointment.Physician = physician;
             }
 
+            if (ExistingAppointment != null)
+            {
+                checkIn.Appointment = ExistingAppointment;
+            }
+
             checkInRepository.Post(checkIn);
 
             // Checkin registration event.
-            var RegisterEvent  = command.MapCheckinRegistered(checkIn.Id, checkIn.SerialNr, checkIn.Appointment.Id);
-            await eventStoreRepository.StoreMessage(nameof(CheckIn), RegisterEvent.MessageType, RegisterEvent);
+            CheckInRegistrationEvent RegisterEvent  = command.MapCheckinRegistered(checkIn.Id, checkIn.SerialNr, checkIn.Appointment.Id);
 
-            // Send event to Notification service
-            Console.WriteLine("Important: Send to notification service so user will receive message evening before Appointment");
-
-            return checkIn;
+            return RegisterEvent;
         }
 
         // Change to noshow
-        public async Task<CheckIn?> ChangeToNoShow(NoShowCheckIn command) {
+        public async Task<CheckInNoShowEvent?> ChangeToNoShow(NoShowCheckIn command) {
 
             // Validate if checkin even exists.
             CheckIn? checkIn = checkInRepository.Get(command.CheckInSerialNr);
@@ -100,14 +94,11 @@ namespace CheckInService.CommandHandlers
             // No show event.
             var NoShowEvent = checkIn.MapPatientNoShow();
 
-            // Add event to event store.
-            await eventStoreRepository.StoreMessage(nameof(CheckIn), NoShowEvent.MessageType, NoShowEvent);
-
-            return checkIn;
+            return NoShowEvent;
         }
 
         // Change to noshow
-        public async Task<CheckIn?> ChangeToPresent(PresentCheckin command)
+        public async Task<CheckInPresentEvent?> ChangeToPresent(PresentCheckin command)
         {
             Console.WriteLine("Start checkin to present");
             // Validate if checkin even exists.
@@ -126,29 +117,19 @@ namespace CheckInService.CommandHandlers
             // Add event to event source, for event sourcing
             Console.WriteLine("Add no show to the event source.");
 
-            // ZET HIER EVENT CONVERSION NEER.
             // Checkin present event.
             var PresentEvent = checkIn.MapToPatientIsPresent();
 
-            // Add event to event store.
-            await eventStoreRepository.StoreMessage(nameof(CheckIn), PresentEvent.MessageType, PresentEvent);
-
-            // Send notification to physician.
-            Console.WriteLine(checkIn);
-
-            // Convert to event.
-            CheckInPresentEvent checkInEvent = checkIn.MapToPatientIsPresent();
-            await publisher.SendMessage(checkInEvent.MessageType, checkInEvent, RouterKeyLocator);
-
-            return checkIn;
+           
+            return PresentEvent;
         }
 
-        public async Task UpdateAppointment(AppointmentUpdateCommand appointmentUpdateCommand)
+        public async Task<AppointmentUpdateEvent?> UpdateAppointment(AppointmentUpdateCommand appointmentUpdateCommand)
         {
             Appointment? appointment = appointmentRepository.Get(appointmentUpdateCommand.AppointmentSerialNr);
             if (appointment == null)
             {
-                return;
+                return null;
             }
             Console.WriteLine("Appointment is found");
 
@@ -165,11 +146,12 @@ namespace CheckInService.CommandHandlers
             appointmentRepository.Put(appointment);
 
             // Store event into event store database
-            Event updateEvent = appointmentUpdateCommand.MapToUpdatedEvent();
-            await eventStoreRepository.StoreMessage(nameof(CheckIn), updateEvent.MessageType, updateEvent);
+            AppointmentUpdateEvent updateEvent = appointmentUpdateCommand.MapToUpdatedEvent();
+            
+            return updateEvent;
         }
 
-        public async Task<Appointment?> DeleteAppointment(AppointmentDeleteCommand appointmentDeleteCommand)
+        public async Task<AppointmentDeleteEvent?> DeleteAppointment(AppointmentDeleteCommand appointmentDeleteCommand)
         {
             Appointment? appointment = appointmentRepository.Get(appointmentDeleteCommand.AppointmentSerialNr);
             if (appointment == null)
@@ -181,10 +163,9 @@ namespace CheckInService.CommandHandlers
             appointmentRepository.Delete(appointmentDeleteCommand.AppointmentSerialNr);
 
             // Store event into event store database
-            Event updateEvent = appointmentDeleteCommand.MapToAppointmentDeleted();
-            await eventStoreRepository.StoreMessage(nameof(CheckIn), updateEvent.MessageType, updateEvent);
+            AppointmentDeleteEvent deleteEvent = appointmentDeleteCommand.MapToAppointmentDeleted();
 
-            return appointment;
+            return deleteEvent;
         }
     }
 }
