@@ -94,16 +94,12 @@ namespace CheckInService.Controllers
         }
 
         /*
-        [HttpDelete("{serialNr}")]
-        public async Task<IActionResult> DeleteAppointment(Guid serialNr)
+        [HttpDelete("Test EventSourceDB.")]
+        public async Task<IActionResult> DeleteAppointment()
         {
-            AppointmentDeleteCommand command = new AppointmentDeleteCommand() { AppointmentSerialNr = serialNr };
-            
-            var result = await checkInCommand.DeleteAppointment(command);
-
+            await eventStoreRepository.StoreMessage("Test", "TestType", new NoShowCheckIn() { Status = Status.AWAIT });
             return Ok("Appointment deleted.");
         }
         */
-
     }
 }
