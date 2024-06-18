@@ -35,11 +35,11 @@ namespace CheckInService.Repositories
             try
             {
                 checkInContextDB.Update(checkIn);
-                checkInContextDB.SaveChangesAsync().Wait();
+                checkInContextDB.SaveChanges(true);
             }
             catch
             {
-                Console.WriteLine("");
+                Console.WriteLine("Update failed.");
             }
         }
 

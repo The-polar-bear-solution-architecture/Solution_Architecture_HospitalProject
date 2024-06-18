@@ -61,7 +61,17 @@ namespace CheckInService.Controllers
         public IActionResult ClearCheckInDatabase()
         {
             // For now only the checkin table will be cleared.
-            checkInContext.checkIns.ExecuteDelete();
+            // Deletes all elements from checkin 
+            var checkIns = checkInContext.checkIns.ToList();
+            var tempAppointments = checkInContext.Appointments.ToList();
+            var physicians = checkInContext.Physicians.ToList();
+            var patients = checkInContext.Patients.ToList();
+            checkInContext.checkIns.RemoveRange(checkIns);
+            checkInContext.Appointments.RemoveRange(tempAppointments);
+            checkInContext.Physicians.RemoveRange(physicians);
+            checkInContext.Patients.RemoveRange(patients);
+
+            checkInContext.SaveChanges();
             // Later on, all the other tables will be cleared too.
             return Ok("All checkIns have been deleted.");
         }
@@ -69,8 +79,6 @@ namespace CheckInService.Controllers
         [HttpPatch(Name = "Replay")]
         public async Task<IActionResult> ReplayAll()
         {
-            checkInContext.checkIns.ExecuteDelete();
-
             List<Message> list = new List<Message>();
             var result = client.ReadStreamAsync(
                 Direction.Forwards,
@@ -79,7 +87,6 @@ namespace CheckInService.Controllers
                 resolveLinkTos: true
             );
             var events = await result.ToListAsync();
-
             foreach (var command in events)
             {
                 string EventType = command.OriginalEvent.EventType;
@@ -114,12 +121,9 @@ namespace CheckInService.Controllers
                         break;
                 }
                 list.Add(entity_event);
+                Console.WriteLine("============== Cycle over process ===========");
             }
             return Ok(list);
-        }
-
-        private void PushChange(string EventType, Event checkinEvent){
-
         }
     }
 }

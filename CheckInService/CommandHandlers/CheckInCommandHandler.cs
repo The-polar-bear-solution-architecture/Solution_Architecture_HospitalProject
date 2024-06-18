@@ -112,7 +112,14 @@ namespace CheckInService.CommandHandlers
             checkIn.Status = command.Status;
 
             // Update check in.
-            checkInRepository.Put(checkIn);
+            try
+            {
+                checkInRepository.Put(checkIn);
+            }
+            catch
+            {
+               
+            }
 
             // Add event to event source, for event sourcing
             Console.WriteLine("Add no show to the event source.");
