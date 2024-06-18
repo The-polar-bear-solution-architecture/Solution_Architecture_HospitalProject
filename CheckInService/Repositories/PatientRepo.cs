@@ -22,6 +22,18 @@ namespace CheckInService.Repositories
             return checkInContextDB.Patients.Find(id);
         }
 
+        /* public Patient? Get(string guid)
+        {
+            try
+            {
+                return checkInContextDB.Patients.Where(p => p.PatientGuid == guid).First();
+            }
+            catch
+            {
+                return null;
+            }
+        } */
+
         public void Post(Patient entity)
         {
             try

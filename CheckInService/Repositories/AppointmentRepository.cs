@@ -25,6 +25,18 @@ namespace CheckInService.Repositories
             }
         }
 
+        /* public Appointment? Get(string guid)
+        {
+            try
+            {
+                return checkInContextDB.Appointments.Where(p => p.AppointmentGuid == guid).First();
+            }
+            catch
+            {
+                return null;
+            }
+        } */
+
         // Not being used.
         public IEnumerable<Appointment> Get()
         {

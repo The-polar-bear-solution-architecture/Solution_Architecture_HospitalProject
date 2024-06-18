@@ -13,11 +13,19 @@ namespace CheckInService.CommandsAndEvents.Events
 
         [Required]
         public int AppointmentId { get; init; }
+
+        [Required]
+        public string AppointmentGuid { get; init; }
+
         public string ApointmentName { get; init; }
         public DateTime AppointmentDate { get; init; }
 
         [Required]
         public int PatientId { get; init; }
+
+        // public string PatientGuid { get; init; }
+        // public string PhysicianGuid { get; init; }
+
         [Required]
         public string PatientFirstName { get; init; }
         [Required]

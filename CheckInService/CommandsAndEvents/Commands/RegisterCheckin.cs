@@ -11,6 +11,9 @@ namespace CheckInService.CommandsAndEvents.Commands
         public string CheckinSerialNr { get; init; } = Guid.NewGuid().ToString();
         public Status Status { get; init; } = Status.AWAIT;
 
+        // Alleen Gebruikt.
+        public string AppointmentGuid { get; init; } = Guid.NewGuid().ToString();
+
         [Required]
         public int AppointmentId { get; init; }
         public string ApointmentName { get; init; }
@@ -18,6 +21,10 @@ namespace CheckInService.CommandsAndEvents.Commands
 
         [Required]
         public int PatientId { get; init; }
+
+        // public string PatientGuid { get; init; } = Guid.NewGuid().ToString();
+        // public string PhysicianGuid { get; init; } = Guid.NewGuid().ToString();
+
         [Required]
         public string PatientFirstName { get; init; }
         [Required]

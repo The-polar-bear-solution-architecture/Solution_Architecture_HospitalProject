@@ -10,6 +10,10 @@ namespace CheckInService.Mapper
     {
         public static CheckIn MapToCheckin(this CreateCheckInCommandDTO createCheckInCommand)
         {
+            var guid = createCheckInCommand.AppointmentGuid;
+            var physician_guid = createCheckInCommand.PhysicianGuid.ToString();
+            var patient_guid = createCheckInCommand.PatientGuid.ToString();
+
             return new CheckIn
             {
                 Appointment = new Appointment()
@@ -33,6 +37,9 @@ namespace CheckInService.Mapper
 
         public static CheckIn MapToRegister(this RegisterCheckin createCheckInCommand)
         {
+            // var appointment_guid = createCheckInCommand.AppointmentGuid;
+            // var physician_guid = createCheckInCommand.PhysicianGuid.ToString();
+            // var patient_guid = createCheckInCommand.PatientGuid.ToString();
             return new CheckIn
             {
                 SerialNr = createCheckInCommand.CheckinSerialNr,
@@ -58,6 +65,9 @@ namespace CheckInService.Mapper
 
         public static RegisterCheckin MapToRegister(this CreateCheckInCommandDTO createCheckInCommand)
         {
+            // var apppointment_guid = createCheckInCommand.AppointmentGuid.ToString();
+            // var physician_guid = createCheckInCommand.PhysicianGuid.ToString();
+            // var patient_guid = createCheckInCommand.PatientGuid.ToString();
             return new RegisterCheckin(Guid.NewGuid(), nameof(RegisterCheckin))
             {
                 PatientId = createCheckInCommand.PatientId,
@@ -76,6 +86,10 @@ namespace CheckInService.Mapper
 
         public static CheckInRegistrationEvent MapCheckinRegistered(this RegisterCheckin createCheckInCommand, int checkInId, string serialNr, int apointmentId)
         {
+            // var apppointment_guid = createCheckInCommand.AppointmentGuid.ToString();
+            // var physician_guid = createCheckInCommand.PhysicianGuid.ToString();
+            // var patient_guid = createCheckInCommand.PatientGuid.ToString();
+
             return new CheckInRegistrationEvent(Guid.NewGuid(), nameof(CheckInRegistrationEvent))
             {
                 CheckInId = checkInId,
