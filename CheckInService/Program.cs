@@ -38,6 +38,7 @@ builder.Services.UseRabbitMQMessagePublisher(builder.Configuration);
 builder.Services.UseRabbitMQMessageHandler(builder.Configuration);
 
 builder.Services.AddHostedService<CheckInWorker>();
+builder.Services.AddHostedService<ETLWorker>();
 builder.Services.AddSingleton<EventStoreClient>(client);
 
 var app = builder.Build();
