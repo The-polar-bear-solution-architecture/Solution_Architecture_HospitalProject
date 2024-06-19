@@ -52,6 +52,7 @@ namespace CheckInService.Controllers
                     // This will create a checkin for its appointmentment
                     Event RegisterEvent = await checkInCommandHandler.RegisterCheckin(post_Command);
 
+                    // Message type is CheckInRegistrationEvent
                     await EventStoreRepository.StoreMessage(nameof(CheckIn), RegisterEvent.MessageType, RegisterEvent);
 
                     // Send event to Notification service
@@ -63,6 +64,7 @@ namespace CheckInService.Controllers
                     Event? delete_Event = await checkInCommandHandler.DeleteAppointment(deleteCommand);
                     if(delete_Event != null)
                     {
+                        // Message type is AppointmentDeleteEvent
                         await EventStoreRepository.StoreMessage(nameof(CheckIn), delete_Event.MessageType, delete_Event);
                     }
                     break;
@@ -72,6 +74,7 @@ namespace CheckInService.Controllers
                     Event? updateEvent = await checkInCommandHandler.UpdateAppointment(updateCommand.MapToAppointmentUpdateCommand());
                     if (updateEvent != null)
                     {
+                        // Message type is AppointmentUpdateEvent
                         await EventStoreRepository.StoreMessage(nameof(CheckIn), updateEvent.MessageType, updateEvent);
                     }
                     break;
@@ -84,7 +87,7 @@ namespace CheckInService.Controllers
 
         private Task handle()
         {
-            Console.WriteLine("Hi");
+            Console.WriteLine("Handled by CheckIn worker");
             return Task.CompletedTask;
         }
     }

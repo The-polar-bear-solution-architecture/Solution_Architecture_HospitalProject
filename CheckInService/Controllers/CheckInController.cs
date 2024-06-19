@@ -64,6 +64,8 @@ namespace CheckInService.Controllers
             NoShowCheckIn command = new NoShowCheckIn() { 
                 CheckInSerialNr = serialNr, Status = Status.NOSHOW
             };
+
+            // Message type is CheckInNoShowEvent
             CheckInNoShowEvent? NoShowEvent = await checkInCommand.ChangeToNoShow(command);
             if (NoShowEvent == null)
             {
@@ -79,6 +81,8 @@ namespace CheckInService.Controllers
         public async Task<IActionResult> PutPresentAsync(Guid serialNr)
         {
             PresentCheckin command = new PresentCheckin() { CheckInSerialNr = serialNr, Status = Status.PRESENT };
+
+            // Message type is CheckInPresentEvent
             CheckInPresentEvent? PresentEvent = await checkInCommand.ChangeToPresent(command);
             if (PresentEvent == null)
             {
@@ -93,13 +97,14 @@ namespace CheckInService.Controllers
             return Ok("Marked check-in ready");
         }
 
-        /*
+        
         [HttpDelete("Test EventSourceDB.")]
         public async Task<IActionResult> DeleteAppointment()
         {
+            await publisher.SendMessage("Test", "Hello", "ETL_Checkin");
             await eventStoreRepository.StoreMessage("Test", "TestType", new NoShowCheckIn() { Status = Status.AWAIT });
             return Ok("Appointment deleted.");
         }
-        */
+        
     }
 }

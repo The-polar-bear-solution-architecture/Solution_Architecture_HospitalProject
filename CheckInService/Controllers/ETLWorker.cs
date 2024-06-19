@@ -6,16 +6,26 @@ using CheckInService.Repositories;
 using RabbitMQ.Messages.Interfaces;
 using RabbitMQ.Messages.Mapper;
 using CheckInService.Mapper;
+using RabbitMQ.Infrastructure.MessageHandlers;
 
 namespace CheckInService.Controllers
 {
     public class ETLWorker : IMessageHandleCallback, IHostedService
     {
         private IReceiver _messageHandler;
+        private readonly ReadModelRepository readModelRepository;
 
-        public ETLWorker(IReceiver messageHandler)
+        public ETLWorker(ReadModelRepository readModelRepository, IConfiguration configuration)
         {
-            _messageHandler = messageHandler;
+            var section = configuration.GetSection("RabbitMQHandler");
+            string customRoutingKey = "ETL_Checkin";
+            int port = section.GetValue<int>("Port");
+            string _host = section.GetValue<string>("Host");
+            string _exchange = section.GetValue<string>("Exchange");
+            string queue = section.GetValue<string>("Queue");
+            IReceiver receiver = new RabbitMQReceiver(_host, _exchange, "CustomQueue", customRoutingKey, port, "/");
+            _messageHandler = receiver;
+            this.readModelRepository = readModelRepository;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -33,26 +43,12 @@ namespace CheckInService.Controllers
 
         public async Task<bool> HandleMessageAsync(string messageType, object message)
         {
-            byte[] body = message as byte[];
-            switch (messageType)
-            {
-                case "AppointmentCreated":
-                    var post_Command = body.Deserialize<CreateCheckInCommandDTO>().MapToRegister();
-                    // This will create a checkin for its appointmentment
-                    Console.WriteLine("Important: Send to notification service so user will receive message evening before Appointment");
-                    break;
-                case "AppointmentDeleted":
-                    // Will delete appointment and checkin.
-                    Console.WriteLine("Important: Send to notification service so user will receive message evening before Appointment");
-                    break;
-                case "AppointmentUpdated":
-                    // Will update the appointment.
-                    Console.WriteLine("Important: Send to notification service so user will receive message evening before Appointment");
-                    break;
-                default:
-                    Console.WriteLine("Not found in");
-                    break;
-            }
+            // Message type is CheckInRegistrationEvent
+            // Message type is CheckInNoShowEvent
+            // Message type is CheckInPresentEvent
+            // Message type is AppointmentUpdateEvent
+            // Message type is AppointmentDeleteEvent
+            Console.WriteLine("ETL Worker works");
             return true;
         }
     }

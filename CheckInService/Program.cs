@@ -31,6 +31,7 @@ builder.Services.AddTransient<PhysicianRepo, PhysicianRepo>();
 builder.Services.AddTransient<PatientRepo, PatientRepo>();
 builder.Services.AddTransient<CheckInCommandHandler, CheckInCommandHandler>();
 builder.Services.AddTransient<EventStoreRepository, EventStoreRepository>();
+builder.Services.AddTransient<ReadModelRepository, ReadModelRepository>();
 builder.Services.AddTransient<ReplayHandler, ReplayHandler>();
 
 // Use rabbitMQ Publisher
