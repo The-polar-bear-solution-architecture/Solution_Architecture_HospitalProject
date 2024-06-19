@@ -3,11 +3,11 @@
     public class AppointmentDTO
     {
 
-        public int? Id { get; set; }
+        public Guid? Id { get; set; }
         public string Name { get; set; }
         public DateTime AppointmentDate { get; set; }
-        public int PhysicianId { get; set; }
-        public int PatientId { get; set; }
-        public int? PreviousAppointmentId { get; set; }
+        public Guid PhysicianId { get; set; }
+        public Guid PatientId { get; set; }
+        public Guid? PreviousAppointmentId { get; set; }
     }
 }

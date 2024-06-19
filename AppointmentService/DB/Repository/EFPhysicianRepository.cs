@@ -12,7 +12,7 @@ namespace AppointmentService.DB.Repository
             this.context = context; 
         }
 
-        public Physician GetPhysicianById(int Id)
+        public Physician GetPhysicianById(Guid Id)
         {
             return context.Physicians.Where(p => p.Id == Id).FirstOrDefault();
         }
