@@ -10,5 +10,7 @@ namespace CheckInService.Models
 
         public Patient Patient { get; set; }
         public Physician Physician { get; set; }
+
+        public Guid AppointmentSerialNr { get; set; }
     }
 }

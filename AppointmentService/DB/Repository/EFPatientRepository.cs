@@ -11,7 +11,7 @@ namespace AppointmentService.DB.Repository
         {
             this.context = context;
         }
-        public Patient GetPatientById(int Id)
+        public Patient GetPatientById(Guid Id)
         {
             return context.Patients.Where(p => p.Id == Id).FirstOrDefault();
         }

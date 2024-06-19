@@ -1,6 +1,7 @@
 ﻿using CheckinService.Model;
 using CheckInService.DBContexts;
 using CheckInService.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CheckInService.Repositories
 {
@@ -13,6 +14,23 @@ namespace CheckInService.Repositories
             this.checkInContextDB = checkInContextDB;
         }
 
+        public void Delete(Guid id)
+        {
+            try
+            {
+                
+                int i = checkInContextDB.Appointments.Where(e => e.AppointmentSerialNr.Equals(id)).ExecuteDelete();
+
+                Console.WriteLine($"Deletion rows {i}");
+
+            }
+            catch
+            {
+                Console.WriteLine("Deletion failed");
+                return;
+            }
+        }
+
         public Appointment? Get(int id)
         {
             try
@@ -21,6 +39,19 @@ namespace CheckInService.Repositories
             }
             catch
             {
+                return null;
+            }
+        }
+
+        public Appointment? Get(Guid guid)
+        {
+            try
+            {
+                return checkInContextDB.Appointments.Where(p => p.AppointmentSerialNr.Equals(guid)).First();
+            }
+            catch
+            {
+                Console.WriteLine("Appointment is not found");
                 return null;
             }
         }

@@ -1,6 +1,6 @@
 ﻿using CheckinService.Model;
 using CheckInService.CommandsAndEvents.Commands;
-using CheckInService.CommandsAndEvents.Events;
+using CheckInService.CommandsAndEvents.Events.CheckIn;
 using CheckInService.Mapper;
 using CheckInService.Models;
 using CheckInService.Repositories;
@@ -46,15 +46,18 @@ namespace CheckInService.CommandHandlers
                 SerialNr = command.CheckInSerialNr,
                 Appointment = new Appointment()
                 {
+                    AppointmentSerialNr = command.AppointmentGuid,
                     AppointmentDate = command.AppointmentDate,
                     Name = command.ApointmentName,
                     Patient = new Patient()
                     {
+                        PatientSerialNr = command.PatientGuid,
                         FirstName = command.PatientFirstName,
                         LastName = command.PatientLastName
                     },
                     Physician = new Physician()
                     {
+                        PhysicianSerialNr = command.PhysicianGuid,
                         FirstName = command.PhysicianFirstName,
                         LastName = command.PhysicianLastName,
                         Email = command.PhysicianEmail
@@ -62,26 +65,24 @@ namespace CheckInService.CommandHandlers
                 },
             };
 
-            var patient = patientRepo.Get(command.PatientId);
-            var physician = physicianRepo.Get(command.PhysicianId);
-            var ExistingAppointment = appointmentRepository.Get(command.AppointmentId);
+            var patient = patientRepo.Get(command.PatientGuid);
+            var physician = physicianRepo.Get(command.PhysicianGuid);
+            var ExistingAppointment = appointmentRepository.Get(command.AppointmentGuid);
 
             if (patient != null)
             {
                 // Overwrite the current patients info to local patient
-                Patient tempPatient = checkIn.Appointment.Patient;
-                patient.FirstName = tempPatient.FirstName;
-                patient.LastName = tempPatient.LastName;
+                patient.FirstName = command.PatientFirstName;
+                patient.LastName = command.PatientLastName;
                 patientRepo.Put(patient);
                 checkIn.Appointment.Patient = patient;
             }
 
             if (physician != null)
             {
-                Physician tempPhysician = checkIn.Appointment.Physician;
-                physician.FirstName = tempPhysician.FirstName;
-                physician.LastName = tempPhysician.LastName;
-                physician.Email = tempPhysician.Email;
+                physician.FirstName = command.PhysicianFirstName;
+                physician.LastName = command.PhysicianLastName;
+                physician.Email = command.PhysicianEmail;
                 physicianRepo.Put(physician);
                 checkIn.Appointment.Physician = physician;
             }
@@ -94,7 +95,7 @@ namespace CheckInService.CommandHandlers
             checkInRepository.Post(checkIn);
 
             // Send event to Notification service
-            Console.WriteLine("Important: Send to notification service so user will receive message evening before Appointment");
+            Console.WriteLine("Checkin has been replayed.");
 
             return checkIn;
         }

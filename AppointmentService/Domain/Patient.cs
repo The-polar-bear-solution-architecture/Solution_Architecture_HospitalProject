@@ -6,7 +6,7 @@ namespace AppointmentService.Domain
     public class Patient
     {
 
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime DateOfBirth { get; set; }
@@ -18,7 +18,7 @@ namespace AppointmentService.Domain
 
 
 
-        public Patient(int id, string firstName, string lastName, DateTime dateOfBirth, string email, string bSN)
+        public Patient(Guid id, string firstName, string lastName, DateTime dateOfBirth, string email, string bSN)
         {
             Id = id;
             FirstName = firstName;

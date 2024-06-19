@@ -6,7 +6,7 @@ namespace AppointmentService.CommandsAndEvents.Events
     public class AppointmentDeleted : Event
     {
         [Required]
-        public int AppointmentId { get; set; }
+        public Guid AppointmentId { get; set; }
 
         public AppointmentDeleted() { }
 

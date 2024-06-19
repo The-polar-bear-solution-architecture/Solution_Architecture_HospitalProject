@@ -17,7 +17,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 string CheckInDB = builder.Configuration.GetConnectionString("CheckInDB");
-Console.WriteLine(CheckInDB);
 string eventSourceConnection = builder.Configuration.GetConnectionString("EventSourceDB");
 
 //-|| Regular database || Configuration
@@ -41,13 +40,13 @@ builder.Services.UseRabbitMQMessageHandler(builder.Configuration);
 builder.Services.AddHostedService<CheckInWorker>();
 builder.Services.AddSingleton<EventStoreClient>(client);
 
-
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    Console.Error.WriteLine(CheckInDB);
+    Console.Error.WriteLine(eventSourceConnection);
     app.UseSwagger();
     app.UseSwaggerUI();
 }

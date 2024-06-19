@@ -60,6 +60,10 @@ services:
     build:
       context: .
       dockerfile: CheckInService/Dockerfile
+    depends_on:
+      - mssql
+      - eventstoredb
+      - rabbitmq
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
@@ -98,13 +102,15 @@ services:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "Rick@Sanchez"
+      MSSQL_SA_PASSWORD: "Testerino@8"
     ports:
       - 1433:1433
     volumes:
       - sql:/var/opt/mssql
 
   appointmentservice:
+    ports:
+        - 8044:443
     image: ${DOCKER_REGISTRY-}appointmentservice
     build:
       context: .
@@ -114,9 +120,11 @@ services:
     - ASPNETCORE_URLS=https://+:443;http://+:80
     - ASPNETCORE_Kestrel__Certificates__Default__Password=test
     - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ~/.aspnet/https:/https:ro
 
 volumes:
   sql:
-  eventstore-volume-data:
-  eventstore-volume-index:
-  eventstore-volume-logs:  
+  eventstore-data:
+  eventstore-logs:  
+

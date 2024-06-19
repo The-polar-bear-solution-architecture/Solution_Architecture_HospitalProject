@@ -11,11 +11,19 @@ namespace CheckInService.Models.DTO
 
         [Required]
         public int AppointmentId { get; set; }
+
+        [Required]
+        public Guid AppointmentGuid { get; set; } = Guid.NewGuid();
+
         public string ApointmentName { get; set; }
         public DateTime AppointmentDate { get; set; }
 
         [Required]
         public int PatientId { get; set; }
+
+        public Guid PatientGuid { get; set; } = Guid.NewGuid();
+        public Guid PhysicianGuid { get; set; } = Guid.NewGuid();
+
         [Required]
         public string PatientFirstName { get; set; }
         [Required]
