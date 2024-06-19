@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddDbContext<AppointmentServiceContext>(options => options.UseSqlServer("Data Source=.;Initial Catalog=AppointmentService;Integrated Security=True;Encrypt=False;Trust Server Certificate=True"));
+builder.Services.AddDbContext<AppointmentServiceContext>(options => options.UseSqlServer("Data Source=localhost;Initial Catalog=AppointmentService;User ID=sa;Password=Rick@Sanchez;Trust Server Certificate=True"));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
