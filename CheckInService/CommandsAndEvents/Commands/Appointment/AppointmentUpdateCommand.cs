@@ -7,4 +7,11 @@
         public DateTime AppointmentDate { get; init; }
         public Guid PhysicianSerialNr { get; init; }
     }
+
+    public class AppointmentReadUpdateCommand: AppointmentUpdateCommand
+    {
+        public string PhysicianFirstName { get; init; }
+        public string PhysicianLastName { get; init; }
+        public string PhysicianEmail { get; init; }
+    }
 }

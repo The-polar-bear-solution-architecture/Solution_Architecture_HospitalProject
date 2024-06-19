@@ -12,4 +12,15 @@ namespace CheckInService.CommandsAndEvents.Events.Appointment
         public DateTime AppointmentDate { get; set; }
         public Guid PhysicianSerialNr { get; set; }
     }
+
+    public class AppointmentReadUpdateEvent : AppointmentUpdateEvent
+    {
+        public string PhysicianFirstName { get; init; }
+        public string PhysicianLastName { get; init; }
+        public string PhysicianEmail { get; init; }
+
+        public AppointmentReadUpdateEvent(string messageType) : base(messageType)
+        {
+        }
+    }
 }

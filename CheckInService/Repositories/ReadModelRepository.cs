@@ -55,7 +55,7 @@ namespace CheckInService.Repositories
         }
 
         // Update appointment
-        public CheckInReadModel Update(AppointmentUpdateCommand model)
+        public CheckInReadModel Update(AppointmentReadUpdateCommand model)
         {
             try
             {
@@ -64,10 +64,14 @@ namespace CheckInService.Repositories
                 {
                     m.ApointmentName = model.AppointmentName;
                     m.AppointmentDate = model.AppointmentDate;
-                    m.PhysicianGuid = model.PhysicianSerialNr;
                     // Extra data needed regarding physicians data.
-
-
+                    if (!model.PhysicianSerialNr.Equals(m.PhysicianGuid))
+                    {
+                        m.PhysicianGuid = model.PhysicianSerialNr;
+                        m.PhysicianLastName = model.PhysicianLastName;
+                        m.PhysicianEmail = model.PhysicianEmail;
+                        m.PhysicianFirstName = model.PhysicianFirstName;
+                    }
                     contextDB.Update(m);
                     contextDB.SaveChanges();
                 }

@@ -26,6 +26,7 @@ namespace CheckInService.Controllers
         private readonly ReadModelRepository readModelRepository;
         private readonly IPublisher publisher;
         private readonly string RouterKeyLocator;
+        private readonly string RouterKey;
 
         public CheckInController(
             CheckInRepository checkInRepository,
@@ -39,6 +40,7 @@ namespace CheckInService.Controllers
             this.readModelRepository = readModelRepository;
             this.publisher = publisher;
             RouterKeyLocator = "Notifications";
+            RouterKey = "ETL_Checkin";
         }
 
         // GET: api/<CheckInController>
@@ -78,6 +80,7 @@ namespace CheckInService.Controllers
             await eventStoreRepository.StoreMessage(nameof(CheckIn), NoShowEvent.MessageType, NoShowEvent);
 
             // Update read model
+            await publisher.SendMessage(NoShowEvent.MessageType, NoShowEvent, RouterKey);
             // Send notification to physician.
 
             return Ok("Marked appointment as noshow");
@@ -96,6 +99,9 @@ namespace CheckInService.Controllers
             }
             // Add event to event store.
             await eventStoreRepository.StoreMessage(nameof(CheckIn), PresentEvent.MessageType, PresentEvent);
+
+            // Send update to read model.
+            await publisher.SendMessage(PresentEvent.MessageType, PresentEvent, RouterKey);
 
             // Send notification to physician.
             await publisher.SendMessage(PresentEvent.MessageType, PresentEvent, RouterKeyLocator);

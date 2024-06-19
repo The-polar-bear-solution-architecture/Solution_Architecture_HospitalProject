@@ -153,7 +153,7 @@ namespace CheckInService.CommandHandlers
             appointmentRepository.Put(appointment);
 
             // Store event into event store database
-            AppointmentUpdateEvent updateEvent = appointmentUpdateCommand.MapToUpdatedEvent();
+            AppointmentUpdateEvent updateEvent = appointmentUpdateCommand.MapToUpdatedEvent(retrieved_physician);
             
             return updateEvent;
         }

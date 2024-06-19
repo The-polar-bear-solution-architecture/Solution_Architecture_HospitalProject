@@ -1,4 +1,5 @@
-﻿using CheckInService.CommandsAndEvents.Commands.Appointment;
+﻿using CheckinService.Model;
+using CheckInService.CommandsAndEvents.Commands.Appointment;
 using CheckInService.CommandsAndEvents.Events.Appointment;
 using CheckInService.Models;
 using CheckInService.Models.DTO;
@@ -19,15 +20,33 @@ namespace CheckInService.Mapper
             };
         }
 
-        public static AppointmentUpdateEvent MapToUpdatedEvent(this AppointmentUpdateCommand appointmentUpdateCommand)
+        public static AppointmentUpdateEvent MapToUpdatedEvent(this AppointmentUpdateCommand appointmentUpdateCommand, Physician? newPhysician)
         {
-            return new AppointmentUpdateEvent(nameof(AppointmentUpdateEvent))
+            if(newPhysician == null | newPhysician.PhysicianSerialNr.Equals(appointmentUpdateCommand.PhysicianSerialNr))
             {
-                AppointmentDate = appointmentUpdateCommand.AppointmentDate,
-                AppointmentName = appointmentUpdateCommand.AppointmentName,
-                AppointmentSerialNr = appointmentUpdateCommand.AppointmentSerialNr,
-                PhysicianSerialNr = appointmentUpdateCommand.PhysicianSerialNr
-            };
+                return new AppointmentUpdateEvent(nameof(AppointmentUpdateEvent))
+                {
+                    AppointmentDate = appointmentUpdateCommand.AppointmentDate,
+                    AppointmentName = appointmentUpdateCommand.AppointmentName,
+                    AppointmentSerialNr = appointmentUpdateCommand.AppointmentSerialNr,
+                    PhysicianSerialNr = appointmentUpdateCommand.PhysicianSerialNr
+                };
+            }
+            else
+            {
+                // The message type of this class will use its parent class, because the process in the ETL depends upon it.
+                return new AppointmentReadUpdateEvent(nameof(AppointmentUpdateEvent))
+                {
+                    PhysicianEmail = newPhysician.Email,
+                    PhysicianFirstName = newPhysician.FirstName,
+                    PhysicianLastName = newPhysician.LastName,
+                    PhysicianSerialNr = newPhysician.PhysicianSerialNr,
+                    AppointmentDate = appointmentUpdateCommand.AppointmentDate,
+                    AppointmentName = appointmentUpdateCommand.AppointmentName,
+                    AppointmentSerialNr = appointmentUpdateCommand.AppointmentSerialNr
+                };
+            }
+            
         }
 
         public static AppointmentDeleteCommand MapToDeleteEvent(this Guid AppointmentSerialNr, Guid CheckInSerialNr)
