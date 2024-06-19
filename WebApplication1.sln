@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DockerDemo", "DockerDemo\Do
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{8A77F774-A900-41E8-91D6-0D6300ED7108}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ETLCheckInService", "ETLCheckInService\ETLCheckInService.csproj", "{E596BDAA-B65E-4C51-A881-5D021A2C1B1C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{8A77F774-A900-41E8-91D6-0D6300ED7108}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A77F774-A900-41E8-91D6-0D6300ED7108}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A77F774-A900-41E8-91D6-0D6300ED7108}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E596BDAA-B65E-4C51-A881-5D021A2C1B1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E596BDAA-B65E-4C51-A881-5D021A2C1B1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E596BDAA-B65E-4C51-A881-5D021A2C1B1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E596BDAA-B65E-4C51-A881-5D021A2C1B1C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
