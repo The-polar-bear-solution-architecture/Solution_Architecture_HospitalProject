@@ -1,6 +1,7 @@
 using CheckInService.CommandHandlers;
 using CheckInService.Controllers;
 using CheckInService.DBContexts;
+using CheckInService.Pipelines;
 using CheckInService.Repositories;
 using EventStore.Client;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +37,7 @@ builder.Services.AddTransient<CheckInCommandHandler, CheckInCommandHandler>();
 builder.Services.AddTransient<EventStoreRepository, EventStoreRepository>();
 builder.Services.AddTransient<ReadModelRepository, ReadModelRepository>();
 builder.Services.AddTransient<ReplayHandler, ReplayHandler>();
+builder.Services.AddTransient<CheckInPipeline, CheckInPipeline>();
 
 // Use rabbitMQ Publisher
 builder.Services.UseRabbitMQMessagePublisher(builder.Configuration);

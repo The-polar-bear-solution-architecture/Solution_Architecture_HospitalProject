@@ -87,7 +87,7 @@ namespace CheckInService.Controllers
         [HttpPatch(Name = "Replay")]
         public async Task<IActionResult> ReplayAll()
         {
-            List<Message> list = new List<Message>();
+            /* List<Message> list = new List<Message>();
             var result = client.ReadStreamAsync(
                 Direction.Forwards,
                 nameof(CheckIn),
@@ -140,8 +140,10 @@ namespace CheckInService.Controllers
                 }
                 list.Add(entity_event);
                 Console.WriteLine("============== Cycle over process ===========");
-            }
-            return Ok(list);
+            }*/
+
+            await publisher.SendMessage("Replay", "", RouterKey);
+            return Ok("Done");
         }
     }
 }

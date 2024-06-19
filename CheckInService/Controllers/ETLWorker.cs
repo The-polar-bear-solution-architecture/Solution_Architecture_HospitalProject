@@ -8,6 +8,8 @@ using RabbitMQ.Messages.Mapper;
 using CheckInService.Mapper;
 using RabbitMQ.Infrastructure.MessageHandlers;
 using CheckInService.CommandsAndEvents.Commands.CheckIn;
+using CheckInService.Pipelines;
+using RabbitMQ.Messages.Messages;
 
 namespace CheckInService.Controllers
 {
@@ -15,8 +17,9 @@ namespace CheckInService.Controllers
     {
         private IReceiver _messageHandler;
         private readonly ReadModelRepository readModelRepository;
+        private readonly CheckInPipeline checkInPipeline;
 
-        public ETLWorker(ReadModelRepository readModelRepository, IConfiguration configuration)
+        public ETLWorker(ReadModelRepository readModelRepository, IConfiguration configuration, CheckInPipeline checkInPipeline)
         {
             var section = configuration.GetSection("RabbitMQHandler");
             string customRoutingKey = "ETL_Checkin";
@@ -27,6 +30,7 @@ namespace CheckInService.Controllers
             IReceiver receiver = new RabbitMQReceiver(_host, _exchange, "CustomQueue", customRoutingKey, port, "/");
             _messageHandler = receiver;
             this.readModelRepository = readModelRepository;
+            this.checkInPipeline = checkInPipeline;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -44,16 +48,22 @@ namespace CheckInService.Controllers
 
         public async Task<bool> HandleMessageAsync(string messageType, object message)
         {
-            byte[] data = message as byte[];
+            TryRunIndividualPipeline(messageType, message);
+            TryCollectivePipeline(messageType, message);
+            return true;
+        }
 
-            // Message type is CheckInRegistrationEvent
+        public async void TryRunIndividualPipeline(string messageType, object message)
+        {
+            byte[] data = message as byte[];
             if (messageType.Equals("CheckInRegistrationEvent"))
             {
                 var deserializedData = data.Deserialize<CheckInReadModel>();
                 Console.WriteLine($"Create checkin model {deserializedData.ApointmentName}");
                 // Perform operations.
                 readModelRepository.Create(deserializedData);
-            } else if (messageType.Equals("CheckInNoShowEvent") || messageType.Equals("CheckInPresentEvent"))
+            }
+            else if (messageType.Equals("CheckInNoShowEvent") || messageType.Equals("CheckInPresentEvent"))
             {
                 var updateCheckIn = data.Deserialize<CheckInUpdateCommand>();
                 Console.WriteLine("Update read model.");
@@ -72,17 +82,37 @@ namespace CheckInService.Controllers
                 var appointmentDeletion = data.Deserialize<AppointmentDeleteCommand>();
                 Console.WriteLine("Delete appointment");
                 readModelRepository.DeleteByAppointment(appointmentDeletion.AppointmentSerialNr);
-            } else if (messageType.Equals("Clear"))
+            }
+            else
+            {
+                Console.WriteLine("No match found.");
+            }
+        }
+        
+        public async void TryCollectivePipeline(string messageType, object message)
+        {
+            byte[] data = message as byte[];
+            if (messageType.Equals("Clear"))
             {
                 readModelRepository.DeleteAll();
                 Console.WriteLine("Rebuild everything appointment");
             }
+            else if (messageType.Equals("Replay"))
+            {
+                // First clear all data from read database
+                readModelRepository.DeleteAll();
+
+                // Then start pipeline 
+                await checkInPipeline.RunPipeline();
+
+                // Does currently nothing, but will synchronise with write database.
+                await checkInPipeline.SynchroniseWriteDBWithReadDB();
+            }
             else
             {
-                Console.WriteLine("Nothing?");
+                Console.WriteLine("No match found. In collective pipeline.");
             }
 
-            return true;
         }
     }
 
