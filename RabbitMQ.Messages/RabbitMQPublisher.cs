@@ -65,7 +65,7 @@ namespace RabbitMQ.Infrastructure.MessagePublishers
                     Model = Connection.CreateModel();
 
                     // TODO: Durable zal uiteindelijk naar true moeten gaan.
-                    Model.ExchangeDeclare(_exchange, "fanout", durable: false, autoDelete: false);
+                    Model.ExchangeDeclare(_exchange, "fanout", durable: true, autoDelete: false);
                 });
         }
 
