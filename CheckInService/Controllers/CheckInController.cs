@@ -23,17 +23,20 @@ namespace CheckInService.Controllers
         private readonly CheckInRepository checkInRepository;
         private readonly CheckInCommandHandler checkInCommand;
         private readonly EventStoreRepository eventStoreRepository;
+        private readonly ReadModelRepository readModelRepository;
         private readonly IPublisher publisher;
         private readonly string RouterKeyLocator;
 
         public CheckInController(
-            CheckInRepository checkInRepository, 
+            CheckInRepository checkInRepository,
             CheckInCommandHandler checkInCommand,
             EventStoreRepository eventStoreRepository,
+            ReadModelRepository readModelRepository,
             IPublisher publisher) {
             this.checkInRepository = checkInRepository;
             this.checkInCommand = checkInCommand;
             this.eventStoreRepository = eventStoreRepository;
+            this.readModelRepository = readModelRepository;
             this.publisher = publisher;
             RouterKeyLocator = "Notifications";
         }
@@ -42,14 +45,14 @@ namespace CheckInService.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(checkInRepository.Get());
+            return Ok(readModelRepository.Get());
         }
 
         // GET api/<CheckInController>/5
         [HttpGet("{serialNr}")]
         public IActionResult Get(Guid serialNr)
         {
-            var checkIn = checkInRepository.Get(serialNr);
+            var checkIn = readModelRepository.Get(serialNr);
             if(checkIn == null)
             {
                 return BadRequest("CheckIn not found");
@@ -73,6 +76,9 @@ namespace CheckInService.Controllers
             }
             // Add event to event store.
             await eventStoreRepository.StoreMessage(nameof(CheckIn), NoShowEvent.MessageType, NoShowEvent);
+
+            // Update read model
+            // Send notification to physician.
 
             return Ok("Marked appointment as noshow");
         }

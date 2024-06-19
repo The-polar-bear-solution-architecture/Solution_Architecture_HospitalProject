@@ -19,6 +19,7 @@ using CheckInService.CommandsAndEvents.Events.CheckIn;
 using CheckInService.CommandsAndEvents.Events.Appointment;
 using CheckInService.CommandsAndEvents.Commands.Appointment;
 using CheckInService.CommandsAndEvents.Commands.CheckIn;
+using RabbitMQ.Messages.Interfaces;
 
 namespace CheckInService.Controllers
 {
@@ -30,16 +31,21 @@ namespace CheckInService.Controllers
         private readonly CheckInContextDB checkInContext;
         private readonly ReplayHandler replayEventHandler;
         private readonly CheckInCommandHandler checkInCommandHandler;
+        private readonly IPublisher publisher;
+        private readonly string RouterKey;
 
         public ReplayController(EventStoreClient client, 
             CheckInContextDB checkInContext, 
             ReplayHandler replayEventHandler,
-            CheckInCommandHandler checkInCommandHandler)
+            CheckInCommandHandler checkInCommandHandler,
+            IPublisher publisher)
         {
             this.client = client;
             this.checkInContext = checkInContext;
             this.replayEventHandler = replayEventHandler;
             this.checkInCommandHandler = checkInCommandHandler;
+            this.publisher = publisher;
+            RouterKey = "ETL_Checkin";
         }
 
         [HttpGet(Name = "GetAllEvents")]
@@ -58,7 +64,7 @@ namespace CheckInService.Controllers
         }
 
         [HttpDelete(Name = "ClearDatabase")]
-        public IActionResult ClearCheckInDatabase()
+        public async Task<IActionResult> ClearCheckInDatabase()
         {
             // For now only the checkin table will be cleared.
             // Deletes all elements from checkin 
@@ -73,6 +79,8 @@ namespace CheckInService.Controllers
 
             checkInContext.SaveChanges();
             // Later on, all the other tables will be cleared too.
+
+            await publisher.SendMessage("Clear" , "", RouterKey);
             return Ok("All checkIns have been deleted.");
         }
 
@@ -99,22 +107,32 @@ namespace CheckInService.Controllers
                     case nameof(CheckInNoShowEvent):
                         entity_event = data.Deserialize<NoShowCheckIn>();
                         await checkInCommandHandler.ChangeToNoShow((NoShowCheckIn)entity_event);
+                        // Send to ETL Worker.
+                        await this.publisher.SendMessage(EventType, entity_event, RouterKey);
                         break;
                     case nameof(CheckInPresentEvent):
                         entity_event = data.Deserialize<PresentCheckin>();
                         await checkInCommandHandler.ChangeToPresent((PresentCheckin)entity_event);
+                        // Send to ETL Worker.
+                        await this.publisher.SendMessage(EventType, entity_event, RouterKey);
                         break;
                     case nameof(CheckInRegistrationEvent):
                         RegisterCheckin registerCommand = data.Deserialize<RegisterCheckin>();
                         await checkInCommandHandler.RegisterCheckin(registerCommand);
+                        // Send to ETL Worker.
+                        await this.publisher.SendMessage(EventType, registerCommand, RouterKey);
                         break;
                     case nameof(AppointmentDeleteEvent):
                         var delete_command = data.Deserialize<AppointmentDeleteCommand>();
                         await checkInCommandHandler.DeleteAppointment(delete_command);
+                        // Send to ETL Worker.
+                        await this.publisher.SendMessage(EventType, delete_command, RouterKey);
                         break;
                     case nameof(AppointmentUpdateEvent):
-                        var update_command = data.Deserialize<AppointmentDeleteCommand>();
-                        await checkInCommandHandler.DeleteAppointment(update_command);
+                        var update_command = data.Deserialize<AppointmentUpdateCommand>();
+                        await checkInCommandHandler.UpdateAppointment(update_command);
+                        // Send to ETL Worker.
+                        await this.publisher.SendMessage(EventType, update_command, RouterKey);
                         break;
                     default:
                         Console.WriteLine($"No object convertion possible with {EventType}");

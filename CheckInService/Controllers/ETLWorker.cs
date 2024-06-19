@@ -7,6 +7,7 @@ using RabbitMQ.Messages.Interfaces;
 using RabbitMQ.Messages.Mapper;
 using CheckInService.Mapper;
 using RabbitMQ.Infrastructure.MessageHandlers;
+using CheckInService.CommandsAndEvents.Commands.CheckIn;
 
 namespace CheckInService.Controllers
 {
@@ -43,12 +44,44 @@ namespace CheckInService.Controllers
 
         public async Task<bool> HandleMessageAsync(string messageType, object message)
         {
+            byte[] data = message as byte[];
+
             // Message type is CheckInRegistrationEvent
-            // Message type is CheckInNoShowEvent
-            // Message type is CheckInPresentEvent
-            // Message type is AppointmentUpdateEvent
-            // Message type is AppointmentDeleteEvent
-            Console.WriteLine("ETL Worker works");
+            if (messageType.Equals("CheckInRegistrationEvent"))
+            {
+                var deserializedData = data.Deserialize<CheckInReadModel>();
+                Console.WriteLine($"Create checkin model {deserializedData.ApointmentName}");
+                // Perform operations.
+                readModelRepository.Create(deserializedData);
+            } else if (messageType.Equals("CheckInNoShowEvent") || messageType.Equals("CheckInPresentEvent"))
+            {
+                var updateCheckIn = data.Deserialize<CheckInUpdateCommand>();
+                Console.WriteLine("Update read model.");
+                // Perform operations.
+                readModelRepository.Update(updateCheckIn);
+            }
+            else if (messageType.Equals("AppointmentUpdateEvent"))
+            {
+                var appointmentUpdate = data.Deserialize<AppointmentUpdateCommand>();
+                Console.WriteLine("Update appointment part of read model.");
+                // Perform operations.
+                readModelRepository.Update(appointmentUpdate);
+            }
+            else if (messageType.Equals("AppointmentDeleteEvent"))
+            {
+                var appointmentDeletion = data.Deserialize<AppointmentDeleteCommand>();
+                Console.WriteLine("Delete appointment");
+                readModelRepository.DeleteByAppointment(appointmentDeletion.AppointmentSerialNr);
+            } else if (messageType.Equals("Clear"))
+            {
+                readModelRepository.DeleteAll();
+                Console.WriteLine("Rebuild everything appointment");
+            }
+            else
+            {
+                Console.WriteLine("Nothing?");
+            }
+
             return true;
         }
     }

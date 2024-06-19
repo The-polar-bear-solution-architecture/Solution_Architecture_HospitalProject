@@ -5,29 +5,26 @@ namespace CheckInService.Models
 {
     public class CheckInReadModel
     {
-        public int CheckInId { get; init; }
+        [Key]
         public Guid CheckInSerialNr { get; init; }
-        public Status Status { get; init; } = Status.AWAIT;
+        public Status Status { get; set; } = Status.AWAIT;
 
         [Required]
         public Guid AppointmentGuid { get; init; }
-        public int AppointmentId { get; init; }
-        public string ApointmentName { get; init; }
-        public DateTime AppointmentDate { get; init; }
+        public string ApointmentName { get; set; }
+        public DateTime AppointmentDate { get; set; }
 
         [Required]
-        public int PatientId { get; init; }
-        public Guid PatientGuid { get; init; }
-        public string PatientFirstName { get; init; }
-        public string PatientLastName { get; init; }
+        public Guid PatientGuid { get; set; }
+        public string PatientFirstName { get; set; }
+        public string PatientLastName { get; set; }
 
         [Required]
-        public int PhysicianId { get; init; }
-        public Guid PhysicianGuid { get; init; }
-        public string PhysicianFirstName { get; init; }
-        public string PhysicianLastName { get; init; }
+        public Guid PhysicianGuid { get; set; }
+        public string PhysicianFirstName { get; set; }
+        public string PhysicianLastName { get; set; }
 
         [Required]
-        public string PhysicianEmail { get; init; }
+        public string PhysicianEmail { get; set; }
     }
 }

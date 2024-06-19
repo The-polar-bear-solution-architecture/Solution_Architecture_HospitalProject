@@ -18,9 +18,12 @@ builder.Services.AddSwaggerGen();
 
 string CheckInDB = builder.Configuration.GetConnectionString("CheckInDB");
 string eventSourceConnection = builder.Configuration.GetConnectionString("EventSourceDB");
+string CheckInReadDB = builder.Configuration.GetConnectionString("CheckInReadDB");
 
 //-|| Regular database || Configuration
 builder.Services.AddDbContext<CheckInContextDB>(options => options.UseSqlServer(CheckInDB), ServiceLifetime.Singleton);
+builder.Services.AddDbContext<CheckInReadContextDB>(options => options.UseSqlServer(CheckInReadDB), ServiceLifetime.Singleton);
+
 var settings = EventStoreClientSettings.Create(eventSourceConnection);
 var client = new EventStoreClient(settings);
 
@@ -58,9 +61,11 @@ using (var scope = app.Services.CreateScope())
 {
     Console.WriteLine("Start migrations Checkin service.");
     var db = scope.ServiceProvider.GetService<CheckInContextDB>();
+    var readDb = scope.ServiceProvider.GetService<CheckInReadContextDB>();
     // Will perform a migration when booting up the api.
     db.MigrateDB();
     Console.WriteLine("Ended migrations Checkin service.");
+    readDb.MigrateDB();
 }
 
 app.UseHttpsRedirection();

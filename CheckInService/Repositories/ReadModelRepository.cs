@@ -1,46 +1,131 @@
-﻿using CheckInService.Models;
+﻿using CheckInService.CommandsAndEvents.Commands.Appointment;
+using CheckInService.CommandsAndEvents.Commands.CheckIn;
+using CheckInService.DBContexts;
+using CheckInService.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CheckInService.Repositories
 {
     public class ReadModelRepository
     {
+        private readonly CheckInReadContextDB contextDB;
 
-        public ReadModelRepository() {
+        public ReadModelRepository(CheckInReadContextDB contextDB) {
             Console.WriteLine("Read repository initialized.");
+            this.contextDB = contextDB;
         }
 
         // Get All
         public IEnumerable<CheckInReadModel> Get()
         {
-            return new List<CheckInReadModel>();
+            return contextDB.CheckInReadModel.ToList();
         }
 
         // Get one
         public CheckInReadModel Get(Guid id)
         {
-            return new CheckInReadModel();
+            try
+            {
+                return contextDB.CheckInReadModel.Where(e => e.CheckInSerialNr.Equals(id)).First();
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         // Get one by appointment id
         public CheckInReadModel GetByAppointment(Guid id)
         {
-            return new CheckInReadModel();
+            return contextDB.CheckInReadModel.Where(e => e.AppointmentGuid.Equals(id)).First();
+        }
+
+        public CheckInReadModel Create(CheckInReadModel model)
+        {
+            try
+            {
+                contextDB.CheckInReadModel.Add(model);
+                contextDB.SaveChanges();
+                return model;
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         // Update appointment
+        public CheckInReadModel Update(AppointmentUpdateCommand model)
+        {
+            try
+            {
+                CheckInReadModel m = GetByAppointment(model.AppointmentSerialNr);
+                if(m != null)
+                {
+                    m.ApointmentName = model.AppointmentName;
+                    m.AppointmentDate = model.AppointmentDate;
+                    m.PhysicianGuid = model.PhysicianSerialNr;
+                    // Extra data needed regarding physicians data.
+
+
+                    contextDB.Update(m);
+                    contextDB.SaveChanges();
+                }
+                return m;
+            }
+            catch
+            {
+                return null;
+            }
+            
+
+            return new CheckInReadModel();
+        }
 
         // Update checkin part.
+        public CheckInReadModel Update(CheckInUpdateCommand model)
+        {
+            try
+            {
+                CheckInReadModel m = Get(model.CheckInSerialNr);
+                if (m != null)
+                {
+                    m.Status = model.Status;
+                    contextDB.Update(m);
+                    contextDB.SaveChanges();
+                }
+                return m;
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
         // Delete appointment
         public void DeleteByAppointment(Guid id)
         {
-            Console.WriteLine($"{id} deleted");
+            try
+            {
+                var entity = GetByAppointment(id);
+                contextDB.CheckInReadModel.Remove(entity);
+                int i = contextDB.SaveChanges(true);
+
+                Console.WriteLine($"Deletion rows {i}");
+            }
+            catch
+            {
+                Console.WriteLine("Nothing found");
+            }
         }
 
         // Delete all.
         public void DeleteAll()
         {
-            Console.WriteLine($"All has been lost!");
+            // Clears database.
+            var l = contextDB.CheckInReadModel.ToList();
+            contextDB.CheckInReadModel.RemoveRange(l);
+            contextDB.SaveChanges();
         }
     }
 }
