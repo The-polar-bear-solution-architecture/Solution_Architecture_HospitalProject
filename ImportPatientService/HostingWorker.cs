@@ -41,7 +41,7 @@ namespace ImportPatientService
                 }
 
                 ExternalPatientEvent externalEvent = new ExternalPatientEvent() { patientList = list };
-                publisher.SendMessage("ExternalPatient", externalEvent, "IncommingPatients");
+                publisher.SendMessage("ExternalPatient", externalEvent, "IncomingPatients");
                 
                 i++;
                 Console.WriteLine($"Run geeindigt is op index {i}");
