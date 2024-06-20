@@ -128,7 +128,16 @@ services:
     volumes:
       - ~/.aspnet/https:/https:ro
 
+  importpatientservice:
+    container_name: importpatientservice
+    image: ${DOCKER_REGISTRY-}importpatientservice
+    build:
+      context: .
+      dockerfile: ImportPatientService/Dockerfile
+    depends_on:
+      - rabbitmq
 volumes:
   sql:
   eventstore-data:
   eventstore-logs:  
+
