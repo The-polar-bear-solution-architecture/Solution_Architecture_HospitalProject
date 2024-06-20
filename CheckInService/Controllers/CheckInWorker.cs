@@ -74,19 +74,7 @@ namespace CheckInService.Controllers
 
                         // Send event to Notification service
                         Console.WriteLine("Important: Send to notification service so user will receive message evening before Appointment");
-                    }
-                    break;
-                case "AppointmentDeleted":
-                    // Will delete appointment and checkin.
-                    var deleteCommand = body.Deserialize<AppointmentDeleteCommand>();
-                    AppointmentDeleteEvent? delete_Event = await checkInCommandHandler.DeleteAppointment(deleteCommand);
-                    if(delete_Event != null)
-                    {
-                        // Message type is AppointmentDeleteEvent
-                        await EventStoreRepository.StoreMessage(nameof(CheckIn), delete_Event.MessageType, delete_Event);
-
-                        // Send delete request to ETL.
-                        await InternalPublisher.SendMessage(delete_Event.MessageType, delete_Event, RouterKey);
+                        await publisher.SendMessage(RegisterEvent.MessageType, RegisterEvent, "NotificationAppointment");
                     }
                     break;
                 case "AppointmentUpdated":
@@ -100,6 +88,24 @@ namespace CheckInService.Controllers
 
                         // Send delete request to ETL.
                         await InternalPublisher.SendMessage(updateEvent.MessageType, updateEvent, RouterKey);
+                        // Update notification in notification service
+                        await publisher.SendMessage(updateEvent.MessageType, updateEvent, "NotificationAppointment");
+                    }
+                    break;
+                case "AppointmentDeleted":
+                    // Will delete appointment and checkin.
+                    var deleteCommand = body.Deserialize<AppointmentDeleteCommand>();
+                    AppointmentDeleteEvent? delete_Event = await checkInCommandHandler.DeleteAppointment(deleteCommand);
+                    if(delete_Event != null)
+                    {
+                        // Message type is AppointmentDeleteEvent
+                        await EventStoreRepository.StoreMessage(nameof(CheckIn), delete_Event.MessageType, delete_Event);
+
+                        // Send delete request to ETL.
+                        await InternalPublisher.SendMessage(delete_Event.MessageType, delete_Event, RouterKey);
+
+                        // Remove notification for appointment notification service
+                        await publisher.SendMessage(delete_Event.MessageType, delete_Event, "NotificationAppointment");
                     }
                     break;
                 default:

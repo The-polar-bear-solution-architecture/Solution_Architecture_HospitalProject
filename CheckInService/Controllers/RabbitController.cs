@@ -17,21 +17,7 @@ namespace CheckInService.Controllers
             this.publisher = rabbitFactory.CreateInternalPublisher();
         }
 
-        // GET: api/<RabbitController>
-        [HttpGet(Name = "Rabbit")]
-        public IEnumerable<string> Get()
-        {
-            string guid_string = "52c24165-be89-4001-8455-09d678cea45e";
-
-            Console.WriteLine(guid_string);
-
-            Guid.TryParse(guid_string, out var guid);
-
-            // publisher.SendMessage("Yo", "Welkom wereld. Dit is een wereld", "Appointments_Checkin");
-            return new string[] { guid.ToString() };
-        }
-
-        [HttpPut (Name = "TestInternalQueue/Test")]
+        [HttpPut ("TestInternalQueue")]
         public async Task<IActionResult> TestConnection()
         {
             await publisher.SendMessage("Test", "Hallo ETL", "ETL_Checkin");

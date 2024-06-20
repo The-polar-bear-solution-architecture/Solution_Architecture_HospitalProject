@@ -1,12 +1,14 @@
 ﻿using CheckinService.Model;
 using RabbitMQ.Messages.Messages;
+using System.ComponentModel.DataAnnotations;
 
 namespace CheckInService.CommandsAndEvents.Commands.CheckIn
 {
     public class NoShowCheckIn : Command
     {
-        public int CheckInId { get; init; }
+        [Required]
         public Guid CheckInSerialNr { get; init; }
+        public Guid AppointmentSerialNr { get; init; }
         public Status Status { get; init; } = Status.NOSHOW;
 
         public NoShowCheckIn(Guid messageId) : base(messageId)

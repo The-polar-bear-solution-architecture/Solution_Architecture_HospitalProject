@@ -5,8 +5,8 @@ namespace CheckInService.CommandsAndEvents.Events.CheckIn
 {
     public class CheckInPresentEvent : Event
     {
-        public int CheckInId { get; init; }
         public Guid CheckInSerialNr { get; init; }
+        public Guid AppointmentSerialNr { get; init; }
         public Status Status { get; init; } = Status.PRESENT;
 
         public CheckInPresentEvent() : base(Guid.NewGuid(), nameof(CheckInPresentEvent))

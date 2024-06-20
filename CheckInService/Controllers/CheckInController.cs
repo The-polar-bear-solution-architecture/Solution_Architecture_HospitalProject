@@ -72,11 +72,11 @@ namespace CheckInService.Controllers
         }
 
         // PUT api/<CheckInController>/5
-        [HttpPut("{serialNr}/MarkNoShow")]
-        public async Task<IActionResult> PutNoShow(Guid serialNr)
+        [HttpPut("MarkNoShow")]
+        public async Task<IActionResult> PutNoShow([FromBody] NoShowCheckIn InputCommand)
         {
             NoShowCheckIn command = new NoShowCheckIn() { 
-                CheckInSerialNr = serialNr, Status = Status.NOSHOW
+                CheckInSerialNr = InputCommand.CheckInSerialNr, Status = Status.NOSHOW
             };
 
             // Message type is CheckInNoShowEvent
@@ -90,15 +90,14 @@ namespace CheckInService.Controllers
 
             // Update read model
             await InternalPublisher.SendMessage(NoShowEvent.MessageType, NoShowEvent, RouterKey);
-            // Send notification to physician.
 
-            return Ok("Marked appointment as noshow");
+            return Ok($"Marked appointment of checkin {NoShowEvent.CheckInSerialNr} as noshow");
         }
 
-        [HttpPut("{serialNr}/MarkPresent")]
-        public async Task<IActionResult> PutPresentAsync(Guid serialNr)
+        [HttpPut("MarkPresent")]
+        public async Task<IActionResult> PutPresentAsync([FromBody] PresentCheckin PresentCommand)
         {
-            PresentCheckin command = new PresentCheckin() { CheckInSerialNr = serialNr, Status = Status.PRESENT };
+            PresentCheckin command = new PresentCheckin() { CheckInSerialNr = PresentCommand.CheckInSerialNr, Status = Status.PRESENT };
 
             // Message type is CheckInPresentEvent
             CheckInPresentEvent? PresentEvent = await checkInCommand.ChangeToPresent(command);
@@ -122,10 +121,9 @@ namespace CheckInService.Controllers
         [HttpDelete("Test EventSourceDB.")]
         public async Task<IActionResult> DeleteAppointment()
         {
-            await InternalPublisher.SendMessage("Test", "Hello", "ETL_Checkin");
+            await InternalPublisher.SendMessage("Test", "Bazooka", "ETL_Checkin");
             await eventStoreRepository.StoreMessage("Test", "TestType", new NoShowCheckIn() { Status = Status.AWAIT });
             return Ok("Appointment deleted.");
         }
-        
     }
 }

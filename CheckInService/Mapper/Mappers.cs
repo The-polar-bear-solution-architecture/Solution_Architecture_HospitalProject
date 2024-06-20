@@ -145,8 +145,8 @@ namespace CheckInService.Mapper
         {
             return new CheckInPresentEvent(Guid.NewGuid(), nameof(CheckInPresentEvent))
             {
-                CheckInId = checkIn.Id,
                 CheckInSerialNr = checkIn.SerialNr,
+                AppointmentSerialNr = checkIn.Appointment.AppointmentSerialNr,
                 Status = checkIn.Status
             };
         }
@@ -155,8 +155,8 @@ namespace CheckInService.Mapper
         {
             return new CheckInNoShowEvent(Guid.NewGuid(), nameof(CheckInNoShowEvent))
             {
-                CheckInId = checkIn.Id,
                 CheckInSerialNr = checkIn.SerialNr,
+                AppointmentSerialNr = checkIn.Appointment.AppointmentSerialNr,
                 Status = checkIn.Status
             };
         }

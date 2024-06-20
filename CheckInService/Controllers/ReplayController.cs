@@ -41,7 +41,7 @@ namespace CheckInService.Controllers
             RouterKey = "ETL_Checkin";
         }
 
-        [HttpDelete(Name = "ClearData")]
+        [HttpDelete("ClearData")]
         public async Task<IActionResult> ClearCheckInDatabase()
         {
             // For now only the checkin table will be cleared.
@@ -62,7 +62,7 @@ namespace CheckInService.Controllers
             return Ok("All checkIns have been deleted.");
         }
 
-        [HttpPut(Name = "Synchronize")]
+        [HttpPut("Synchronize")]
         public async Task<IActionResult> ReplayAll()
         {
             // Tells ETL Worker to synchronize the data between WriteDB/Event source with current read database.
