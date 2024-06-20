@@ -7,6 +7,6 @@ namespace PatientService.DomainServices
         public void Post(Patient patient);
         public void Put(Patient patient);
         public IEnumerable<Patient>? GetAll();
-        public Patient? GetById(int id);
+        public Patient? GetById(Guid id);
     }
 }
