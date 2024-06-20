@@ -3,11 +3,13 @@ using CheckInService.CommandsAndEvents.Commands.Appointment;
 using CheckInService.CommandsAndEvents.Commands.CheckIn;
 using CheckInService.CommandsAndEvents.Events.Appointment;
 using CheckInService.CommandsAndEvents.Events.CheckIn;
+using CheckInService.DBContexts;
 using CheckInService.Mapper;
 using CheckInService.Models;
 using CheckInService.Models.DTO;
 using CheckInService.Repositories;
 using EventStore.Client;
+using Microsoft.Identity.Client;
 using RabbitMQ.Messages.Interfaces;
 using RabbitMQ.Messages.Mapper;
 using RabbitMQ.Messages.Messages;
@@ -20,13 +22,14 @@ namespace CheckInService.CommandHandlers
         private readonly CheckInRepository checkInRepository;
         private readonly PatientRepo patientRepo;
         private readonly PhysicianRepo physicianRepo;
-        
+        private readonly CheckInContextDB checkInContext;
 
         public CheckInCommandHandler(
             AppointmentRepository appointmentRepository,
             CheckInRepository checkInRepository, 
             PatientRepo patientRepo, 
-            PhysicianRepo physicianRepo) {
+            PhysicianRepo physicianRepo,
+            CheckInContextDB checkInContext) {
             this.appointmentRepository = appointmentRepository;
             this.checkInRepository = checkInRepository;
             this.patientRepo = patientRepo;
@@ -180,6 +183,20 @@ namespace CheckInService.CommandHandlers
             AppointmentDeleteEvent deleteEvent = appointmentDeleteCommand.MapToAppointmentDeleted();
 
             return deleteEvent;
+        }
+
+        public async Task ClearAll()
+        {
+            var checkIns = checkInContext.checkIns.ToList();
+            var tempAppointments = checkInContext.Appointments.ToList();
+            var physicians = checkInContext.Physicians.ToList();
+            var patients = checkInContext.Patients.ToList();
+            checkInContext.checkIns.RemoveRange(checkIns);
+            checkInContext.Appointments.RemoveRange(tempAppointments);
+            checkInContext.Physicians.RemoveRange(physicians);
+            checkInContext.Patients.RemoveRange(patients);
+
+            checkInContext.SaveChanges();
         }
     }
 }
