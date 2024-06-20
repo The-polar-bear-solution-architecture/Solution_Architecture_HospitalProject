@@ -103,7 +103,7 @@ namespace CheckInService.Controllers
             // Send update to read model.
             await publisher.SendMessage(PresentEvent.MessageType, PresentEvent, RouterKey);
 
-            // Send notification to physician.
+            // Send notification to notification service physician.
             await publisher.SendMessage(PresentEvent.MessageType, PresentEvent, RouterKeyLocator);
 
             return Ok("Marked check-in ready");

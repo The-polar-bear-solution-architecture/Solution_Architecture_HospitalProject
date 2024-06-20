@@ -54,6 +54,20 @@ namespace CheckInService.Repositories
             }
         }
 
+        public IEnumerable<CheckInReadModel> BulkCreate(IEnumerable<CheckInReadModel> list)
+        {
+            try
+            {
+                contextDB.CheckInReadModel.AddRange(list);
+                contextDB.SaveChanges();
+                return list;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
         // Update appointment
         public CheckInReadModel Update(AppointmentReadUpdateCommand model)
         {

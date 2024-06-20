@@ -10,6 +10,8 @@ using RabbitMQ.Infrastructure.MessageHandlers;
 using CheckInService.CommandsAndEvents.Commands.CheckIn;
 using CheckInService.Pipelines;
 using RabbitMQ.Messages.Messages;
+using CheckInService.CommandsAndEvents.Events.Appointment;
+using CheckInService.CommandsAndEvents.Events.CheckIn;
 
 namespace CheckInService.Controllers
 {
@@ -48,39 +50,36 @@ namespace CheckInService.Controllers
 
         public async Task<bool> HandleMessageAsync(string messageType, object message)
         {
-            TryRunIndividualPipeline(messageType, message);
-            TryCollectivePipeline(messageType, message);
+            byte[] data = message as byte[];
+            TryRunIndividualPipeline(messageType, data);
+            TryCollectivePipeline(messageType, data);
             return true;
         }
 
-        public async void TryRunIndividualPipeline(string messageType, object message)
+        public async void TryRunIndividualPipeline(string messageType, byte[] message)
         {
-            byte[] data = message as byte[];
-            if (messageType.Equals("CheckInRegistrationEvent"))
+            byte[] data = message;
+            if (messageType.Equals(nameof(CheckInRegistrationEvent)))
             {
                 var deserializedData = data.Deserialize<CheckInReadModel>();
-                Console.WriteLine($"Create checkin model {deserializedData.ApointmentName}");
                 // Perform operations.
                 readModelRepository.Create(deserializedData);
             }
-            else if (messageType.Equals("CheckInNoShowEvent") || messageType.Equals("CheckInPresentEvent"))
+            else if (messageType.Equals(nameof(CheckInNoShowEvent)) || messageType.Equals(nameof(CheckInPresentEvent)))
             {
                 var updateCheckIn = data.Deserialize<CheckInUpdateCommand>();
-                Console.WriteLine("Update read model.");
                 // Perform operations.
                 readModelRepository.Update(updateCheckIn);
             }
-            else if (messageType.Equals("AppointmentUpdateEvent"))
+            else if (messageType.Equals(nameof(AppointmentUpdateEvent)))
             {
                 var appointmentUpdate = data.Deserialize<AppointmentReadUpdateCommand>();
-                Console.WriteLine("Update appointment part of read model.");
                 // Perform operations.
                 readModelRepository.Update(appointmentUpdate);
             }
-            else if (messageType.Equals("AppointmentDeleteEvent"))
+            else if (messageType.Equals(nameof(AppointmentDeleteEvent)))
             {
                 var appointmentDeletion = data.Deserialize<AppointmentDeleteCommand>();
-                Console.WriteLine("Delete appointment");
                 readModelRepository.DeleteByAppointment(appointmentDeletion.AppointmentSerialNr);
             }
             else
@@ -89,9 +88,8 @@ namespace CheckInService.Controllers
             }
         }
         
-        public async void TryCollectivePipeline(string messageType, object message)
+        public async void TryCollectivePipeline(string messageType, byte[] message)
         {
-            byte[] data = message as byte[];
             if (messageType.Equals("Clear"))
             {
                 readModelRepository.DeleteAll();
@@ -103,10 +101,11 @@ namespace CheckInService.Controllers
                 readModelRepository.DeleteAll();
 
                 // Then start pipeline 
+                // Current implementation will start pipeline from Event source to -> Write database and read database.
                 await checkInPipeline.RunPipeline();
 
                 // Does currently nothing, but will synchronise with write database.
-                await checkInPipeline.SynchroniseWriteDBWithReadDB();
+                // await checkInPipeline.SynchroniseWriteDBWithReadDB();
             }
             else
             {

@@ -48,6 +48,14 @@ namespace CheckInService.Repositories
             return checkInContextDB.checkInsView.AsEnumerable();
         }
 
+        public IEnumerable<CheckIn> GetCheckIns()
+        {
+            return checkInContextDB.checkIns
+                .Include(ap => ap.Appointment.Physician)
+                .Include(app => app.Appointment.Patient)
+                .ToList();
+        }
+
         public CheckIn? Get(Guid serialNumber)
         {
             try

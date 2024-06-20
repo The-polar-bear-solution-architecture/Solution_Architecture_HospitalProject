@@ -4,6 +4,7 @@ using CheckInService.CommandsAndEvents.Commands.CheckIn;
 using CheckInService.CommandsAndEvents.Events.Appointment;
 using CheckInService.CommandsAndEvents.Events.CheckIn;
 using CheckInService.DBContexts;
+using CheckInService.Mapper;
 using CheckInService.Models;
 using CheckInService.Repositories;
 using EventStore.Client;
@@ -15,49 +16,48 @@ namespace CheckInService.Pipelines
     public class CheckInPipeline
     {
         private readonly EventStoreClient client;
+        private readonly EventStoreRepository eventStoreRepository;
         private readonly CheckInContextDB checkInContext;
-        private readonly ReplayHandler replayEventHandler;
         private readonly ReadModelRepository readModelRepository;
         private readonly CheckInCommandHandler checkInCommandHandler;
+        private readonly CheckInRepository CheckInRepository;
 
         public CheckInPipeline(
             EventStoreClient client, 
+            EventStoreRepository eventStoreRepository,
             CheckInContextDB checkInContext, 
-            ReplayHandler replayEventHandler, 
             ReadModelRepository readModelRepository, 
-            CheckInCommandHandler checkInCommandHandler)
+            CheckInCommandHandler checkInCommandHandler,
+            CheckInRepository checkInRepository)
         {
             this.client = client;
+            this.eventStoreRepository = eventStoreRepository;
             this.checkInContext = checkInContext;
-            this.replayEventHandler = replayEventHandler;
             this.readModelRepository = readModelRepository;
             this.checkInCommandHandler = checkInCommandHandler;
+            this.CheckInRepository = checkInRepository;
         }
 
+        // Transports data from Event source to WriteDB and ReadDB.
         public async Task RunPipeline()
         {
             Console.WriteLine("==== Run pipeline ====");
-            Console.WriteLine("==== Get from write database pipeline ====");
+            // Extract all data from event source.
             List<Message> list = new List<Message>();
-            var result = client.ReadStreamAsync(
-                Direction.Forwards,
-                nameof(CheckIn),
-                StreamPosition.Start,
-                resolveLinkTos: true
-            );
-            var events = await result.ToListAsync();
+            var events = await eventStoreRepository.GetFromCollection(nameof(CheckIn));
+
             foreach (var command in events)
             {
                 string EventType = command.OriginalEvent.EventType;
                 byte[] data = command.OriginalEvent.Data.ToArray();
                 Message? entity_event = null;
-                Console.WriteLine(EventType);
                 // Hier zullen wijzigingen doorgevoerd moeten worden.
                 switch (EventType)
                 {
                     case nameof(CheckInNoShowEvent):
                         entity_event = data.Deserialize<NoShowCheckIn>();
                         var updateCheckIn = data.Deserialize<CheckInUpdateCommand>();
+                        // Write to write db.
                         await checkInCommandHandler.ChangeToNoShow((NoShowCheckIn)entity_event);
                         // Readdb act
                         readModelRepository.Update(updateCheckIn);
@@ -65,6 +65,7 @@ namespace CheckInService.Pipelines
                     case nameof(CheckInPresentEvent):
                         entity_event = data.Deserialize<PresentCheckin>();
                         var presentCheckIn = data.Deserialize<CheckInUpdateCommand>();
+                        // Write to write db.
                         await checkInCommandHandler.ChangeToPresent((PresentCheckin)entity_event);
                         // Readdb act
                         readModelRepository.Update(presentCheckIn);
@@ -72,18 +73,21 @@ namespace CheckInService.Pipelines
                     case nameof(CheckInRegistrationEvent):
                         RegisterCheckin registerCommand = data.Deserialize<RegisterCheckin>();
                         CheckInReadModel readModel = data.Deserialize<CheckInReadModel>();
+                        // Write to write db.
                         await checkInCommandHandler.RegisterCheckin(registerCommand);
                         // Readdb act
                         readModelRepository.Create(readModel);
                         break;
                     case nameof(AppointmentDeleteEvent):
                         var delete_command = data.Deserialize<AppointmentDeleteCommand>();
+                        // Write to write db.
                         await checkInCommandHandler.DeleteAppointment(delete_command);
                         // Readdb act
                         readModelRepository.DeleteByAppointment(delete_command.AppointmentSerialNr);
                         break;
                     case nameof(AppointmentUpdateEvent):
                         var update_command = data.Deserialize<AppointmentUpdateCommand>();
+                        // Write to write db.
                         await checkInCommandHandler.UpdateAppointment(update_command);
                         // Readdb act
                         var appointmentUpdate = data.Deserialize<AppointmentReadUpdateCommand>();
@@ -97,10 +101,24 @@ namespace CheckInService.Pipelines
             }
             Console.WriteLine("==== Data is synchronised ====");
         }
-    
+
+        // Transports data from WriteDB to ReadDB.
         public async Task SynchroniseWriteDBWithReadDB()
         {
-            Console.WriteLine("Start synchronisation");
+            // Retrieve
+            IEnumerable<CheckIn> writeModels = CheckInRepository.GetCheckIns();
+            IEnumerable<CheckInReadModel> readModels = new List<CheckInReadModel>();
+            Console.WriteLine("==== Start synchronisation ====");
+            // Map all entities to read models
+            foreach (CheckIn item in writeModels)
+            {
+                var convertedModel = item.MapToReadModel();
+                readModels.Append(convertedModel);
+            }
+            // Insert into database.
+            readModelRepository.BulkCreate(readModels);
+            //
+            Console.WriteLine("==== Synchronisation completed ====");
         }
     }
 }

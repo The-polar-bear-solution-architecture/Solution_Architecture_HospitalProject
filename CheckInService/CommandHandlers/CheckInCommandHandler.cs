@@ -34,9 +34,16 @@ namespace CheckInService.CommandHandlers
             
         }
 
-        public async Task<CheckInRegistrationEvent> RegisterCheckin(RegisterCheckin command)
+        public async Task<CheckInRegistrationEvent?> RegisterCheckin(RegisterCheckin command)
         {
             // Converts DTO/Command to an proper domain entity, with the status AWAIT.
+            CheckIn? existingCheckIn = checkInRepository.Get(command.CheckInSerialNr);
+            // If checkin already exist, return null and cancel operations.
+            if(existingCheckIn != null)
+            {
+                return null;
+            }
+
             CheckIn checkIn = command.MapToRegister();
 
             var patient = patientRepo.Get(command.PatientGuid);

@@ -52,22 +52,24 @@ namespace CheckInService.Controllers
 
         public async Task<bool> HandleMessageAsync(string messageType, object message)
         {
-            byte[] body =  message as byte[];
+            byte[] body = message as byte[];
             switch (messageType)
             {
                 case "AppointmentCreated":
                     var post_Command = body.Deserialize<CreateCheckInCommandDTO>().MapToRegister();
                     // This will create a checkin for its appointmentment
-                    CheckInRegistrationEvent RegisterEvent = await checkInCommandHandler.RegisterCheckin(post_Command);
+                    CheckInRegistrationEvent? RegisterEvent = await checkInCommandHandler.RegisterCheckin(post_Command);
+                    if(RegisterEvent != null)
+                    {
+                        // Message type is CheckInRegistrationEvent
+                        await EventStoreRepository.StoreMessage(nameof(CheckIn), RegisterEvent.MessageType, RegisterEvent);
 
-                    // Message type is CheckInRegistrationEvent
-                    await EventStoreRepository.StoreMessage(nameof(CheckIn), RegisterEvent.MessageType, RegisterEvent);
+                        // Send new appointment to read model.
+                        await publisher.SendMessage(RegisterEvent.MessageType, RegisterEvent, RouterKey);
 
-                    // Send new appointment to read model.
-                    await publisher.SendMessage(RegisterEvent.MessageType, RegisterEvent, RouterKey);
-
-                    // Send event to Notification service
-                    Console.WriteLine("Important: Send to notification service so user will receive message evening before Appointment");
+                        // Send event to Notification service
+                        Console.WriteLine("Important: Send to notification service so user will receive message evening before Appointment");
+                    }
                     break;
                 case "AppointmentDeleted":
                     // Will delete appointment and checkin.
