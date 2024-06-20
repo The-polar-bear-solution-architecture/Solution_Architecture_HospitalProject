@@ -38,6 +38,25 @@ namespace CheckInService.Mapper
             };
         }
 
+        public static CheckInReadModel MapToReadModel(this CheckIn checkIn)
+        {
+            return new CheckInReadModel
+            {
+                CheckInSerialNr = checkIn.SerialNr,
+                Status = checkIn.Status,
+                AppointmentGuid = checkIn.Appointment.AppointmentSerialNr,
+                ApointmentName = checkIn.Appointment.Name,
+                AppointmentDate = checkIn.Appointment.AppointmentDate,
+                PatientGuid = checkIn.Appointment.Patient.PatientSerialNr,
+                PatientFirstName = checkIn.Appointment.Patient.FirstName,
+                PatientLastName = checkIn.Appointment.Patient.LastName,
+                PhysicianGuid = checkIn.Appointment.Physician.PhysicianSerialNr,
+                PhysicianEmail = checkIn.Appointment.Physician.Email,
+                PhysicianFirstName = checkIn.Appointment.Physician.FirstName,
+                PhysicianLastName = checkIn.Appointment.Physician.LastName
+            };
+        }
+
         public static CheckIn MapToRegister(this RegisterCheckin createCheckInCommand)
         {
             var appointment_guid = createCheckInCommand.AppointmentGuid;
@@ -126,8 +145,8 @@ namespace CheckInService.Mapper
         {
             return new CheckInPresentEvent(Guid.NewGuid(), nameof(CheckInPresentEvent))
             {
-                CheckInId = checkIn.Id,
                 CheckInSerialNr = checkIn.SerialNr,
+                AppointmentSerialNr = checkIn.Appointment.AppointmentSerialNr,
                 Status = checkIn.Status
             };
         }
@@ -136,8 +155,8 @@ namespace CheckInService.Mapper
         {
             return new CheckInNoShowEvent(Guid.NewGuid(), nameof(CheckInNoShowEvent))
             {
-                CheckInId = checkIn.Id,
                 CheckInSerialNr = checkIn.SerialNr,
+                AppointmentSerialNr = checkIn.Appointment.AppointmentSerialNr,
                 Status = checkIn.Status
             };
         }

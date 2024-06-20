@@ -1,6 +1,6 @@
 ﻿using CheckinService.Model;
 
-namespace CheckInService.Queries
+namespace CheckInService.Models.Queries
 {
     public class CheckInView
     {
@@ -15,6 +15,6 @@ namespace CheckInService.Queries
 
         public string PhysicianFirstName { get; set; }
         public string PhysicianLastName { get; set; }
-        public string PhysicianEmail { get;}
+        public string PhysicianEmail { get; }
     }
 }

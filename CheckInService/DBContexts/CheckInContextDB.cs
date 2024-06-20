@@ -1,6 +1,6 @@
 ﻿using CheckinService.Model;
 using CheckInService.Models;
-using CheckInService.Queries;
+using CheckInService.Models.Queries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Polly;

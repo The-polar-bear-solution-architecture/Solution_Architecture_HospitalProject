@@ -2,6 +2,8 @@
 using CheckInService.CommandsAndEvents.Commands;
 using CheckInService.CommandsAndEvents.Commands.Appointment;
 using CheckInService.CommandsAndEvents.Events.Appointment;
+using CheckInService.CommandsAndEvents.Events.CheckIn;
+using CheckInService.Configurations;
 using CheckInService.Mapper;
 using CheckInService.Models;
 using CheckInService.Models.DTO;
@@ -17,15 +19,27 @@ namespace CheckInService.Controllers
     public class CheckInWorker : IMessageHandleCallback, IHostedService
     {
         private IReceiver _messageHandler;
+        private readonly IPublisher publisher;
+        private readonly IPublisher InternalPublisher;
         private readonly CheckInCommandHandler checkInCommandHandler;
 
         public EventStoreRepository EventStoreRepository { get; }
+        private readonly string RouterKey;
 
-        public CheckInWorker(IReceiver messageHandler, CheckInCommandHandler checkInCommandHandler, EventStoreRepository eventStoreRepository)
+        public CheckInWorker(
+            IReceiver messageHandler,
+            IPublisher publisher,
+            IRabbitFactory rabbitFactory,
+            CheckInCommandHandler checkInCommandHandler, 
+            EventStoreRepository eventStoreRepository)
         {
             _messageHandler = messageHandler;
+            this.publisher = publisher;
             this.checkInCommandHandler = checkInCommandHandler;
             EventStoreRepository = eventStoreRepository;
+
+            InternalPublisher = rabbitFactory.CreateInternalPublisher();
+            RouterKey = "ETL_Checkin";
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -43,36 +57,55 @@ namespace CheckInService.Controllers
 
         public async Task<bool> HandleMessageAsync(string messageType, object message)
         {
-            await handle();
-            byte[] body =  message as byte[];
+            byte[] body = message as byte[];
             switch (messageType)
             {
                 case "AppointmentCreated":
                     var post_Command = body.Deserialize<CreateCheckInCommandDTO>().MapToRegister();
                     // This will create a checkin for its appointmentment
-                    Event RegisterEvent = await checkInCommandHandler.RegisterCheckin(post_Command);
-
-                    await EventStoreRepository.StoreMessage(nameof(CheckIn), RegisterEvent.MessageType, RegisterEvent);
-
-                    // Send event to Notification service
-                    Console.WriteLine("Important: Send to notification service so user will receive message evening before Appointment");
-                    break;
-                case "AppointmentDeleted":
-                    // Will delete appointment and checkin.
-                    var deleteCommand = body.Deserialize<AppointmentDeleteCommand>();
-                    Event? delete_Event = await checkInCommandHandler.DeleteAppointment(deleteCommand);
-                    if(delete_Event != null)
+                    CheckInRegistrationEvent? RegisterEvent = await checkInCommandHandler.RegisterCheckin(post_Command);
+                    if(RegisterEvent != null)
                     {
-                        await EventStoreRepository.StoreMessage(nameof(CheckIn), delete_Event.MessageType, delete_Event);
+                        // Message type is CheckInRegistrationEvent
+                        await EventStoreRepository.StoreMessage(nameof(CheckIn), RegisterEvent.MessageType, RegisterEvent);
+
+                        // Send new appointment to read model.
+                        await InternalPublisher.SendMessage(RegisterEvent.MessageType, RegisterEvent, RouterKey);
+
+                        // Send event to Notification service
+                        Console.WriteLine("Important: Send to notification service so user will receive message evening before Appointment");
+                        await publisher.SendMessage(RegisterEvent.MessageType, RegisterEvent, "NotificationAppointment");
                     }
                     break;
                 case "AppointmentUpdated":
                     // Will update the appointment.
                     var updateCommand = body.Deserialize<UpdateCheckInDTO>();
-                    Event? updateEvent = await checkInCommandHandler.UpdateAppointment(updateCommand.MapToAppointmentUpdateCommand());
+                    AppointmentUpdateEvent? updateEvent = await checkInCommandHandler.UpdateAppointment(updateCommand.MapToAppointmentUpdateCommand());
                     if (updateEvent != null)
                     {
+                        // Message type is AppointmentUpdateEvent
                         await EventStoreRepository.StoreMessage(nameof(CheckIn), updateEvent.MessageType, updateEvent);
+
+                        // Send delete request to ETL.
+                        await InternalPublisher.SendMessage(updateEvent.MessageType, updateEvent, RouterKey);
+                        // Update notification in notification service
+                        await publisher.SendMessage(updateEvent.MessageType, updateEvent, "NotificationAppointment");
+                    }
+                    break;
+                case "AppointmentDeleted":
+                    // Will delete appointment and checkin.
+                    var deleteCommand = body.Deserialize<AppointmentDeleteCommand>();
+                    AppointmentDeleteEvent? delete_Event = await checkInCommandHandler.DeleteAppointment(deleteCommand);
+                    if(delete_Event != null)
+                    {
+                        // Message type is AppointmentDeleteEvent
+                        await EventStoreRepository.StoreMessage(nameof(CheckIn), delete_Event.MessageType, delete_Event);
+
+                        // Send delete request to ETL.
+                        await InternalPublisher.SendMessage(delete_Event.MessageType, delete_Event, RouterKey);
+
+                        // Remove notification for appointment notification service
+                        await publisher.SendMessage(delete_Event.MessageType, delete_Event, "NotificationAppointment");
                     }
                     break;
                 default:
@@ -80,12 +113,6 @@ namespace CheckInService.Controllers
                     break;
             }
             return true;
-        }
-
-        private Task handle()
-        {
-            Console.WriteLine("Hi");
-            return Task.CompletedTask;
         }
     }
 }
