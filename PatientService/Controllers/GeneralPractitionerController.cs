@@ -9,11 +9,9 @@ namespace PatientService.Controllers
     [Route("[controller]")]
     public class GeneralPractitionerController : ControllerBase
     {
-        private IPatientRepository patientRepository;
         private IGeneralPractitionerRepository generalPractitionerRepository;
-        public GeneralPractitionerController(IPatientRepository patientRepository, IGeneralPractitionerRepository generalPractitionerRepository)
+        public GeneralPractitionerController(IGeneralPractitionerRepository generalPractitionerRepository)
         {
-            this.patientRepository = patientRepository;
             this.generalPractitionerRepository = generalPractitionerRepository;
         }
         [HttpGet]
