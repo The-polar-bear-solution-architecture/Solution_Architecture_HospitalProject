@@ -60,6 +60,10 @@ services:
     build:
       context: .
       dockerfile: CheckInService/Dockerfile
+    depends_on:
+      - mssql
+      - eventstoredb
+      - rabbitmq
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
@@ -103,6 +107,26 @@ services:
       - 1433:1433
     volumes:
       - sql:/var/opt/mssql
+
+  patientservice:
+    ports:
+      - 8046:443
+    container_name: patientservice
+    image: localhost:5000/patientservice
+    build:
+      context: .
+      dockerfile: PatientService/Dockerfile
+    depends_on:
+      - mssql
+      - rabbitmq
+      - eventstoredb
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=test
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ~/.aspnet/https:/https:ro
 
 volumes:
   sql:

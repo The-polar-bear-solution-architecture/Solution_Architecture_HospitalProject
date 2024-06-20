@@ -64,7 +64,7 @@ namespace RabbitMQ.Infrastructure.MessageHandlers
                 Model = Connection.CreateModel();
 
                 // TODO: Durable zal uiteindelijk naar true moeten gaan.
-                Model.ExchangeDeclare(exchange, "fanout", durable: false, autoDelete: false);
+                Model.ExchangeDeclare(exchange, "fanout", durable: true, autoDelete: false);
                 
                 Model.QueueDeclare(queue, durable: true, autoDelete: false, exclusive: false);
 

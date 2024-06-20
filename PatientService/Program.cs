@@ -1,6 +1,8 @@
+using EventStore.Client;
 using Microsoft.EntityFrameworkCore;
-using PatientService.Data;
 using PatientService.Domain;
+using PatientService.DomainServices;
+using PatientService.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,19 +12,17 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IGeneralPractitionerRepository, GeneralPractitionerRepository>();
 builder.Services.AddDbContext<PatientDBContext>(options =>
-  options.UseSqlServer(builder.Configuration.GetConnectionString("PatientDBContext")));
+  options.UseSqlServer(builder.Configuration.GetConnectionString("Braphia_PatientService")));
+string eventSourceConnection = builder.Configuration.GetConnectionString("EventSourceDB");
+var settings = EventStoreClientSettings.Create(eventSourceConnection);
+var client = new EventStoreClient(settings);
+
+builder.Services.AddSingleton(client);
 
 var app = builder.Build();
-
-
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<PatientDBContext>();
-    context.Database.EnsureCreated();
-    DbInitializer.Initialize(context);
-}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

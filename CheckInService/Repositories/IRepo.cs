@@ -8,5 +8,6 @@ namespace CheckInService.Repositories
         T? Get(int id);
         void Post(T entity);
         void Put(T entity);
+        void Delete(Guid id);
     }
 }
