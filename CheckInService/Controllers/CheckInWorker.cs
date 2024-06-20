@@ -3,6 +3,7 @@ using CheckInService.CommandsAndEvents.Commands;
 using CheckInService.CommandsAndEvents.Commands.Appointment;
 using CheckInService.CommandsAndEvents.Events.Appointment;
 using CheckInService.CommandsAndEvents.Events.CheckIn;
+using CheckInService.Configurations;
 using CheckInService.Mapper;
 using CheckInService.Models;
 using CheckInService.Models.DTO;
@@ -19,6 +20,7 @@ namespace CheckInService.Controllers
     {
         private IReceiver _messageHandler;
         private readonly IPublisher publisher;
+        private readonly IPublisher InternalPublisher;
         private readonly CheckInCommandHandler checkInCommandHandler;
 
         public EventStoreRepository EventStoreRepository { get; }
@@ -27,6 +29,7 @@ namespace CheckInService.Controllers
         public CheckInWorker(
             IReceiver messageHandler,
             IPublisher publisher,
+            IRabbitFactory rabbitFactory,
             CheckInCommandHandler checkInCommandHandler, 
             EventStoreRepository eventStoreRepository)
         {
@@ -34,6 +37,8 @@ namespace CheckInService.Controllers
             this.publisher = publisher;
             this.checkInCommandHandler = checkInCommandHandler;
             EventStoreRepository = eventStoreRepository;
+
+            InternalPublisher = rabbitFactory.CreateInternalPublisher();
             RouterKey = "ETL_Checkin";
         }
 
@@ -65,7 +70,7 @@ namespace CheckInService.Controllers
                         await EventStoreRepository.StoreMessage(nameof(CheckIn), RegisterEvent.MessageType, RegisterEvent);
 
                         // Send new appointment to read model.
-                        await publisher.SendMessage(RegisterEvent.MessageType, RegisterEvent, RouterKey);
+                        await InternalPublisher.SendMessage(RegisterEvent.MessageType, RegisterEvent, RouterKey);
 
                         // Send event to Notification service
                         Console.WriteLine("Important: Send to notification service so user will receive message evening before Appointment");
@@ -81,7 +86,7 @@ namespace CheckInService.Controllers
                         await EventStoreRepository.StoreMessage(nameof(CheckIn), delete_Event.MessageType, delete_Event);
 
                         // Send delete request to ETL.
-                        await publisher.SendMessage(delete_Event.MessageType, delete_Event, RouterKey);
+                        await InternalPublisher.SendMessage(delete_Event.MessageType, delete_Event, RouterKey);
                     }
                     break;
                 case "AppointmentUpdated":
@@ -94,7 +99,7 @@ namespace CheckInService.Controllers
                         await EventStoreRepository.StoreMessage(nameof(CheckIn), updateEvent.MessageType, updateEvent);
 
                         // Send delete request to ETL.
-                        await publisher.SendMessage(updateEvent.MessageType, updateEvent, RouterKey);
+                        await InternalPublisher.SendMessage(updateEvent.MessageType, updateEvent, RouterKey);
                     }
                     break;
                 default:

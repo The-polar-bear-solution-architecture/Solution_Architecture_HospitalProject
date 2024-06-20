@@ -3,6 +3,7 @@ using CheckInService.CommandHandlers;
 using CheckInService.CommandsAndEvents.Commands.Appointment;
 using CheckInService.CommandsAndEvents.Commands.CheckIn;
 using CheckInService.CommandsAndEvents.Events.CheckIn;
+using CheckInService.Configurations;
 using CheckInService.Mapper;
 using CheckInService.Models;
 using CheckInService.Models.DTO;
@@ -24,7 +25,12 @@ namespace CheckInService.Controllers
         private readonly CheckInCommandHandler checkInCommand;
         private readonly EventStoreRepository eventStoreRepository;
         private readonly ReadModelRepository readModelRepository;
+        private readonly IRabbitFactory RabbitFactory;
+
         private readonly IPublisher publisher;
+        // Will only send messages via an internal exchange.
+        private readonly IPublisher InternalPublisher;
+
         private readonly string RouterKeyLocator;
         private readonly string RouterKey;
 
@@ -33,12 +39,15 @@ namespace CheckInService.Controllers
             CheckInCommandHandler checkInCommand,
             EventStoreRepository eventStoreRepository,
             ReadModelRepository readModelRepository,
+            IRabbitFactory rabbitFactory,
             IPublisher publisher) {
             this.checkInRepository = checkInRepository;
             this.checkInCommand = checkInCommand;
             this.eventStoreRepository = eventStoreRepository;
             this.readModelRepository = readModelRepository;
+            RabbitFactory = rabbitFactory;
             this.publisher = publisher;
+            InternalPublisher = rabbitFactory.CreateInternalPublisher();
             RouterKeyLocator = "Notifications";
             RouterKey = "ETL_Checkin";
         }
@@ -80,7 +89,7 @@ namespace CheckInService.Controllers
             await eventStoreRepository.StoreMessage(nameof(CheckIn), NoShowEvent.MessageType, NoShowEvent);
 
             // Update read model
-            await publisher.SendMessage(NoShowEvent.MessageType, NoShowEvent, RouterKey);
+            await InternalPublisher.SendMessage(NoShowEvent.MessageType, NoShowEvent, RouterKey);
             // Send notification to physician.
 
             return Ok("Marked appointment as noshow");
@@ -101,7 +110,7 @@ namespace CheckInService.Controllers
             await eventStoreRepository.StoreMessage(nameof(CheckIn), PresentEvent.MessageType, PresentEvent);
 
             // Send update to read model.
-            await publisher.SendMessage(PresentEvent.MessageType, PresentEvent, RouterKey);
+            await InternalPublisher.SendMessage(PresentEvent.MessageType, PresentEvent, RouterKey);
 
             // Send notification to notification service physician.
             await publisher.SendMessage(PresentEvent.MessageType, PresentEvent, RouterKeyLocator);
@@ -113,7 +122,7 @@ namespace CheckInService.Controllers
         [HttpDelete("Test EventSourceDB.")]
         public async Task<IActionResult> DeleteAppointment()
         {
-            await publisher.SendMessage("Test", "Hello", "ETL_Checkin");
+            await InternalPublisher.SendMessage("Test", "Hello", "ETL_Checkin");
             await eventStoreRepository.StoreMessage("Test", "TestType", new NoShowCheckIn() { Status = Status.AWAIT });
             return Ok("Appointment deleted.");
         }

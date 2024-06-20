@@ -1,4 +1,5 @@
 using CheckInService.CommandHandlers;
+using CheckInService.Configurations;
 using CheckInService.Controllers;
 using CheckInService.DBContexts;
 using CheckInService.Pipelines;
@@ -37,9 +38,11 @@ builder.Services.AddTransient<CheckInCommandHandler, CheckInCommandHandler>();
 builder.Services.AddTransient<EventStoreRepository, EventStoreRepository>();
 builder.Services.AddTransient<ReadModelRepository, ReadModelRepository>();
 builder.Services.AddTransient<CheckInPipeline, CheckInPipeline>();
+builder.Services.AddTransient<IRabbitFactory, InternalRabbitMQFactory>();
 
-// Use rabbitMQ Publisher
+// Use rabbitMQ Publisher to CheckIn to NotificationService
 builder.Services.UseRabbitMQMessagePublisher(builder.Configuration);
+// Receive messages from appointment service to this service
 builder.Services.UseRabbitMQMessageHandler(builder.Configuration);
 
 builder.Services.AddHostedService<CheckInWorker>();

@@ -1,5 +1,4 @@
 ﻿using CheckInService.Models;
-using CheckInService.Queries;
 using Microsoft.EntityFrameworkCore;
 using Polly;
 

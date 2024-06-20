@@ -12,6 +12,7 @@ using CheckInService.Pipelines;
 using RabbitMQ.Messages.Messages;
 using CheckInService.CommandsAndEvents.Events.Appointment;
 using CheckInService.CommandsAndEvents.Events.CheckIn;
+using CheckInService.Configurations;
 
 namespace CheckInService.Controllers
 {
@@ -20,19 +21,20 @@ namespace CheckInService.Controllers
         private IReceiver _messageHandler;
         private readonly ReadModelRepository readModelRepository;
         private readonly CheckInPipeline checkInPipeline;
+        private readonly IRabbitFactory RabbitFactory;
 
-        public ETLWorker(ReadModelRepository readModelRepository, IConfiguration configuration, CheckInPipeline checkInPipeline)
+        public ETLWorker(
+            ReadModelRepository readModelRepository,
+            CheckInPipeline checkInPipeline,
+            IRabbitFactory rabbitFactory)
         {
-            var section = configuration.GetSection("RabbitMQHandler");
-            string customRoutingKey = "ETL_Checkin";
-            int port = section.GetValue<int>("Port");
-            string _host = section.GetValue<string>("Host");
-            string _exchange = section.GetValue<string>("Exchange");
-            string queue = section.GetValue<string>("Queue");
-            IReceiver receiver = new RabbitMQReceiver(_host, _exchange, "CustomQueue", customRoutingKey, port, "/");
-            _messageHandler = receiver;
+            
             this.readModelRepository = readModelRepository;
             this.checkInPipeline = checkInPipeline;
+            this.RabbitFactory = rabbitFactory;
+
+            // Will only receive messages via an internal exchange.
+            _messageHandler = rabbitFactory.CreateInternalReceiver();
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -51,9 +53,24 @@ namespace CheckInService.Controllers
         public async Task<bool> HandleMessageAsync(string messageType, object message)
         {
             byte[] data = message as byte[];
-            TryRunIndividualPipeline(messageType, data);
-            TryCollectivePipeline(messageType, data);
-            return true;
+            if (messageType.Equals("Test"))
+            {
+                Console.WriteLine(data.Deserialize<string>());
+                return true;
+            }
+            else
+            {
+                try
+                {
+                    TryRunIndividualPipeline(messageType, data);
+                    TryCollectivePipeline(messageType, data);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
         }
 
         public async void TryRunIndividualPipeline(string messageType, byte[] message)

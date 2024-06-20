@@ -20,6 +20,7 @@ using CheckInService.CommandsAndEvents.Events.Appointment;
 using CheckInService.CommandsAndEvents.Commands.Appointment;
 using CheckInService.CommandsAndEvents.Commands.CheckIn;
 using RabbitMQ.Messages.Interfaces;
+using CheckInService.Configurations;
 
 namespace CheckInService.Controllers
 {
@@ -28,15 +29,15 @@ namespace CheckInService.Controllers
     public class ReplayController : ControllerBase
     {
         private readonly CheckInContextDB checkInContext;
-        private readonly IPublisher publisher;
+        private readonly IPublisher InternalPublisher;
         private readonly string RouterKey;
 
         public ReplayController(
             CheckInContextDB checkInContext,
-            IPublisher publisher)
+            IRabbitFactory rabbitFactory)
         {
             this.checkInContext = checkInContext;
-            this.publisher = publisher;
+            this.InternalPublisher = rabbitFactory.CreateInternalPublisher();
             RouterKey = "ETL_Checkin";
         }
 
@@ -57,7 +58,7 @@ namespace CheckInService.Controllers
             checkInContext.SaveChanges();
             // Later on, all the other tables will be cleared too.
 
-            await publisher.SendMessage("Clear" , "", RouterKey);
+            await InternalPublisher.SendMessage("Clear" , "", RouterKey);
             return Ok("All checkIns have been deleted.");
         }
 
@@ -65,7 +66,7 @@ namespace CheckInService.Controllers
         public async Task<IActionResult> ReplayAll()
         {
             // Tells ETL Worker to synchronize the data between WriteDB/Event source with current read database.
-            await publisher.SendMessage("Replay", "", RouterKey);
+            await InternalPublisher.SendMessage("Replay", "", RouterKey);
             var responseData =
             new {
                 Text = "Data will now be synchronised with the read database.",

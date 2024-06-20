@@ -25,6 +25,7 @@ namespace RabbitMQ.Infrastructure.MessagePublishers
 
         public RabbitMQPublisher(string host, string exchange, int port, string virtual_host)
         {
+            Console.WriteLine($"Connecting to host: {host} and Exchange {exchange} on port {port}");
             _the_host = host;
             _hosts = new List<string>()
             {
@@ -65,7 +66,7 @@ namespace RabbitMQ.Infrastructure.MessagePublishers
                     Model = Connection.CreateModel();
 
                     // TODO: Durable zal uiteindelijk naar true moeten gaan.
-                    Model.ExchangeDeclare(_exchange, "fanout", durable: true, autoDelete: false);
+                    Model.ExchangeDeclare(_exchange, "fanout", durable: false, autoDelete: false);
                 });
         }
 

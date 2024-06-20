@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CheckInService.Configurations;
+using Microsoft.AspNetCore.Mvc;
 using RabbitMQ.Messages.Interfaces;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -11,9 +12,9 @@ namespace CheckInService.Controllers
     {
         private readonly IPublisher publisher;
 
-        public RabbitController(IPublisher publisher)
+        public RabbitController(IRabbitFactory rabbitFactory)
         {
-            this.publisher = publisher;
+            this.publisher = rabbitFactory.CreateInternalPublisher();
         }
 
         // GET: api/<RabbitController>
@@ -28,6 +29,13 @@ namespace CheckInService.Controllers
 
             // publisher.SendMessage("Yo", "Welkom wereld. Dit is een wereld", "Appointments_Checkin");
             return new string[] { guid.ToString() };
+        }
+
+        [HttpPut (Name = "TestInternalQueue/Test")]
+        public async Task<IActionResult> TestConnection()
+        {
+            await publisher.SendMessage("Test", "Hallo ETL", "ETL_Checkin");
+            return Ok("Ok connection");
         }
     }
 }

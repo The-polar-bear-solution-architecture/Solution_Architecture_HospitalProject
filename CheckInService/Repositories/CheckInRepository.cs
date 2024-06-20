@@ -1,6 +1,6 @@
 ﻿using CheckInService.DBContexts;
 using CheckInService.Models;
-using CheckInService.Queries;
+using CheckInService.Models.Queries;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.EntityFrameworkCore;
 
