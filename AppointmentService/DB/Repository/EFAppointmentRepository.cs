@@ -23,6 +23,7 @@ namespace AppointmentService.DB.Repository
 
         public Appointment DeleteAppointment(Guid id)
         {
+            Console.WriteLine(id);
             var appointment = GetAppointmentById(id);
             context.Remove(appointment);
             context.SaveChanges();

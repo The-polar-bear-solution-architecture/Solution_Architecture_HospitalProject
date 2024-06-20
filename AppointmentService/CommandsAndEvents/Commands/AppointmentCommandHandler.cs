@@ -3,7 +3,7 @@ using AppointmentService.Domain;
 using AppointmentService.DomainServices;
 using RabbitMQ.Messages.Interfaces;
 
-namespace AppointmentService
+namespace AppointmentService.CommandsAndEvents.Commands
 {
     public class AppointmentCommandHandler
     {
@@ -14,7 +14,7 @@ namespace AppointmentService
         private readonly IPublisher publisher;
         private readonly string RouterKeyLocator;
 
-        public AppointmentCommandHandler (IAppointmentRepository repository, IPatientRepository patientRepository, IPhysicianRepository physicianRepository, IPublisher publisher)
+        public AppointmentCommandHandler(IAppointmentRepository repository, IPatientRepository patientRepository, IPhysicianRepository physicianRepository, IPublisher publisher)
         {
             _repository = repository;
             _patientRepository = patientRepository;
@@ -26,17 +26,17 @@ namespace AppointmentService
 
         public void AppointmentCreated(AppointmentCreated appointmentCreated)
         {
-            this.publisher.SendMessage(appointmentCreated.MessageType, appointmentCreated, RouterKeyLocator);
+            publisher.SendMessage(appointmentCreated.MessageType, appointmentCreated, RouterKeyLocator);
         }
 
         public void AppointmentDeleted(AppointmentDeleted appointmentDeleted)
         {
-            this.publisher.SendMessage(appointmentDeleted.MessageType, appointmentDeleted, RouterKeyLocator);
+            publisher.SendMessage(appointmentDeleted.MessageType, appointmentDeleted, RouterKeyLocator);
 
         }
         public void AppointmentUpdated(AppointmentUpdated appointmentUpdated)
         {
-            this.publisher.SendMessage(appointmentUpdated.MessageType, appointmentUpdated, RouterKeyLocator);
+            publisher.SendMessage(appointmentUpdated.MessageType, appointmentUpdated, RouterKeyLocator);
 
         }
     }

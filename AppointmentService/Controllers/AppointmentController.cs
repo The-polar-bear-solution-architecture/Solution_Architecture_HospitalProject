@@ -1,4 +1,5 @@
-﻿using AppointmentService.CommandsAndEvents.Events;
+﻿using AppointmentService.CommandsAndEvents.Commands;
+using AppointmentService.CommandsAndEvents.Events;
 using AppointmentService.DB;
 using AppointmentService.Domain;
 using AppointmentService.Domain.DTO;
@@ -53,7 +54,7 @@ namespace AppointmentService.Controllers
                 var createdAppointment = repo.AddAppointment(appointmentToAdd);
                 var appointmentCreated = new AppointmentCreated()
                 {
-                    AppointmentId = createdAppointment.Id,
+                    AppointmentId = Guid.NewGuid(),
                     ApointmentName = createdAppointment.Name,
                     AppointmentDate = createdAppointment.AppointmentDate,
                     PatientId = createdAppointment.Patient.Id,
@@ -105,7 +106,7 @@ namespace AppointmentService.Controllers
             }
         }
 
-        [HttpDelete]
+        [HttpDelete("{Id:Guid}")]
         public ActionResult DeleteAppointment(Guid Id)
         {
             try
