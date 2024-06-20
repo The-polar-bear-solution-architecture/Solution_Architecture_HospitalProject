@@ -119,7 +119,7 @@ namespace CheckInService.Controllers
 
                 // Then start pipeline 
                 // Current implementation will start pipeline from Event source to -> Write database and read database.
-                await checkInPipeline.RunPipeline();
+                await checkInPipeline.ReplayDataPipeline();
 
                 // Does currently nothing, but will synchronise with write database.
                 // await checkInPipeline.SynchroniseWriteDBWithReadDB();

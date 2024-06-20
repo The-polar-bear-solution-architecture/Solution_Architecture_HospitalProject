@@ -39,12 +39,14 @@ namespace CheckInService.Pipelines
         }
 
         // Transports data from Event source to WriteDB and ReadDB.
-        public async Task RunPipeline()
+        public async Task ReplayDataPipeline()
         {
             Console.WriteLine("==== Run pipeline ====");
             // Extract all data from event source.
             List<Message> list = new List<Message>();
             var events = await eventStoreRepository.GetFromCollection(nameof(CheckIn));
+            // Delete all data from write database.
+            await checkInCommandHandler.ClearAll();
 
             foreach (var command in events)
             {
