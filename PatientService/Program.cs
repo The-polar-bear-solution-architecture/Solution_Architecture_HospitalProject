@@ -16,6 +16,8 @@ builder.Services.AddScoped<PatientRepository>();
 builder.Services.AddDbContext<PatientDBContext>(options =>
   options.UseSqlServer(builder.Configuration.GetConnectionString("PatientDBContext")));
 
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+
 var app = builder.Build();
 
 

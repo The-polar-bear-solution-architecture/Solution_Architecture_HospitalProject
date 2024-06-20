@@ -1,20 +1,26 @@
 ﻿using PatientService.Domain;
+using PatientService.DomainServices;
 
 namespace PatientService.Repository
 {
-    public class PatientRepository
+    public class PatientRepository : IPatientRepository
     {
-        private PatientDBContext dbContext;
-        public PatientRepository(PatientDBContext dBContext)
+        private readonly PatientDBContext patientDBContext;
+        public PatientRepository(PatientDBContext patientDBContext)
         {
-            this.dbContext = dBContext;
+            this.patientDBContext = patientDBContext;
         }
-
-        public void Post(Patient patient) { 
-            dbContext.Patients.Add(patient);
+        public void Post(Patient patient) 
+        {
+            patientDBContext.Add(patient);
+            patientDBContext.SaveChanges();
         }
-        public void Put(Patient patient) { }
-        public IEnumerable<Patient>? GetAll() { return dbContext.Patients; }
-        public Patient? GetById(int id) { return null; }
+        public void Put(Patient patient) 
+        {
+            patientDBContext.Patients.Update(patient);
+            patientDBContext.SaveChanges();
+        }
+        public IEnumerable<Patient>? GetAll() { return patientDBContext.Patients.ToList(); }
+        public Patient? GetById(int id) { return patientDBContext.Patients.Where(x => x.Id == id).FirstOrDefault(); }
     }
 }
