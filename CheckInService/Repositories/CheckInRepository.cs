@@ -35,11 +35,11 @@ namespace CheckInService.Repositories
             try
             {
                 checkInContextDB.Update(checkIn);
-                checkInContextDB.SaveChangesAsync().Wait();
+                checkInContextDB.SaveChanges(true);
             }
             catch
             {
-                Console.WriteLine("");
+                Console.WriteLine("Update failed.");
             }
         }
 
@@ -48,13 +48,21 @@ namespace CheckInService.Repositories
             return checkInContextDB.checkInsView.AsEnumerable();
         }
 
-        public CheckIn? Get(int id)
+        public CheckIn? Get(Guid serialNumber)
         {
-            var jj = checkInContextDB.checkIns.
+            try
+            {
+                var jj = checkInContextDB.checkIns.
                 Include(p => p.Appointment.Physician).
                 Include(ppp => ppp.Appointment.Patient)
-                .Where(Patient => Patient.Id == id).First();
-            return jj;
+                .Where(Patient => Patient.SerialNr.Equals(serialNumber)).First();
+                return jj;
+            }
+            catch
+            {
+                return null;
+            }
+            
         }
 
         public CheckInView GetView(int id)

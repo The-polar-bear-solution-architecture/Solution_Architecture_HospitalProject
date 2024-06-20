@@ -5,8 +5,10 @@ namespace CheckInService.Queries
     public class CheckInView
     {
         public int Id { get; set; }
+        public Guid SerialNr { get; set; }
         public Status Status { get; set; }
 
+        public string Name { get; set; }
         public DateTime AppointmentDate { get; set; }
         public string PatientFirstName { get; set; }
         public string PatientLastName { get; set; }
