@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using PatientService.Controllers;
-using PatientService.Data;
 using PatientService.Domain;
+using PatientService.DomainServices;
 using PatientService.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,11 +11,9 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<PatientRepository>();
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddDbContext<PatientDBContext>(options =>
   options.UseSqlServer(builder.Configuration.GetConnectionString("PatientDBContext")));
-
-builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 
 var app = builder.Build();
 
