@@ -13,6 +13,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IGeneralPractitionerRepository, GeneralPractitionerRepository>();
 builder.Services.AddDbContext<PatientDBContext>(options =>
   options.UseSqlServer(builder.Configuration.GetConnectionString("Braphia_PatientService")));
 string eventSourceConnection = builder.Configuration.GetConnectionString("EventSourceDB");

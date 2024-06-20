@@ -10,22 +10,21 @@ namespace PatientService.Controllers
     public class PatientController : ControllerBase
     {
         private IPatientRepository patientRepository;
-        public PatientController(IPatientRepository patientRepository)
+        private IGeneralPractitionerRepository generalPractitionerRepository;
+        public PatientController(IPatientRepository patientRepository, IGeneralPractitionerRepository generalPractitionerRepository)
         {
             this.patientRepository = patientRepository;
+            this.generalPractitionerRepository = generalPractitionerRepository;
         }
 
         [HttpPost]
         public ActionResult<Patient> Post(PatientDTO commandModel) {
+            var patient = TurnDTOToPatient(commandModel);
             try
             {
-                var x = new Patient();
-                x.FirstName = commandModel.FirstName;
-                x.LastName = commandModel.LastName;
-                x.Email = commandModel.Email;
-                x.DateOfBirth = commandModel.DateOfBirth;
-                x.BSN = commandModel.BSN;
-                patientRepository.Post(x);
+                if (patient == null) { return BadRequest("Patient could not been added"); }
+                patientRepository.Post(patient);
+                return Ok(patient);
             } catch (Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -42,7 +41,7 @@ namespace PatientService.Controllers
         [HttpGet("id")]
         public PatientDTO? GetById(int id) { return null; }
 
-        private Patient TurnDTOToPatient(PatientDTO patientDTO)
+        private Patient? TurnDTOToPatient(PatientDTO patientDTO)
         {
             var patient = new Patient();
 
@@ -58,14 +57,16 @@ namespace PatientService.Controllers
             {
                 try
                 {
-                    patientRepository.GetByEmail();
+                    var generalPractitioner = generalPractitionerRepository.GetByEmail(patientDTO.GeneralPractionerEmail);
+                    patient.GeneralPractitioner = generalPractitioner;
+                    return patient;
                 }
                 catch (Exception ex)
                 {
-
+                    return null;
                 }
             }
-            return patient;
+            return null;
         }
     }
 }
