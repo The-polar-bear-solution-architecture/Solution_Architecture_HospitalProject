@@ -1,3 +1,4 @@
+using EventStore.Client;
 using Microsoft.EntityFrameworkCore;
 using PatientService.Domain;
 using PatientService.DomainServices;
@@ -13,18 +14,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddDbContext<PatientDBContext>(options =>
-  options.UseSqlServer(builder.Configuration.GetConnectionString("PatientDBContext")));
+  options.UseSqlServer(builder.Configuration.GetConnectionString("Braphia_PatientService")));
+string eventSourceConnection = builder.Configuration.GetConnectionString("EventSourceDB");
+var settings = EventStoreClientSettings.Create(eventSourceConnection);
+var client = new EventStoreClient(settings);
+
+builder.Services.AddSingleton(client);
 
 var app = builder.Build();
-
-
-/*using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<PatientDBContext>();
-    context.Database.EnsureCreated();
-    DbInitializer.Initialize(context);
-}*/
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
