@@ -14,23 +14,28 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//RabbitMQ
+builder.Services.AddSingleton<PatientWorker>();
+builder.Services.AddHostedService<PatientWorker>(provider => provider.GetService<PatientWorker>());
+builder.Services.UseRabbitMQMessageHandler(builder.Configuration);
+builder.Services.UseRabbitMQMessagePublisher(builder.Configuration);
+
+//Repositories
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddTransient<EventStoreRepository>();
 builder.Services.AddScoped<IGeneralPractitionerRepository, GeneralPractitionerRepository>();
+
+//SQL
 builder.Services.AddDbContext<PatientDBContext>(options =>
   options.UseSqlServer(builder.Configuration.GetConnectionString("Braphia_PatientService")));
-
-//RabbitMQ
-builder.Services.UseRabbitMQMessageHandler(builder.Configuration);
-builder.Services.AddHostedService<PatientWorker>();
-
 
 //EventStore
 string eventSourceConnection = builder.Configuration.GetConnectionString("EventSourceDB");
 var settings = EventStoreClientSettings.Create(eventSourceConnection);
 var client = new EventStoreClient(settings);
-
 builder.Services.AddSingleton(client);
+
 
 var app = builder.Build();
 
