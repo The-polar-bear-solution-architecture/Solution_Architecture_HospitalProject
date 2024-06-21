@@ -72,13 +72,14 @@ namespace PatientService.Controllers
         }
 
         [HttpDelete("{Id}")]
-        public IActionResult DeleteById(string Id)
+        public async Task<IActionResult> DeleteById(string Id)
         {
             try
             {
                 var gp = generalPractitionerRepository.GetById(Guid.Parse(Id));
                 if (gp == null) { return NotFound(); }
                 generalPractitionerRepository.Delete(gp);
+                await eventStoreRepository.HandleGPDeletedEvent(gp);
                 return Ok(gp.Id);
             }
             catch (Exception ex)

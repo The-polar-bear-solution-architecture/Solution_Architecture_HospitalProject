@@ -28,6 +28,13 @@ namespace PatientService.Repository
             await StoreMessage("generalPractitioners", gPUpdated.MessageType, gPUpdated);
         }
 
+        public async Task HandleGPDeletedEvent(GeneralPractitioner generalPractitioner)
+        {
+            var gPDeleted = new GPDeletedEvent("Delete");
+            gPDeleted.Id = generalPractitioner.Id;
+            await StoreMessage("generalPractitioners", gPDeleted.MessageType, gPDeleted);
+        }
+
         public async Task HandleGPCreatedEvent(GeneralPractitioner generalPractitioner)
         {
             var gpCreatedEvent = new GPCreatedEvent("Create");
@@ -62,6 +69,13 @@ namespace PatientService.Repository
             updatedEvent.Address = patient.Address;
             updatedEvent.GeneralPractitionerId = patient.GeneralPractitioner.Id;
             await StoreMessage("patients", updatedEvent.MessageType, updatedEvent);
+        }
+
+        public async Task HandlePatientDeletedEvent(Patient patient)
+        {
+            var patientDeleted = new PatientDeletedEvent("Delete");
+            patientDeleted.Id = patient.Id;
+            await StoreMessage("patients", patientDeleted.MessageType, patientDeleted);
         }
 
         public async Task StoreMessage(String collection, string MessageType, Message command)
