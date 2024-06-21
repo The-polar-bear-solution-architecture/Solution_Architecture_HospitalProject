@@ -5,9 +5,6 @@ using RabbitMQ.Messages.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ImportPatientService
 {
@@ -19,10 +16,10 @@ namespace ImportPatientService
         public HostingWorker()
         {
             this.httpClient = new HttpClient();
-            this.publisher = new RabbitMQPublisher("localhost", "De_President", 5672, "/");
+            this.publisher = new RabbitMQPublisher("rabbit", "Hospital_Brenda_Patient", 5672, "/");
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
             List<Patient> list = new List<Patient>();
             int i = 0;
@@ -41,13 +38,11 @@ namespace ImportPatientService
                 }
 
                 ExternalPatientEvent externalEvent = new ExternalPatientEvent() { patientList = list };
-                publisher.SendMessage("ExternalPatient", externalEvent, "IncomingPatients");
+                await publisher.SendMessage("CSVPatient", externalEvent, "Import_Customers");
                 
                 i++;
                 Console.WriteLine($"Run geeindigt is op index {i}");
             }
-            
-            return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

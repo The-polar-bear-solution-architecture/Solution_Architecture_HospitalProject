@@ -17,8 +17,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DockerDemo", "DockerDemo\Do
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{8A77F774-A900-41E8-91D6-0D6300ED7108}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImportPatientService", "ImportPatientService\ImportPatientService.csproj", "{D5AF4B25-9440-4766-B058-2852BC7B8976}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImportPatientService", "ImportPatientService\ImportPatientService.csproj", "{D5AF4B25-9440-4766-B058-2852BC7B8976}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PatientService", "PatientService\PatientService.csproj", "{B32AC392-6A70-4BF2-84B2-2EE5CB2B9B86}"
+	ProjectSection(ProjectDependencies) = postProject
+		{42428DD4-8CA7-48F3-8779-B3399F26502F} = {42428DD4-8CA7-48F3-8779-B3399F26502F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

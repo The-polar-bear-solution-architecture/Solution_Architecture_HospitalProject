@@ -1,38 +1,6 @@
 version: '3.4'
 
 services:
-  dockerdemo:
-    container_name: dockerdemo
-    ports:
-    - 8040:443
-    image: localhost:5000/dockerdemo
-    build:
-      context: .
-      dockerfile: DockerDemo/Dockerfile
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:443;http://+:80
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=test
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
-    volumes:
-      - ~/.aspnet/https:/https:ro
-
-  eventstoredemo:
-    container_name: evenstoredemo
-    ports:
-      - 8041:443
-    image: localhost:5000/eventstoredemo
-    build:
-      context: .
-      dockerfile: WebApplication1/Dockerfile
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:443;http://+:80
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=test
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
-    volumes:
-      - ~/.aspnet/https:/https:ro
-
   eventstoredb:
     container_name: CannonEvents
     image: eventstore/eventstore:latest
@@ -128,7 +96,16 @@ services:
     volumes:
       - ~/.aspnet/https:/https:ro
 
+  importpatientservice:
+    container_name: importpatientservice
+    image: localhostL5000/importpatientservice
+    build:
+      context: .
+      dockerfile: ImportPatientService/Dockerfile
+    depends_on:
+      - rabbitmq
 volumes:
   sql:
   eventstore-data:
   eventstore-logs:  
+

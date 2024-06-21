@@ -1,8 +1,10 @@
 using EventStore.Client;
 using Microsoft.EntityFrameworkCore;
+using PatientService.Controllers;
 using PatientService.Domain;
 using PatientService.DomainServices;
 using PatientService.Repository;
+using RabbitMQ.Messages.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,11 @@ builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddScoped<IGeneralPractitionerRepository, GeneralPractitionerRepository>();
 builder.Services.AddDbContext<PatientDBContext>(options =>
   options.UseSqlServer(builder.Configuration.GetConnectionString("Braphia_PatientService")));
+
+//RabbitMQ
+builder.Services.UseRabbitMQMessageHandler(builder.Configuration);
+builder.Services.AddHostedService<PatientWorker>();
+
 string eventSourceConnection = builder.Configuration.GetConnectionString("EventSourceDB");
 var settings = EventStoreClientSettings.Create(eventSourceConnection);
 var client = new EventStoreClient(settings);
