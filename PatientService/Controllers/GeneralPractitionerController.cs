@@ -71,6 +71,22 @@ namespace PatientService.Controllers
             }
         }
 
+        [HttpDelete("{Id}")]
+        public IActionResult DeleteById(string Id)
+        {
+            try
+            {
+                var gp = generalPractitionerRepository.GetById(Guid.Parse(Id));
+                if (gp == null) { return NotFound(); }
+                generalPractitionerRepository.Delete(gp);
+                return Ok(gp.Id);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         private GeneralPractitioner? TurnDTOToGeberalPractitioner(GeneralPractitionerDTO generalPractitionerDTO)
         {
             var gp = new GeneralPractitioner();

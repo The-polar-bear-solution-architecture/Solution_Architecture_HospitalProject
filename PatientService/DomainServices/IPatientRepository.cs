@@ -8,5 +8,6 @@ namespace PatientService.DomainServices
         public void Put(Patient patient);
         public IEnumerable<Patient>? GetAll();
         public Patient? GetById(Guid id);
+        public void Delete(Patient patient);
     }
 }

@@ -9,5 +9,6 @@ namespace PatientService.DomainServices
         public IEnumerable<GeneralPractitioner>? GetAll();
         public GeneralPractitioner? GetById(Guid id);
         public GeneralPractitioner? GetByEmail(string generalPractitionerEmail);
+        public void Delete(GeneralPractitioner generalPractitioner);
     }
 }

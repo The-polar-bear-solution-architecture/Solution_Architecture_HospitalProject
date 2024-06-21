@@ -72,6 +72,21 @@ namespace PatientService.Controllers
             }
         }
 
+        [HttpDelete("{Id}")]
+        public IActionResult DeleteById(string Id)
+        {
+            try
+            {
+                var patient = patientRepository.GetById(Guid.Parse(Id));
+                if(patient == null) { return NotFound(); }
+                patientRepository.Delete(patient);
+                return Ok(patient.Id);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         private Patient? TurnDTOToPatient(PatientDTO patientDTO)
         {
             var patient = new Patient();

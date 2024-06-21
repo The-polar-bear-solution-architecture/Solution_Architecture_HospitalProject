@@ -11,14 +11,20 @@ namespace PatientService.Repository
         {
             this.patientDBContext = patientDBContext;
         }
-        public void Post(Patient patient) 
+        public void Post(Patient patient)
         {
             patientDBContext.Add(patient);
             patientDBContext.SaveChanges();
         }
-        public void Put(Patient patient) 
+        public void Put(Patient patient)
         {
             patientDBContext.Patients.Update(patient);
+            patientDBContext.SaveChanges();
+        }
+
+        public void Delete(Patient patient)
+        {
+            patientDBContext.Patients.Remove(patient);
             patientDBContext.SaveChanges();
         }
         public IEnumerable<Patient>? GetAll() { return patientDBContext.Patients.ToList(); }
