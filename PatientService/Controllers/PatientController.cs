@@ -2,6 +2,8 @@
 using PatientService.Domain;
 using PatientService.DomainServices;
 using PatientService.DTO;
+using PatientService.Events.Patient;
+using PatientService.Repository;
 
 namespace PatientService.Controllers
 {
@@ -10,22 +12,27 @@ namespace PatientService.Controllers
     public class PatientController : ControllerBase
     {
         private IPatientRepository patientRepository;
+        private EventStoreRepository eventStoreRepository;
         private IGeneralPractitionerRepository generalPractitionerRepository;
-        public PatientController(IPatientRepository patientRepository, IGeneralPractitionerRepository generalPractitionerRepository)
+        public PatientController(IPatientRepository patientRepository, IGeneralPractitionerRepository generalPractitionerRepository, EventStoreRepository eventStoreRepository)
         {
             this.patientRepository = patientRepository;
             this.generalPractitionerRepository = generalPractitionerRepository;
+            this.eventStoreRepository = eventStoreRepository;
         }
 
         [HttpPost]
-        public ActionResult<Patient> Post(PatientDTO commandModel) {
+        public async Task<ActionResult<Patient>> Post(PatientDTO commandModel)
+        {
             var patient = TurnDTOToPatient(commandModel);
             try
             {
                 if (patient == null) { return BadRequest("Patient could not been added"); }
                 patientRepository.Post(patient);
+                await eventStoreRepository.HandlePatientCreatedEvent(patient);
                 return Ok(patient);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -51,7 +58,7 @@ namespace PatientService.Controllers
         public ActionResult<IEnumerable<Patient>> GetAllPatients() { return Ok(patientRepository.GetAll()); }
 
         [HttpGet("{Id}")]
-        public ActionResult<Patient> GetById(string Id) 
+        public ActionResult<Patient> GetById(string Id)
         {
             try
             {
@@ -78,7 +85,7 @@ namespace PatientService.Controllers
                 try
                 {
                     var generalPractitioner = generalPractitionerRepository.GetByEmail(patientDTO.GeneralPractionerEmail);
-                    if (generalPractitioner == null) { return null;  }
+                    if (generalPractitioner == null) { return null; }
                     patient.FirstName = patientDTO.FirstName;
                     patient.LastName = patientDTO.LastName;
                     patient.PhoneNumber = patientDTO.PhoneNumber;
