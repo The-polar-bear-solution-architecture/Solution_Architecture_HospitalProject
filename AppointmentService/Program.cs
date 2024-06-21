@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 //Using Docker DB
-builder.Services.AddDbContext<AppointmentServiceContext>(options => options.UseSqlServer("Data Source=sql;Initial Catalog=AppointmentService;User ID=sa;Password=Testerino@8;Trust Server Certificate=True"), ServiceLifetime.Singleton);
+builder.Services.AddDbContext<AppointmentServiceContext>(options => options.UseSqlServer("Data Source=sql;Initial Catalog=AppointmentService;User ID=sa;Password=Rick@Sanchez;Trust Server Certificate=True"), ServiceLifetime.Singleton);
 // Using local DB
 //builder.Services.AddDbContext<AppointmentServiceContext>(options => options.UseSqlServer("Data Source =.; Initial Catalog = AppointmentService; Integrated Security = True; Encrypt = False; Trust Server Certificate=True"), ServiceLifetime.Singleton);
 
