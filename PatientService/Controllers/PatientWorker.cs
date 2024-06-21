@@ -6,16 +6,27 @@ namespace PatientService.Controllers
     public class PatientWorker : IMessageHandleCallback, IHostedService
     {
         private IReceiver _messageHandler;
+        private IPublisher publisher;
 
-        public PatientWorker(IReceiver messageHandler)
+        public PatientWorker(IReceiver messageHandler, IPublisher publisher)
         {
             _messageHandler = messageHandler;
+            this.publisher = publisher;
         }
 
-        public Task<bool> HandleMessageAsync(string messageType, object message)
+
+        public async Task<bool> HandleMessageAsync(string messageType, object message)
         {
             Console.WriteLine("Message received");
-            return Task.FromResult(true);
+            return true;
+        }
+
+        public  async Task SendMessageAsync(string messageType, object message)
+        {
+            if (messageType == "POST")
+            {
+                await publisher.SendMessage(messageType, message, "Created_Patient");
+            }
         }
 
         public Task StartAsync(CancellationToken cancellationToken)

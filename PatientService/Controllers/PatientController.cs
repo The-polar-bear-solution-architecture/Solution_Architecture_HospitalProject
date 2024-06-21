@@ -13,11 +13,13 @@ namespace PatientService.Controllers
         private IPatientRepository patientRepository;
         private EventStoreRepository eventStoreRepository;
         private IGeneralPractitionerRepository generalPractitionerRepository;
-        public PatientController(IPatientRepository patientRepository, IGeneralPractitionerRepository generalPractitionerRepository, EventStoreRepository eventStoreRepository)
+        private PatientWorker patientWorker;
+        public PatientController(IPatientRepository patientRepository, IGeneralPractitionerRepository generalPractitionerRepository, EventStoreRepository eventStoreRepository, PatientWorker patientWorker)
         {
             this.patientRepository = patientRepository;
             this.generalPractitionerRepository = generalPractitionerRepository;
             this.eventStoreRepository = eventStoreRepository;
+            this.patientWorker = patientWorker;
         }
 
         [HttpPost]
@@ -29,6 +31,7 @@ namespace PatientService.Controllers
                 if (patient == null) { return BadRequest("Patient could not been added"); }
                 patientRepository.Post(patient);
                 await eventStoreRepository.HandlePatientCreatedEvent(patient);
+                await patientWorker.SendMessageAsync("POST", patient);
                 return Ok(patient);
             }
             catch (Exception ex)
