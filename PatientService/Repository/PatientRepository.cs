@@ -1,6 +1,7 @@
 ﻿using PatientService.Domain;
 using PatientService.DomainServices;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Messages.Mapper;
 
 namespace PatientService.Repository
 {
@@ -27,7 +28,7 @@ namespace PatientService.Repository
             patientDBContext.Patients.Remove(patient);
             patientDBContext.SaveChanges();
         }
-        public IEnumerable<Patient>? GetAll() { return patientDBContext.Patients.ToList(); }
+        public IEnumerable<Patient>? GetAll() { return patientDBContext.Patients.Include(x => x.GeneralPractitioner).ToList(); }
         public Patient? GetById(Guid id) { return patientDBContext.Patients.Include(x => x.GeneralPractitioner).Where(x => x.Id == id).FirstOrDefault(); }
     }
 }
