@@ -41,7 +41,7 @@ namespace RabbitMQ.Infrastructure.MessagePublishers
         {
             Console.WriteLine($"Message of {MessageType} has send to {routingKey}");
 
-            Model.ExchangeDeclare(exchange: _exchange, type: ExchangeType.Fanout);
+            Model.ExchangeDeclare(exchange: _exchange, type: ExchangeType.Fanout, durable: true);
 
             return Task.Run(() =>
             {

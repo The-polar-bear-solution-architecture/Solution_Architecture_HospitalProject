@@ -1,4 +1,5 @@
-﻿using RabbitMQ.Messages.Interfaces;
+﻿using RabbitMQ.Infrastructure.MessageHandlers;
+using RabbitMQ.Messages.Interfaces;
 
 namespace PatientService.Controllers
 {
