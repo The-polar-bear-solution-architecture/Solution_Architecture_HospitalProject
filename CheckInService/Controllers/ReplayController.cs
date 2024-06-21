@@ -19,6 +19,8 @@ using CheckInService.CommandsAndEvents.Events.CheckIn;
 using CheckInService.CommandsAndEvents.Events.Appointment;
 using CheckInService.CommandsAndEvents.Commands.Appointment;
 using CheckInService.CommandsAndEvents.Commands.CheckIn;
+using RabbitMQ.Messages.Interfaces;
+using CheckInService.Configurations;
 
 namespace CheckInService.Controllers
 {
@@ -26,39 +28,21 @@ namespace CheckInService.Controllers
     [ApiController]
     public class ReplayController : ControllerBase
     {
-        private readonly EventStoreClient client;
         private readonly CheckInContextDB checkInContext;
-        private readonly ReplayHandler replayEventHandler;
-        private readonly CheckInCommandHandler checkInCommandHandler;
+        private readonly IPublisher InternalPublisher;
+        private readonly string RouterKey;
 
-        public ReplayController(EventStoreClient client, 
-            CheckInContextDB checkInContext, 
-            ReplayHandler replayEventHandler,
-            CheckInCommandHandler checkInCommandHandler)
+        public ReplayController(
+            CheckInContextDB checkInContext,
+            IRabbitFactory rabbitFactory)
         {
-            this.client = client;
             this.checkInContext = checkInContext;
-            this.replayEventHandler = replayEventHandler;
-            this.checkInCommandHandler = checkInCommandHandler;
+            this.InternalPublisher = rabbitFactory.CreateInternalPublisher();
+            RouterKey = "ETL_Checkin";
         }
 
-        [HttpGet(Name = "GetAllEvents")]
-        public async Task<IActionResult> GetAllEvents(CancellationToken cancellationToken)
-        {
-            var result = client.ReadStreamAsync(
-                Direction.Forwards,
-                nameof(CheckIn),
-                StreamPosition.Start,
-                cancellationToken: cancellationToken, resolveLinkTos: true
-            );
-            var events = await result.ToListAsync(cancellationToken);
-
-            // Assuming events are in JSON format
-            return Ok(events);
-        }
-
-        [HttpDelete(Name = "ClearDatabase")]
-        public IActionResult ClearCheckInDatabase()
+        [HttpDelete("ClearData")]
+        public async Task<IActionResult> ClearCheckInDatabase()
         {
             // For now only the checkin table will be cleared.
             // Deletes all elements from checkin 
@@ -73,57 +57,22 @@ namespace CheckInService.Controllers
 
             checkInContext.SaveChanges();
             // Later on, all the other tables will be cleared too.
+
+            await InternalPublisher.SendMessage("Clear" , "", RouterKey);
             return Ok("All checkIns have been deleted.");
         }
 
-        [HttpPatch(Name = "Replay")]
+        [HttpPut("Synchronize")]
         public async Task<IActionResult> ReplayAll()
         {
-            List<Message> list = new List<Message>();
-            var result = client.ReadStreamAsync(
-                Direction.Forwards,
-                nameof(CheckIn),
-                StreamPosition.Start,
-                resolveLinkTos: true
-            );
-            var events = await result.ToListAsync();
-            foreach (var command in events)
-            {
-                string EventType = command.OriginalEvent.EventType;
-                byte[] data = command.OriginalEvent.Data.ToArray();
-                Message? entity_event = null;
-                Console.WriteLine(EventType);
-                // Hier zullen wijzigingen doorgevoerd moeten worden.
-                switch (EventType)
-                {
-                    case nameof(CheckInNoShowEvent):
-                        entity_event = data.Deserialize<NoShowCheckIn>();
-                        await checkInCommandHandler.ChangeToNoShow((NoShowCheckIn)entity_event);
-                        break;
-                    case nameof(CheckInPresentEvent):
-                        entity_event = data.Deserialize<PresentCheckin>();
-                        await checkInCommandHandler.ChangeToPresent((PresentCheckin)entity_event);
-                        break;
-                    case nameof(CheckInRegistrationEvent):
-                        RegisterCheckin registerCommand = data.Deserialize<RegisterCheckin>();
-                        await checkInCommandHandler.RegisterCheckin(registerCommand);
-                        break;
-                    case nameof(AppointmentDeleteEvent):
-                        var delete_command = data.Deserialize<AppointmentDeleteCommand>();
-                        await checkInCommandHandler.DeleteAppointment(delete_command);
-                        break;
-                    case nameof(AppointmentUpdateEvent):
-                        var update_command = data.Deserialize<AppointmentDeleteCommand>();
-                        await checkInCommandHandler.DeleteAppointment(update_command);
-                        break;
-                    default:
-                        Console.WriteLine($"No object convertion possible with {EventType}");
-                        break;
-                }
-                list.Add(entity_event);
-                Console.WriteLine("============== Cycle over process ===========");
-            }
-            return Ok(list);
+            // Tells ETL Worker to synchronize the data between WriteDB/Event source with current read database.
+            await InternalPublisher.SendMessage("Replay", "", RouterKey);
+            var responseData =
+            new {
+                Text = "Data will now be synchronised with the read database.",
+                Date = DateTime.Now,
+            };
+            return Ok(responseData);
         }
     }
 }

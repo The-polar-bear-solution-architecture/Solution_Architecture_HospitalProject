@@ -22,5 +22,17 @@ namespace CheckInService.Repositories
             var eventData = new EventData(Uuid.NewUuid(), MessageType, data);
             await eventStore.AppendToStreamAsync(collection, StreamState.Any, [eventData]);
         }
+
+        public async Task<List<ResolvedEvent>> GetFromCollection(string collection)
+        {
+            var result = eventStore.ReadStreamAsync(
+                Direction.Forwards,
+                collection,
+                StreamPosition.Start,
+                resolveLinkTos: true
+            );
+            return await result.ToListAsync();
+
+        }
     }
 }

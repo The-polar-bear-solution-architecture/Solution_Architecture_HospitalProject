@@ -8,7 +8,8 @@
         "eventstoredemo": "StartDebugging",
         "checkinservice": "StartDebugging",
         "rabbitmq.messages": "StartDebugging",
-        "appointmentservice": "StartDebugging"
+        "patientservice": "StartDebugging",
+        "importpatientservice": "StartDebugging"
       }
     }
   }

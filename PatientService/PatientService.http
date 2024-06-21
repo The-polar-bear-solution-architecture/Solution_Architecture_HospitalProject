@@ -1,6 +1,6 @@
 @PatientService_HostAddress = http://localhost:5035
 
-GET {{PatientService_HostAddress}}/weatherforecast/
+POST {{PatientService_HostAddress}}/patient/
 Accept: application/json
 
 ###
