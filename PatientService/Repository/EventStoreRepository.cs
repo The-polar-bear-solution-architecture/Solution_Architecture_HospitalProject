@@ -1,5 +1,6 @@
 ﻿using EventStore.Client;
 using PatientService.Domain;
+using PatientService.Events.GeneralPractitioner;
 using PatientService.Events.Patient;
 using RabbitMQ.Messages.Mapper;
 using RabbitMQ.Messages.Messages;
@@ -14,6 +15,17 @@ namespace PatientService.Repository
         {
             this.eventStore = eventStore;
         }
+        public async Task HandleGPCreatedEvent(GeneralPractitioner generalPractitioner)
+        {
+            var gpCreatedEvent = new GPCreatedEvent("Create");
+            gpCreatedEvent.Id = generalPractitioner.Id;
+            gpCreatedEvent.FirstName = generalPractitioner.FirstName;
+            gpCreatedEvent.LastName = generalPractitioner.LastName;
+            gpCreatedEvent.PhoneNumber = generalPractitioner.PhoneNumber;
+            gpCreatedEvent.Address = generalPractitioner.Address;
+            gpCreatedEvent.Email = generalPractitioner.Email;
+            await StoreMessage("generalPractitioners", gpCreatedEvent.MessageType, gpCreatedEvent);
+        }
 
         public async Task HandlePatientCreatedEvent(Patient patient)
         {
@@ -24,7 +36,7 @@ namespace PatientService.Repository
             createdEvent.PhoneNumber = patient.PhoneNumber;
             createdEvent.Address = patient.Address;
             createdEvent.GeneralPractitionerId = patient.GeneralPractitioner.Id;
-            await StoreMessage("patients", "post", createdEvent);
+            await StoreMessage("patients", createdEvent.MessageType, createdEvent);
         }
 
         public async Task HandlePatientUpdatedEvent(Patient patient)
@@ -36,7 +48,7 @@ namespace PatientService.Repository
             updatedEvent.PhoneNumber = patient.PhoneNumber;
             updatedEvent.Address = patient.Address;
             updatedEvent.GeneralPractitionerId = patient.GeneralPractitioner.Id;
-            await StoreMessage("patients", "post", updatedEvent);
+            await StoreMessage("patients", updatedEvent.MessageType, updatedEvent);
         }
 
         public async Task StoreMessage(String collection, string MessageType, Message command)

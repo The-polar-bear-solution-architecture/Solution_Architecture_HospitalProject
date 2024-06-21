@@ -2,6 +2,7 @@
 using PatientService.Domain;
 using PatientService.DomainServices;
 using PatientService.DTO;
+using PatientService.Repository;
 
 namespace PatientService.Controllers
 {
@@ -10,9 +11,11 @@ namespace PatientService.Controllers
     public class GeneralPractitionerController : ControllerBase
     {
         private IGeneralPractitionerRepository generalPractitionerRepository;
-        public GeneralPractitionerController(IGeneralPractitionerRepository generalPractitionerRepository)
+        private EventStoreRepository eventStoreRepository;
+        public GeneralPractitionerController(IGeneralPractitionerRepository generalPractitionerRepository, EventStoreRepository eventStoreRepository)
         {
             this.generalPractitionerRepository = generalPractitionerRepository;
+            this.eventStoreRepository = eventStoreRepository;
         }
         [HttpGet]
         public ActionResult<IEnumerable<GeneralPractitioner>> GetAllGeneralPractitioners()
@@ -35,13 +38,14 @@ namespace PatientService.Controllers
             }
         }
         [HttpPost]
-        public ActionResult<GeneralPractitioner> Post(GeneralPractitionerDTO commandModel)
+        public async Task<ActionResult<GeneralPractitioner>> Post(GeneralPractitionerDTO commandModel)
         {
             var gp = TurnDTOToGeberalPractitioner(commandModel);
             try
             {
                 if (gp == null) { return BadRequest("GeneralPractitioner could not been added"); }
                 generalPractitionerRepository.Post(gp);
+                await eventStoreRepository.HandleGPCreatedEvent(gp);
                 return Ok(gp);
             }
             catch (Exception ex)
