@@ -58,8 +58,13 @@ namespace CheckInService.Repositories
         {
             try
             {
-                contextDB.CheckInReadModel.AddRange(list);
-                contextDB.SaveChanges();
+                foreach (var item in list)
+                {
+                    contextDB.CheckInReadModel.Add(item);
+                    Console.WriteLine("Addded record");
+                    contextDB.SaveChanges();
+                    
+                }
                 return list;
             }
             catch

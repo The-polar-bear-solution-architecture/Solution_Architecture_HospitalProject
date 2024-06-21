@@ -210,18 +210,23 @@ namespace CheckInService.CommandHandlers
             return deleteEvent;
         }
 
-        public async Task ClearAll()
+        public void ClearAll()
         {
-            var checkIns = checkInContext.checkIns.ToList();
-            var tempAppointments = checkInContext.Appointments.ToList();
-            var physicians = checkInContext.Physicians.ToList();
-            var patients = checkInContext.Patients.ToList();
-            checkInContext.checkIns.RemoveRange(checkIns);
-            checkInContext.Appointments.RemoveRange(tempAppointments);
-            checkInContext.Physicians.RemoveRange(physicians);
-            checkInContext.Patients.RemoveRange(patients);
+            try
+            {
+                var checkIns = checkInRepository.GetCheckIns().ToArray();
+                if(checkIns.Length > 0)
+                {
+                    checkInContext.RemoveRange(checkIns);
 
-            checkInContext.SaveChanges();
+                    checkInContext.SaveChanges();
+                }            
+            }
+            catch
+            {
+                Console.Write("");
+            }
+            
         }
     }
 }

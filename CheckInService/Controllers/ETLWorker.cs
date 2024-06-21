@@ -13,6 +13,7 @@ using RabbitMQ.Messages.Messages;
 using CheckInService.CommandsAndEvents.Events.Appointment;
 using CheckInService.CommandsAndEvents.Events.CheckIn;
 using CheckInService.Configurations;
+using CheckInService.DBContexts;
 
 namespace CheckInService.Controllers
 {
@@ -22,17 +23,19 @@ namespace CheckInService.Controllers
         private readonly ReadModelRepository readModelRepository;
         private readonly CheckInPipeline checkInPipeline;
         private readonly IRabbitFactory RabbitFactory;
+        private readonly CheckInCommandHandler checkInCommandHandler;
 
         public ETLWorker(
             ReadModelRepository readModelRepository,
             CheckInPipeline checkInPipeline,
+            CheckInCommandHandler checkInCommandHandler,
             IRabbitFactory rabbitFactory)
         {
             
             this.readModelRepository = readModelRepository;
             this.checkInPipeline = checkInPipeline;
             this.RabbitFactory = rabbitFactory;
-
+            this.checkInCommandHandler = checkInCommandHandler;
             // Will only receive messages via an internal exchange.
             _messageHandler = rabbitFactory.CreateInternalReceiver();
         }
@@ -109,20 +112,20 @@ namespace CheckInService.Controllers
         {
             if (messageType.Equals("Clear"))
             {
+                Console.WriteLine("Clear databases.");
                 readModelRepository.DeleteAll();
-                Console.WriteLine("Rebuild everything appointment");
+                checkInCommandHandler.ClearAll();
             }
             else if (messageType.Equals("Replay"))
             {
                 // First clear all data from read database
                 readModelRepository.DeleteAll();
+                checkInCommandHandler.ClearAll();
 
-                // Then start pipeline 
-                // Current implementation will start pipeline from Event source to -> Write database and read database.
+                // Fill Event source -> write database
                 await checkInPipeline.ReplayDataPipeline();
-
                 // Does currently nothing, but will synchronise with write database.
-                // await checkInPipeline.SynchroniseWriteDBWithReadDB();
+                await checkInPipeline.SynchroniseWriteDBWithReadDB();
             }
             else
             {

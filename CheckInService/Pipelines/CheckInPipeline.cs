@@ -46,7 +46,6 @@ namespace CheckInService.Pipelines
             List<Message> list = new List<Message>();
             var events = await eventStoreRepository.GetFromCollection(nameof(CheckIn));
             // Delete all data from write database.
-            await checkInCommandHandler.ClearAll();
 
             foreach (var command in events)
             {
@@ -61,40 +60,28 @@ namespace CheckInService.Pipelines
                         var updateCheckIn = data.Deserialize<CheckInUpdateCommand>();
                         // Write to write db.
                         await checkInCommandHandler.ChangeToNoShow((NoShowCheckIn)entity_event);
-                        // Readdb act
-                        readModelRepository.Update(updateCheckIn);
                         break;
                     case nameof(CheckInPresentEvent):
                         entity_event = data.Deserialize<PresentCheckin>();
                         var presentCheckIn = data.Deserialize<CheckInUpdateCommand>();
                         // Write to write db.
                         await checkInCommandHandler.ChangeToPresent((PresentCheckin)entity_event);
-                        // Readdb act
-                        readModelRepository.Update(presentCheckIn);
                         break;
                     case nameof(CheckInRegistrationEvent):
                         RegisterCheckin registerCommand = data.Deserialize<RegisterCheckin>();
                         CheckInReadModel readModel = data.Deserialize<CheckInReadModel>();
                         // Write to write db.
                         await checkInCommandHandler.RegisterCheckin(registerCommand);
-                        // Readdb act
-                        readModelRepository.Create(readModel);
                         break;
                     case nameof(AppointmentDeleteEvent):
                         var delete_command = data.Deserialize<AppointmentDeleteCommand>();
                         // Write to write db.
                         await checkInCommandHandler.DeleteAppointment(delete_command);
-                        // Readdb act
-                        readModelRepository.DeleteByAppointment(delete_command.AppointmentId);
                         break;
                     case nameof(AppointmentUpdateEvent):
                         var update_command = data.Deserialize<AppointmentUpdateCommand>();
                         // Write to write db.
                         await checkInCommandHandler.UpdateAppointment(update_command);
-                        // Readdb act
-                        var appointmentUpdate = data.Deserialize<AppointmentReadUpdateCommand>();
-                        // Perform operations.
-                        readModelRepository.Update(appointmentUpdate);
                         break;
                     default:
                         Console.WriteLine($"No object convertion possible with {EventType}");
@@ -109,13 +96,14 @@ namespace CheckInService.Pipelines
         {
             // Retrieve
             IEnumerable<CheckIn> writeModels = CheckInRepository.GetCheckIns();
-            IEnumerable<CheckInReadModel> readModels = new List<CheckInReadModel>();
+            List<CheckInReadModel> readModels = new List<CheckInReadModel>();
             Console.WriteLine("==== Start synchronisation ====");
+            Console.WriteLine($"==== Length is {writeModels.Count()} ====");
             // Map all entities to read models
             foreach (CheckIn item in writeModels)
             {
                 var convertedModel = item.MapToReadModel();
-                readModels.Append(convertedModel);
+                readModels.Add(convertedModel);
             }
             // Insert into database.
             readModelRepository.BulkCreate(readModels);
