@@ -45,7 +45,7 @@ namespace AppointmentService.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Appointment> PostAppointment(AppointmentDTO appointmentDTO) {
+        public async Task<ActionResult<Appointment>> PostAppointment(AppointmentDTO appointmentDTO) {
             var appointmentToAdd = TurnDTOToAppointment(appointmentDTO);
 
 
@@ -66,7 +66,7 @@ namespace AppointmentService.Controllers
                     PhysicianEmail = createdAppointment.Physician.Email,
 
                 };
-                commandHandler.AppointmentCreated(appointmentCreated);
+                await commandHandler.AppointmentCreated(appointmentCreated);
                 return Ok(createdAppointment);
             } catch (Exception e)
             {
@@ -75,7 +75,7 @@ namespace AppointmentService.Controllers
         }
 
         [HttpPut("{Id:Guid}")]
-        public ActionResult<Appointment> UpdateAppointment(Guid Id, AppointmentDTO appointmentDTO)
+        public async Task<ActionResult<Appointment>> UpdateAppointment(Guid Id, AppointmentDTO appointmentDTO)
         {
             Appointment appointmentToUpdate = TurnDTOToAppointment(appointmentDTO);
             appointmentToUpdate.Id = Id;
@@ -97,7 +97,7 @@ namespace AppointmentService.Controllers
 
                 };
 
-                commandHandler.AppointmentUpdated(appointmentUpdated);
+                await commandHandler.AppointmentUpdated(appointmentUpdated);
 
                 return Ok(appointmentToUpdate);
             } catch(Exception e)
@@ -107,7 +107,7 @@ namespace AppointmentService.Controllers
         }
 
         [HttpDelete("{Id:Guid}")]
-        public ActionResult DeleteAppointment(Guid Id)
+        public async Task<ActionResult> DeleteAppointment(Guid Id)
         {
             try
             {
@@ -117,7 +117,7 @@ namespace AppointmentService.Controllers
                     AppointmentId = Id
                 };
 
-                commandHandler.AppointmentDeleted(appointmentDeleted);
+                await commandHandler.AppointmentDeleted(appointmentDeleted);
                 return Ok("Appointment deleted");
             } catch (Exception e) { 
                 return BadRequest(e.Message);
@@ -157,9 +157,6 @@ namespace AppointmentService.Controllers
                 };
                 return appointment;
             }
-
-
         }
-        
     }
 }

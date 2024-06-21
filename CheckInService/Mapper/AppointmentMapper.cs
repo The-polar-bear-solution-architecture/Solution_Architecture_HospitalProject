@@ -11,18 +11,21 @@ namespace CheckInService.Mapper
 
         public static AppointmentUpdateCommand MapToAppointmentUpdateCommand(this UpdateCheckInDTO updateCheckInDTO)
         {
-            return new AppointmentUpdateCommand()
+            return new AppointmentReadUpdateCommand()
             {
                 AppointmentDate = updateCheckInDTO.AppointmentDate,
                 AppointmentName = updateCheckInDTO.ApointmentName,
-                AppointmentSerialNr = updateCheckInDTO.AppointmentGuid,
-                PhysicianSerialNr = updateCheckInDTO.PhysicianGuid,
+                AppointmentSerialNr = updateCheckInDTO.AppointmentId,
+                PhysicianSerialNr = updateCheckInDTO.PhysicianId,
+                PhysicianEmail = updateCheckInDTO.PhysicianLastName,
+                PhysicianFirstName = updateCheckInDTO.PhysicianFirstName,
+                PhysicianLastName = updateCheckInDTO.PhysicianLastName
             };
         }
 
         public static AppointmentUpdateEvent MapToUpdatedEvent(this AppointmentUpdateCommand appointmentUpdateCommand, Physician? newPhysician)
         {
-            if(newPhysician == null | newPhysician.PhysicianSerialNr.Equals(appointmentUpdateCommand.PhysicianSerialNr))
+            if(newPhysician.PhysicianSerialNr.Equals(appointmentUpdateCommand.PhysicianSerialNr))
             {
                 return new AppointmentUpdateEvent(nameof(AppointmentUpdateEvent))
                 {
@@ -53,7 +56,7 @@ namespace CheckInService.Mapper
         {
             return new AppointmentDeleteCommand()
             {
-                AppointmentSerialNr = AppointmentSerialNr,
+                AppointmentId = AppointmentSerialNr,
                 CheckInSerialNr = CheckInSerialNr
             };
         }
@@ -61,7 +64,7 @@ namespace CheckInService.Mapper
         public static AppointmentDeleteEvent MapToAppointmentDeleted(this AppointmentDeleteCommand appointmentDeleteEvent) 
         {
             return new AppointmentDeleteEvent(nameof(AppointmentDeleteEvent)) { 
-                AppointmentSerialNr = appointmentDeleteEvent.AppointmentSerialNr,
+                AppointmentSerialNr = appointmentDeleteEvent.AppointmentId,
                 CheckInSerialNr = appointmentDeleteEvent.CheckInSerialNr
             };
         }

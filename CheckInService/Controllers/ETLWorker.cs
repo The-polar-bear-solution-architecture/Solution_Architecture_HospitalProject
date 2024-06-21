@@ -97,7 +97,7 @@ namespace CheckInService.Controllers
             else if (messageType.Equals(nameof(AppointmentDeleteEvent)))
             {
                 var appointmentDeletion = data.Deserialize<AppointmentDeleteCommand>();
-                readModelRepository.DeleteByAppointment(appointmentDeletion.AppointmentSerialNr);
+                readModelRepository.DeleteByAppointment(appointmentDeletion.AppointmentId);
             }
             else
             {

@@ -16,7 +16,15 @@ namespace RabbitMQ.Messages.Mapper
 
         public static T Deserialize<T>(this byte[] objectToBeSerialize)
         {
-            return JsonSerializer.Deserialize<T>(objectToBeSerialize);
+            try
+            {
+
+                return JsonSerializer.Deserialize<T>(objectToBeSerialize);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

@@ -10,17 +10,17 @@ namespace CheckInService.Mapper
     {
         public static CheckIn MapToCheckin(this CreateCheckInCommandDTO createCheckInCommand)
         {
-            var appointment_guid = createCheckInCommand.AppointmentGuid;
-            var physician_guid = createCheckInCommand.PhysicianGuid;
-            var patient_guid = createCheckInCommand.PatientGuid;
+            var appointment_guid = createCheckInCommand.AppointmentId;
+            var physician_guid = createCheckInCommand.PhysicianId;
+            var patient_guid = createCheckInCommand.PatientId;
 
             return new CheckIn
             {
                 Appointment = new Appointment()
                 {
+                    AppointmentSerialNr = appointment_guid,
                     Name = createCheckInCommand.ApointmentName,
                     AppointmentDate = createCheckInCommand.AppointmentDate,
-                    AppointmentSerialNr = appointment_guid,
                     Patient = new Patient()
                     {
                         PatientSerialNr = patient_guid,
@@ -91,15 +91,12 @@ namespace CheckInService.Mapper
 
         public static RegisterCheckin MapToRegister(this CreateCheckInCommandDTO createCheckInCommand)
         {
-            var apppointment_guid = createCheckInCommand.AppointmentGuid;
-            var physician_guid = createCheckInCommand.PhysicianGuid;
-            var patient_guid = createCheckInCommand.PatientGuid;
+            var apppointment_guid = createCheckInCommand.AppointmentId;
+            var physician_guid = createCheckInCommand.PhysicianId;
+            var patient_guid = createCheckInCommand.PatientId;
 
             return new RegisterCheckin(Guid.NewGuid(), nameof(RegisterCheckin))
             {
-                PatientId = createCheckInCommand.PatientId,
-                PhysicianId = createCheckInCommand.PhysicianId,
-                AppointmentId = createCheckInCommand.AppointmentId,
                 AppointmentGuid = apppointment_guid,
                 ApointmentName = createCheckInCommand.ApointmentName,
                 AppointmentDate = createCheckInCommand.AppointmentDate,

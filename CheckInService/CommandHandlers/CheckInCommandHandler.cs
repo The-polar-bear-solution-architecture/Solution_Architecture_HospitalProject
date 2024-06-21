@@ -13,6 +13,7 @@ using Microsoft.Identity.Client;
 using RabbitMQ.Messages.Interfaces;
 using RabbitMQ.Messages.Mapper;
 using RabbitMQ.Messages.Messages;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace CheckInService.CommandHandlers
 {
@@ -152,32 +153,56 @@ namespace CheckInService.CommandHandlers
 
             appointment.AppointmentDate = appointmentUpdateCommand.AppointmentDate;
             appointment.Name = appointmentUpdateCommand.AppointmentName;
-            
+
             var retrieved_physician = physicianRepo.Get(appointmentUpdateCommand.PhysicianSerialNr);
             // Will only change physician of appointment if it exists or is a different one then currently assigned to the appointment.
             if (retrieved_physician != null && !retrieved_physician.PhysicianSerialNr.Equals(appointmentUpdateCommand.PhysicianSerialNr))
             {
                 appointment.Physician = retrieved_physician;
             }
+            else if (retrieved_physician == null)
+            {
+                var casted_command = (AppointmentReadUpdateCommand) appointmentUpdateCommand;
+                // If physician does not exist
+                // Create one
+                appointment.Physician = new Physician()
+                {
+                    PhysicianSerialNr = appointmentUpdateCommand.PhysicianSerialNr,
+                    Email = casted_command.PhysicianEmail,
+                    FirstName = casted_command.PhysicianFirstName,
+                    LastName = casted_command.PhysicianLastName,
+                };
+            }
+            else
+            {
+                var casted_command = (AppointmentReadUpdateCommand) appointmentUpdateCommand; 
+                retrieved_physician.FirstName = casted_command.PhysicianFirstName;
+                retrieved_physician.LastName = casted_command.PhysicianLastName;
+                retrieved_physician.Email = casted_command.PhysicianEmail;
+                // Update eventual changes made
+                physicianRepo.Put(retrieved_physician);
+                appointment.Physician = retrieved_physician;
+            }
+
             // Update appointment
             appointmentRepository.Put(appointment);
 
             // Store event into event store database
-            AppointmentUpdateEvent updateEvent = appointmentUpdateCommand.MapToUpdatedEvent(retrieved_physician);
+            AppointmentUpdateEvent updateEvent = appointmentUpdateCommand.MapToUpdatedEvent(appointment.Physician);
             
             return updateEvent;
         }
 
         public async Task<AppointmentDeleteEvent?> DeleteAppointment(AppointmentDeleteCommand appointmentDeleteCommand)
         {
-            Appointment? appointment = appointmentRepository.Get(appointmentDeleteCommand.AppointmentSerialNr);
+            Appointment? appointment = appointmentRepository.Get(appointmentDeleteCommand.AppointmentId);
             if (appointment == null)
             {
                 return null;
             }
 
             // Delete appointment.
-            appointmentRepository.Delete(appointmentDeleteCommand.AppointmentSerialNr);
+            appointmentRepository.Delete(appointmentDeleteCommand.AppointmentId);
 
             // Store event into event store database
             AppointmentDeleteEvent deleteEvent = appointmentDeleteCommand.MapToAppointmentDeleted();

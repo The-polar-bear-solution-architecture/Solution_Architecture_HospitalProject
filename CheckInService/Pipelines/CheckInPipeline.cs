@@ -85,7 +85,7 @@ namespace CheckInService.Pipelines
                         // Write to write db.
                         await checkInCommandHandler.DeleteAppointment(delete_command);
                         // Readdb act
-                        readModelRepository.DeleteByAppointment(delete_command.AppointmentSerialNr);
+                        readModelRepository.DeleteByAppointment(delete_command.AppointmentId);
                         break;
                     case nameof(AppointmentUpdateEvent):
                         var update_command = data.Deserialize<AppointmentUpdateCommand>();

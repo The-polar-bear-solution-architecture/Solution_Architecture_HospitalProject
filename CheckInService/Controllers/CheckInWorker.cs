@@ -44,7 +44,6 @@ namespace CheckInService.Controllers
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            Console.WriteLine("Create checkin worker");
             _messageHandler.Start(this);
             return Task.CompletedTask;
         }
@@ -58,6 +57,7 @@ namespace CheckInService.Controllers
         public async Task<bool> HandleMessageAsync(string messageType, object message)
         {
             byte[] body = message as byte[];
+            Console.WriteLine($"Event has been received for Message type {messageType}");
             switch (messageType)
             {
                 case "AppointmentCreated":
@@ -108,6 +108,7 @@ namespace CheckInService.Controllers
                         await publisher.SendMessage(delete_Event.MessageType, delete_Event, "NotificationAppointment");
                     }
                     break;
+                
                 default:
                     Console.WriteLine("No one");
                     break;

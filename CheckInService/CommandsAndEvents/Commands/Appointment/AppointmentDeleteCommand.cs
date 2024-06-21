@@ -3,6 +3,6 @@
     public class AppointmentDeleteCommand
     {
         public Guid CheckInSerialNr { get; set; }
-        public Guid AppointmentSerialNr { get; set; }
+        public Guid AppointmentId { get; set; }
     }
 }

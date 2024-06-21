@@ -24,19 +24,19 @@ namespace AppointmentService.CommandsAndEvents.Commands
 
         }
 
-        public void AppointmentCreated(AppointmentCreated appointmentCreated)
+        public async Task AppointmentCreated(AppointmentCreated appointmentCreated)
         {
-            publisher.SendMessage(appointmentCreated.MessageType, appointmentCreated, RouterKeyLocator);
+            await publisher.SendMessage(appointmentCreated.MessageType, appointmentCreated, RouterKeyLocator);
         }
 
-        public void AppointmentDeleted(AppointmentDeleted appointmentDeleted)
+        public async Task AppointmentDeleted(AppointmentDeleted appointmentDeleted)
         {
-            publisher.SendMessage(appointmentDeleted.MessageType, appointmentDeleted, RouterKeyLocator);
+            await publisher.SendMessage(appointmentDeleted.MessageType, appointmentDeleted, RouterKeyLocator);
 
         }
-        public void AppointmentUpdated(AppointmentUpdated appointmentUpdated)
+        public async Task AppointmentUpdated(AppointmentUpdated appointmentUpdated)
         {
-            publisher.SendMessage(appointmentUpdated.MessageType, appointmentUpdated, RouterKeyLocator);
+            await publisher.SendMessage(appointmentUpdated.MessageType, appointmentUpdated, RouterKeyLocator);
 
         }
     }

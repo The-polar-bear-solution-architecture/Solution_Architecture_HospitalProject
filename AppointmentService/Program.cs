@@ -43,6 +43,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    Console.WriteLine("Start migrations.");
+    var db = scope.ServiceProvider.GetService<AppointmentServiceContext>();
+    // Will perform a migration when booting up the api.
+    db.MigrateDB();
+}
+
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
