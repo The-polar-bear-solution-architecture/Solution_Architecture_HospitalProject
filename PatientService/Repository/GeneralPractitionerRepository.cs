@@ -22,6 +22,12 @@ namespace PatientService.Repository
             patientDBContext.SaveChanges();
         }
 
+        public void Delete(GeneralPractitioner generalPractitioner)
+        {
+            patientDBContext.GeneralPractitioners.Remove(generalPractitioner);
+            patientDBContext.SaveChanges();
+        }
+
         IEnumerable<GeneralPractitioner>? IGeneralPractitionerRepository.GetAll()
         {
             return patientDBContext.GeneralPractitioners.ToList();

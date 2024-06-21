@@ -15,6 +15,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddTransient<EventStoreRepository>();
 builder.Services.AddScoped<IGeneralPractitionerRepository, GeneralPractitionerRepository>();
 builder.Services.AddDbContext<PatientDBContext>(options =>
   options.UseSqlServer(builder.Configuration.GetConnectionString("Braphia_PatientService")));
@@ -23,6 +24,8 @@ builder.Services.AddDbContext<PatientDBContext>(options =>
 builder.Services.UseRabbitMQMessageHandler(builder.Configuration);
 builder.Services.AddHostedService<PatientWorker>();
 
+
+//EventStore
 string eventSourceConnection = builder.Configuration.GetConnectionString("EventSourceDB");
 var settings = EventStoreClientSettings.Create(eventSourceConnection);
 var client = new EventStoreClient(settings);

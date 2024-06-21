@@ -2,6 +2,7 @@
 using PatientService.Domain;
 using PatientService.DomainServices;
 using PatientService.DTO;
+using PatientService.Repository;
 
 namespace PatientService.Controllers
 {
@@ -10,35 +11,41 @@ namespace PatientService.Controllers
     public class PatientController : ControllerBase
     {
         private IPatientRepository patientRepository;
+        private EventStoreRepository eventStoreRepository;
         private IGeneralPractitionerRepository generalPractitionerRepository;
-        public PatientController(IPatientRepository patientRepository, IGeneralPractitionerRepository generalPractitionerRepository)
+        public PatientController(IPatientRepository patientRepository, IGeneralPractitionerRepository generalPractitionerRepository, EventStoreRepository eventStoreRepository)
         {
             this.patientRepository = patientRepository;
             this.generalPractitionerRepository = generalPractitionerRepository;
+            this.eventStoreRepository = eventStoreRepository;
         }
 
         [HttpPost]
-        public ActionResult<Patient> Post(PatientDTO commandModel) {
+        public async Task<ActionResult<Patient>> Post(PatientDTO commandModel)
+        {
             var patient = TurnDTOToPatient(commandModel);
             try
             {
                 if (patient == null) { return BadRequest("Patient could not been added"); }
                 patientRepository.Post(patient);
+                await eventStoreRepository.HandlePatientCreatedEvent(patient);
                 return Ok(patient);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
 
         [HttpPut("{Id}")]
-        public ActionResult<GeneralPractitioner> UpdateGeneralPractitioner(string Id, PatientDTO commandModel)
+        public async Task<ActionResult<GeneralPractitioner>> UpdateGeneralPractitioner(string Id, PatientDTO commandModel)
         {
             Patient? patient = TurnDTOToPatient(commandModel);
             if (patient == null || patient.Id != Guid.Parse(Id)) { return BadRequest("Not Found"); }
             try
             {
                 patientRepository.Put(patient);
+                await eventStoreRepository.HandlePatientUpdatedEvent(patient);
                 return Ok("Patient is updated!");
             }
             catch (Exception e)
@@ -51,7 +58,7 @@ namespace PatientService.Controllers
         public ActionResult<IEnumerable<Patient>> GetAllPatients() { return Ok(patientRepository.GetAll()); }
 
         [HttpGet("{Id}")]
-        public ActionResult<Patient> GetById(string Id) 
+        public ActionResult<Patient> GetById(string Id)
         {
             try
             {
@@ -60,6 +67,22 @@ namespace PatientService.Controllers
                 return Ok(patient);
             }
             catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("{Id}")]
+        public async Task<IActionResult> DeleteById(string Id)
+        {
+            try
+            {
+                var patient = patientRepository.GetById(Guid.Parse(Id));
+                if(patient == null) { return NotFound(); }
+                patientRepository.Delete(patient);
+                await eventStoreRepository.HandlePatientDeletedEvent(patient);
+                return Ok(patient.Id);
+            } catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -78,7 +101,7 @@ namespace PatientService.Controllers
                 try
                 {
                     var generalPractitioner = generalPractitionerRepository.GetByEmail(patientDTO.GeneralPractionerEmail);
-                    if (generalPractitioner == null) { return null;  }
+                    if (generalPractitioner == null) { return null; }
                     patient.FirstName = patientDTO.FirstName;
                     patient.LastName = patientDTO.LastName;
                     patient.PhoneNumber = patientDTO.PhoneNumber;
