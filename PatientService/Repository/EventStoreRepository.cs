@@ -15,6 +15,19 @@ namespace PatientService.Repository
         {
             this.eventStore = eventStore;
         }
+
+        public async Task HandleGPUpdatedEvent(GeneralPractitioner generalPractitioner)
+        {
+            var gPUpdated = new GPUpdatedEvent("Update");
+            gPUpdated.Id = generalPractitioner.Id;
+            gPUpdated.FirstName = generalPractitioner.FirstName;
+            gPUpdated.LastName = generalPractitioner.LastName;
+            gPUpdated.PhoneNumber = generalPractitioner.PhoneNumber;
+            gPUpdated.Address = generalPractitioner.Address;
+            gPUpdated.Email = generalPractitioner.Email;
+            await StoreMessage("generalPractitioners", gPUpdated.MessageType, gPUpdated);
+        }
+
         public async Task HandleGPCreatedEvent(GeneralPractitioner generalPractitioner)
         {
             var gpCreatedEvent = new GPCreatedEvent("Create");

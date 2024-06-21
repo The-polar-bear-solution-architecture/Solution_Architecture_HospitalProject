@@ -26,12 +26,12 @@ namespace PatientService.Controllers
         [HttpGet("{Id}")]
         public ActionResult<GeneralPractitioner> GetGeneralPractitioneById(string Id)
         {
-            try 
+            try
             {
                 var generalPractitioner = generalPractitionerRepository.GetById(Guid.Parse(Id));
                 if (generalPractitioner == null) { return NotFound(); }
                 return Ok(generalPractitioner);
-            } 
+            }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -55,13 +55,14 @@ namespace PatientService.Controllers
         }
 
         [HttpPut("{Id}")]
-        public ActionResult<GeneralPractitioner> UpdateGeneralPractitioner(string Id, GeneralPractitionerDTO commandModel)
+        public async Task<ActionResult<GeneralPractitioner>> UpdateGeneralPractitioner(string Id, GeneralPractitionerDTO commandModel)
         {
             GeneralPractitioner? gp = TurnDTOToGeberalPractitioner(commandModel);
             if (gp == null || gp.Id != Guid.Parse(Id)) { return BadRequest("Not Found"); }
             try
             {
                 generalPractitionerRepository.Put(gp);
+                await eventStoreRepository.HandleGPUpdatedEvent(gp);
                 return Ok("General practitioner updated!");
             }
             catch (Exception e)
