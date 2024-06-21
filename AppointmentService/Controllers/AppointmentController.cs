@@ -1,4 +1,5 @@
-﻿using AppointmentService.CommandsAndEvents.Events;
+﻿using AppointmentService.CommandsAndEvents.Commands;
+using AppointmentService.CommandsAndEvents.Events;
 using AppointmentService.DB;
 using AppointmentService.Domain;
 using AppointmentService.Domain.DTO;
@@ -33,8 +34,8 @@ namespace AppointmentService.Controllers
             return Ok(repo.GetAllAppointments());
         }
 
-        [HttpGet("{Id:int}")]
-        public ActionResult<Appointment> GetAppointmentById(int Id)
+        [HttpGet("{Id:Guid}")]
+        public ActionResult<Appointment> GetAppointmentById(Guid Id)
         {
             var appointment = repo.GetAppointmentById(Id);
             if(appointment == null) { 
@@ -53,7 +54,7 @@ namespace AppointmentService.Controllers
                 var createdAppointment = repo.AddAppointment(appointmentToAdd);
                 var appointmentCreated = new AppointmentCreated()
                 {
-                    AppointmentId = createdAppointment.Id,
+                    AppointmentId = Guid.NewGuid(),
                     ApointmentName = createdAppointment.Name,
                     AppointmentDate = createdAppointment.AppointmentDate,
                     PatientId = createdAppointment.Patient.Id,
@@ -73,8 +74,8 @@ namespace AppointmentService.Controllers
             }
         }
 
-        [HttpPut("{Id:int}")]
-        public ActionResult<Appointment> UpdateAppointment(int Id, AppointmentDTO appointmentDTO)
+        [HttpPut("{Id:Guid}")]
+        public ActionResult<Appointment> UpdateAppointment(Guid Id, AppointmentDTO appointmentDTO)
         {
             Appointment appointmentToUpdate = TurnDTOToAppointment(appointmentDTO);
             appointmentToUpdate.Id = Id;
@@ -105,8 +106,8 @@ namespace AppointmentService.Controllers
             }
         }
 
-        [HttpDelete]
-        public ActionResult DeleteAppointment(int Id)
+        [HttpDelete("{Id:Guid}")]
+        public ActionResult DeleteAppointment(Guid Id)
         {
             try
             {
@@ -128,13 +129,13 @@ namespace AppointmentService.Controllers
             Appointment previousAppointment = null;
             if (appointmentDTO.PreviousAppointmentId != null)
             {
-                previousAppointment = repo.GetAppointmentById((int)appointmentDTO.PreviousAppointmentId);
+                previousAppointment = repo.GetAppointmentById((Guid) appointmentDTO.PreviousAppointmentId);
             }
             if(appointmentDTO.Id != null)
             {
                 Appointment appointment = new Appointment()
                 {
-                    Id = (int)appointmentDTO.Id,
+                    Id = (Guid)appointmentDTO.Id,
                     Name = appointmentDTO.Name,
                     AppointmentDate = appointmentDTO.AppointmentDate,
                     Physician = physicianRepo.GetPhysicianById(appointmentDTO.PhysicianId),

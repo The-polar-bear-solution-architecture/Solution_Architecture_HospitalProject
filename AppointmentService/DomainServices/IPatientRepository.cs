@@ -4,6 +4,11 @@ namespace AppointmentService.DomainServices
 {
     public interface IPatientRepository
     {
-        public Patient GetPatientById(int Id); 
+        public Patient GetPatientById(Guid Id);
+        public Patient AddPatient (Patient Patient);
+
+        public Patient UpdatePatient (Patient Patient);
+
+        public Patient DeletePatient(Guid Id);
     }
 }

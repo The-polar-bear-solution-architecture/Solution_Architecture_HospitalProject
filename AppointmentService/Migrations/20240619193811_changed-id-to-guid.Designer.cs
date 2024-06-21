@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AppointmentService.Migrations
 {
     [DbContext(typeof(AppointmentServiceContext))]
-    [Migration("20240609061937_initial")]
-    partial class initial
+    [Migration("20240619193811_changed-id-to-guid")]
+    partial class changedidtoguid
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,11 +27,9 @@ namespace AppointmentService.Migrations
 
             modelBuilder.Entity("AppointmentService.Domain.Appointment", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("AppointmentDate")
                         .HasColumnType("datetime2");
@@ -40,14 +38,14 @@ namespace AppointmentService.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PatientId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("PhysicianId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("PhysicianId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int?>("PreviousAppointmentId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("PreviousAppointmentId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -62,11 +60,9 @@ namespace AppointmentService.Migrations
 
             modelBuilder.Entity("AppointmentService.Domain.GeneralPractitioner", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -83,11 +79,9 @@ namespace AppointmentService.Migrations
 
             modelBuilder.Entity("AppointmentService.Domain.Patient", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("BSN")
                         .IsRequired()
@@ -104,8 +98,8 @@ namespace AppointmentService.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("GPId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("GPId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -120,11 +114,13 @@ namespace AppointmentService.Migrations
 
             modelBuilder.Entity("AppointmentService.Domain.Physician", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()

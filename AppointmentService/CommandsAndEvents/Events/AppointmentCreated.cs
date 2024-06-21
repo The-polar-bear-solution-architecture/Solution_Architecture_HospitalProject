@@ -10,19 +10,19 @@ namespace AppointmentService.CommandsAndEvents.Events
     {
 
         [Required]
-        public int AppointmentId { get; set; }
+        public Guid AppointmentId { get; set; }
         public string ApointmentName { get; set; }
         public DateTime AppointmentDate { get; set; }
 
         [Required]
-        public int PatientId { get; set; }
+        public Guid PatientId { get; set; }
         [Required]
         public string PatientFirstName { get; set; }
         [Required]
         public string PatientLastName { get; set; }
 
         [Required]
-        public int PhysicianId { get; set; }
+        public Guid PhysicianId { get; set; }
         public string PhysicianFirstName { get; set; }
         public string PhysicianLastName { get; set; }
 

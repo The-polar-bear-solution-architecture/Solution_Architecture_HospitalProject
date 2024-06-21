@@ -102,6 +102,21 @@ services:
       dockerfile: ImportPatientService/Dockerfile
     depends_on:
       - rabbitmq
+  appointmentservice:
+    ports:
+        - 8044:443
+    image: ${DOCKER_REGISTRY-}appointmentservice
+    build:
+      context: .
+      dockerfile: AppointmentService/Dockerfile
+    environment:
+    - ASPNETCORE_ENVIRONMENT=Development
+    - ASPNETCORE_URLS=https://+:443;http://+:80
+    - ASPNETCORE_Kestrel__Certificates__Default__Password=test
+    - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ~/.aspnet/https:/https:ro
+
 volumes:
   sql:
   eventstore-data:
