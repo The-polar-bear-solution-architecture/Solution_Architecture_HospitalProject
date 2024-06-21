@@ -2,7 +2,6 @@
 using PatientService.Domain;
 using PatientService.DomainServices;
 using PatientService.DTO;
-using PatientService.Events.Patient;
 using PatientService.Repository;
 
 namespace PatientService.Controllers
@@ -39,13 +38,14 @@ namespace PatientService.Controllers
         }
 
         [HttpPut("{Id}")]
-        public ActionResult<GeneralPractitioner> UpdateGeneralPractitioner(string Id, PatientDTO commandModel)
+        public async Task<ActionResult<GeneralPractitioner>> UpdateGeneralPractitioner(string Id, PatientDTO commandModel)
         {
             Patient? patient = TurnDTOToPatient(commandModel);
             if (patient == null || patient.Id != Guid.Parse(Id)) { return BadRequest("Not Found"); }
             try
             {
                 patientRepository.Put(patient);
+                await eventStoreRepository.HandlePatientUpdatedEvent(patient);
                 return Ok("Patient is updated!");
             }
             catch (Exception e)

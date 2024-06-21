@@ -23,8 +23,20 @@ namespace PatientService.Repository
             createdEvent.LastName = patient.LastName;
             createdEvent.PhoneNumber = patient.PhoneNumber;
             createdEvent.Address = patient.Address;
-            createdEvent.GeneralPractitionerEmail = patient.GeneralPractitioner.Email;
+            createdEvent.GeneralPractitionerId = patient.GeneralPractitioner.Id;
             await StoreMessage("patients", "post", createdEvent);
+        }
+
+        public async Task HandlePatientUpdatedEvent(Patient patient)
+        {
+            var updatedEvent = new PatientUpdatedEvent("Update");
+            updatedEvent.Id = patient.Id;
+            updatedEvent.FirstName = patient.FirstName;
+            updatedEvent.LastName = patient.LastName;
+            updatedEvent.PhoneNumber = patient.PhoneNumber;
+            updatedEvent.Address = patient.Address;
+            updatedEvent.GeneralPractitionerId = patient.GeneralPractitioner.Id;
+            await StoreMessage("patients", "post", updatedEvent);
         }
 
         public async Task StoreMessage(String collection, string MessageType, Message command)
