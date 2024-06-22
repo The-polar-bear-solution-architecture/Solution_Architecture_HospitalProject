@@ -31,6 +31,7 @@ namespace AppointmentService.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Appointment>> GetAllAppointments()
         {
+            Console.WriteLine("Dit is een test");
             return Ok(repo.GetAllAppointments());
         }
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Polly;
 
 namespace PatientService.Domain
 {
@@ -11,5 +12,13 @@ namespace PatientService.Domain
 
         public DbSet<Patient> Patients { get; set; }
         public DbSet<GeneralPractitioner> GeneralPractitioners { get; set; }
+
+        public void MigrateDB()
+        {
+            Policy
+                .Handle<Exception>()
+                .WaitAndRetry(10, r => TimeSpan.FromSeconds(10))
+                .Execute(() => Database.Migrate());
+        }
     }
 }
