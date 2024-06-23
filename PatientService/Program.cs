@@ -39,6 +39,14 @@ builder.Services.AddSingleton(client);
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    Console.WriteLine("Start migrations.");
+    var db = scope.ServiceProvider.GetService<PatientDBContext>();
+    // Will perform a migration when booting up the api.
+    db.MigrateDB();
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

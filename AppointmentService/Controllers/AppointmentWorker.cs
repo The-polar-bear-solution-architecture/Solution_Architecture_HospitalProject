@@ -3,6 +3,7 @@ using AppointmentService.CommandsAndEvents.Events;
 using RabbitMQ.Messages.Interfaces;
 using RabbitMQ.Messages.Mapper;
 using RabbitMQ.Messages.Messages;
+using System.Text;
 
 namespace AppointmentService.Controllers
 {
@@ -23,17 +24,21 @@ namespace AppointmentService.Controllers
              
             byte[] body = message as byte[];
 
+            Console.WriteLine("Message received at appointment service");
+            Console.WriteLine("Message type: " + messageType);
+            Console.WriteLine(Encoding.UTF8.GetString(body));
+
             switch (messageType)
             {
-                case "PatientCreated":
+                case "POST":
                     var patientCreated = body.Deserialize<PatientCreated>();
                     _commandHandler.PatientCreated(patientCreated);
                     break;
-                case "PatientUpdated": 
-                    var patientUpdated = body.Deserialize<PatientUpdated>();    
+                case "PUT":
+                    var patientUpdated = body.Deserialize<PatientUpdated>();
                     _commandHandler.PatientUpdated(patientUpdated);
                     break;
-                case "PatientDeleted": 
+                case "DELETE":
                     var patientDeleted = body.Deserialize<PatientDeleted>();
                     _commandHandler.PatientDeleted(patientDeleted);
                     break;

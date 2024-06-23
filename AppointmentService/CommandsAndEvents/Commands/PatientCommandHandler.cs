@@ -16,15 +16,21 @@ namespace AppointmentService.CommandsAndEvents.Commands
         }
 
         public void PatientCreated(PatientCreated createdPatient) {
-            var gp = _generalPractitionerRepository.GetPractitionerById(createdPatient.GPId);
+            var gp = _generalPractitionerRepository.GetPractitionerById(createdPatient.GeneralPractitioner.Id);
+            if (gp == null)
+            {
+                _generalPractitionerRepository.AddPractitioner(createdPatient.GeneralPractitioner);
+            }
             var patient = new Patient()
             {
-                Id = createdPatient.PatientID,
+                Id = createdPatient.Id,
                 FirstName = createdPatient.FirstName,   
                 LastName = createdPatient.LastName,
                 PhoneNumber = createdPatient.PhoneNumber,
                 GP = gp
             };
+
+
 
             _patientRepository.AddPatient(patient);
         }  
