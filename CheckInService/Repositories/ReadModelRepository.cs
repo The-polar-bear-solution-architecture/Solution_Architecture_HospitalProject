@@ -40,6 +40,11 @@ namespace CheckInService.Repositories
             return contextDB.CheckInReadModel.Where(e => e.AppointmentGuid.Equals(id)).First();
         }
 
+        public List<CheckInReadModel>GetByPatient(Guid patientId)
+        {
+            return contextDB.CheckInReadModel.Where(e => e.PatientGuid.Equals(patientId)).ToList();
+        }
+
         public CheckInReadModel Create(CheckInReadModel model)
         {
             try
@@ -73,6 +78,19 @@ namespace CheckInService.Repositories
             }
         }
 
+        public void BulkUpdate(List<CheckInReadModel> checkInReadModels)
+        {
+            try
+            {
+                contextDB.UpdateRange(checkInReadModels);
+                contextDB.SaveChanges(true);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
         // Update appointment
         public CheckInReadModel Update(AppointmentReadUpdateCommand model)
         {
@@ -100,9 +118,6 @@ namespace CheckInService.Repositories
             {
                 return null;
             }
-            
-
-            return new CheckInReadModel();
         }
 
         // Update checkin part.

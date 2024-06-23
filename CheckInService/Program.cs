@@ -35,6 +35,7 @@ builder.Services.AddTransient<AppointmentRepository, AppointmentRepository>();
 builder.Services.AddTransient<PhysicianRepo, PhysicianRepo>();
 builder.Services.AddTransient<PatientRepo, PatientRepo>();
 builder.Services.AddTransient<CheckInCommandHandler, CheckInCommandHandler>();
+builder.Services.AddTransient<PatientCommandHandler, PatientCommandHandler>();
 builder.Services.AddTransient<EventStoreRepository, EventStoreRepository>();
 builder.Services.AddTransient<ReadModelRepository, ReadModelRepository>();
 builder.Services.AddTransient<CheckInPipeline, CheckInPipeline>();

@@ -1,8 +1,10 @@
 ﻿using CheckInService.CommandHandlers;
 using CheckInService.CommandsAndEvents.Commands.Appointment;
 using CheckInService.CommandsAndEvents.Commands.CheckIn;
+using CheckInService.CommandsAndEvents.Commands.Patient;
 using CheckInService.CommandsAndEvents.Events.Appointment;
 using CheckInService.CommandsAndEvents.Events.CheckIn;
+using CheckInService.CommandsAndEvents.Events.Patient;
 using CheckInService.DBContexts;
 using CheckInService.Mapper;
 using CheckInService.Models;
@@ -21,6 +23,7 @@ namespace CheckInService.Pipelines
         private readonly ReadModelRepository readModelRepository;
         private readonly CheckInCommandHandler checkInCommandHandler;
         private readonly CheckInRepository CheckInRepository;
+        private readonly PatientCommandHandler patientCommandHandler;
 
         public CheckInPipeline(
             EventStoreClient client, 
@@ -28,7 +31,8 @@ namespace CheckInService.Pipelines
             CheckInContextDB checkInContext, 
             ReadModelRepository readModelRepository, 
             CheckInCommandHandler checkInCommandHandler,
-            CheckInRepository checkInRepository)
+            CheckInRepository checkInRepository,
+            PatientCommandHandler patientCommandHandler)
         {
             this.client = client;
             this.eventStoreRepository = eventStoreRepository;
@@ -36,6 +40,7 @@ namespace CheckInService.Pipelines
             this.readModelRepository = readModelRepository;
             this.checkInCommandHandler = checkInCommandHandler;
             this.CheckInRepository = checkInRepository;
+            this.patientCommandHandler = patientCommandHandler;
         }
 
         // Transports data from Event source to WriteDB and ReadDB.
@@ -83,6 +88,14 @@ namespace CheckInService.Pipelines
                         // Write to write db.
                         await checkInCommandHandler.UpdateAppointment(update_command);
                         break;
+                    case nameof(PatientCreatedEvent):
+                        var patient_create = data.Deserialize<PatientCreate>();
+                        patientCommandHandler.RegisterPatient(patient_create);
+                        break;
+                    case nameof(PatientChangeEvent):
+                        var patient_update = data.Deserialize<PatientUpdate>();
+                        patientCommandHandler.ChangePatient(patient_update);
+                        break;
                     default:
                         Console.WriteLine($"No object convertion possible with {EventType}");
                         break;
@@ -98,7 +111,6 @@ namespace CheckInService.Pipelines
             IEnumerable<CheckIn> writeModels = CheckInRepository.GetCheckIns();
             List<CheckInReadModel> readModels = new List<CheckInReadModel>();
             Console.WriteLine("==== Start synchronisation ====");
-            Console.WriteLine($"==== Length is {writeModels.Count()} ====");
             // Map all entities to read models
             foreach (CheckIn item in writeModels)
             {

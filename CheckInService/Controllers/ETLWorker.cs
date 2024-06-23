@@ -14,6 +14,8 @@ using CheckInService.CommandsAndEvents.Events.Appointment;
 using CheckInService.CommandsAndEvents.Events.CheckIn;
 using CheckInService.Configurations;
 using CheckInService.DBContexts;
+using CheckInService.CommandsAndEvents.Events.Patient;
+using CheckInService.CommandsAndEvents.Commands.Patient;
 
 namespace CheckInService.Controllers
 {
@@ -23,19 +25,25 @@ namespace CheckInService.Controllers
         private readonly ReadModelRepository readModelRepository;
         private readonly CheckInPipeline checkInPipeline;
         private readonly IRabbitFactory RabbitFactory;
+        private readonly PatientRepo patientRepo;
         private readonly CheckInCommandHandler checkInCommandHandler;
+        private readonly PatientCommandHandler patientCommandHandler;
 
         public ETLWorker(
             ReadModelRepository readModelRepository,
             CheckInPipeline checkInPipeline,
             CheckInCommandHandler checkInCommandHandler,
-            IRabbitFactory rabbitFactory)
+            PatientCommandHandler patientCommandHandler,
+            IRabbitFactory rabbitFactory,
+            PatientRepo patientRepo)
         {
             
             this.readModelRepository = readModelRepository;
             this.checkInPipeline = checkInPipeline;
             this.RabbitFactory = rabbitFactory;
+            this.patientRepo = patientRepo;
             this.checkInCommandHandler = checkInCommandHandler;
+            this.patientCommandHandler = patientCommandHandler;
             // Will only receive messages via an internal exchange.
             _messageHandler = rabbitFactory.CreateInternalReceiver();
         }
@@ -102,6 +110,18 @@ namespace CheckInService.Controllers
                 var appointmentDeletion = data.Deserialize<AppointmentDeleteCommand>();
                 readModelRepository.DeleteByAppointment(appointmentDeletion.AppointmentId);
             }
+            else if (messageType.Equals(nameof(PatientChangeEvent)))
+            {
+                var patient_update = data.Deserialize<PatientUpdate>();
+                var checkins = readModelRepository.GetByPatient(patient_update.Id);
+                checkins.ForEach(ch => { 
+                    ch.PatientFirstName = patient_update.FirstName; 
+                    ch.PatientLastName = patient_update.LastName; 
+                    });
+
+                // Update all patient models with new patient data.
+                readModelRepository.BulkUpdate(checkins);
+            }
             else
             {
                 Console.WriteLine("No match found.");
@@ -131,7 +151,6 @@ namespace CheckInService.Controllers
             {
                 Console.WriteLine("No match found. In collective pipeline.");
             }
-
         }
     }
 
