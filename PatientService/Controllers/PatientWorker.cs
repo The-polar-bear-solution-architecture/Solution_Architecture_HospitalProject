@@ -27,6 +27,14 @@ namespace PatientService.Controllers
             {
                 await publisher.SendMessage(messageType, message, "Created_Patient");
             }
+            if(messageType == "PUT")
+            {
+                await publisher.SendMessage(messageType, message, "Updated_Patient");
+            }
+            if(messageType == "DELETE")
+            {
+                await publisher.SendMessage(messageType, message, "Deleted_Patient");
+            }
         }
 
         public Task StartAsync(CancellationToken cancellationToken)

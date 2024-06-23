@@ -49,6 +49,7 @@ namespace PatientService.Controllers
             {
                 patientRepository.Put(patient);
                 await eventStoreRepository.HandlePatientUpdatedEvent(patient);
+                await patientWorker.SendMessageAsync("PUT", patient);
                 return Ok("Patient is updated!");
             }
             catch (Exception e)
@@ -84,6 +85,7 @@ namespace PatientService.Controllers
                 if(patient == null) { return NotFound(); }
                 patientRepository.Delete(patient);
                 await eventStoreRepository.HandlePatientDeletedEvent(patient);
+                await patientWorker.SendMessageAsync("DELETE", patient.Id);
                 return Ok(patient.Id);
             } catch (Exception ex)
             {
