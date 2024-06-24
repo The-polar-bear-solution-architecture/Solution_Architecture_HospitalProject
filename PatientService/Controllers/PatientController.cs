@@ -44,6 +44,7 @@ namespace PatientService.Controllers
         public async Task<ActionResult<GeneralPractitioner>> UpdateGeneralPractitioner(string Id, PatientDTO commandModel)
         {
             Patient? patient = TurnDTOToPatient(commandModel);
+            patient.Id = Guid.Parse(Id);
             if (patient == null || patient.Id != Guid.Parse(Id)) { return BadRequest("Not Found"); }
             try
             {
@@ -85,7 +86,11 @@ namespace PatientService.Controllers
                 if(patient == null) { return NotFound(); }
                 patientRepository.Delete(patient);
                 await eventStoreRepository.HandlePatientDeletedEvent(patient);
-                await patientWorker.SendMessageAsync("DELETE", patient.Id);
+                PatientDeleted deletedPatient = new PatientDeleted()
+                {
+                    Id = patient.Id
+                };
+                await patientWorker.SendMessageAsync("DELETE", deletedPatient);
                 return Ok(patient.Id);
             } catch (Exception ex)
             {

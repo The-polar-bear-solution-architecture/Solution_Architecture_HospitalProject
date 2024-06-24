@@ -1,6 +1,7 @@
 ﻿using AppointmentService.CommandsAndEvents.Events;
 using AppointmentService.Domain;
 using AppointmentService.DomainServices;
+using RabbitMQ.Infrastructure.MessagePublishers;
 using RabbitMQ.Messages.Interfaces;
 
 namespace AppointmentService.CommandsAndEvents.Commands
@@ -19,6 +20,7 @@ namespace AppointmentService.CommandsAndEvents.Commands
             _repository = repository;
             _patientRepository = patientRepository;
             _PhysicianRepository = physicianRepository;
+            //this.publisher = new RabbitMQPublisher("rabbit", "Hospital_Brenda", 5762, "/");
             this.publisher = publisher;
             RouterKeyLocator = "Appointments_Checkin";
 

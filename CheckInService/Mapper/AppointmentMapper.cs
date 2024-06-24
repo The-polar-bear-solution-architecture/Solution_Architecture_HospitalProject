@@ -11,7 +11,7 @@ namespace CheckInService.Mapper
 
         public static AppointmentUpdateCommand MapToAppointmentUpdateCommand(this UpdateCheckInDTO updateCheckInDTO)
         {
-            return new AppointmentReadUpdateCommand()
+            return new AppointmentUpdateCommand()
             {
                 AppointmentDate = updateCheckInDTO.AppointmentDate,
                 AppointmentName = updateCheckInDTO.ApointmentName,
@@ -38,7 +38,7 @@ namespace CheckInService.Mapper
             else
             {
                 // The message type of this class will use its parent class, because the process in the ETL depends upon it.
-                return new AppointmentReadUpdateEvent(nameof(AppointmentUpdateEvent))
+                return new AppointmentUpdateEvent(nameof(AppointmentUpdateEvent))
                 {
                     PhysicianEmail = newPhysician.Email,
                     PhysicianFirstName = newPhysician.FirstName,

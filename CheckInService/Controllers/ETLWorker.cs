@@ -93,7 +93,7 @@ namespace CheckInService.Controllers
             }
             else if (messageType.Equals(nameof(AppointmentUpdateEvent)))
             {
-                var appointmentUpdate = data.Deserialize<AppointmentReadUpdateCommand>();
+                var appointmentUpdate = data.Deserialize<AppointmentUpdateCommand>();
                 // Perform operations.
                 readModelRepository.Update(appointmentUpdate);
             }

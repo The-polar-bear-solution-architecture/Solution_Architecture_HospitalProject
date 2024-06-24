@@ -151,36 +151,30 @@ namespace CheckInService.CommandHandlers
             }
             Console.WriteLine("Appointment is found");
 
+            // Apply changes to appointment
             appointment.AppointmentDate = appointmentUpdateCommand.AppointmentDate;
             appointment.Name = appointmentUpdateCommand.AppointmentName;
 
             var retrieved_physician = physicianRepo.Get(appointmentUpdateCommand.PhysicianSerialNr);
-            // Will only change physician of appointment if it exists or is a different one then currently assigned to the appointment.
+            // If physician exist and is different of the current assigned physician.
             if (retrieved_physician != null && !retrieved_physician.PhysicianSerialNr.Equals(appointmentUpdateCommand.PhysicianSerialNr))
             {
                 appointment.Physician = retrieved_physician;
             }
+            // If physician has have to be created and not the same as the current assigned physician.
             else if (retrieved_physician == null)
             {
-                var casted_command = (AppointmentReadUpdateCommand) appointmentUpdateCommand;
-                // If physician does not exist
-                // Create one
                 appointment.Physician = new Physician()
                 {
                     PhysicianSerialNr = appointmentUpdateCommand.PhysicianSerialNr,
-                    Email = casted_command.PhysicianEmail,
-                    FirstName = casted_command.PhysicianFirstName,
-                    LastName = casted_command.PhysicianLastName,
+                    Email = appointmentUpdateCommand.PhysicianEmail,
+                    FirstName = appointmentUpdateCommand.PhysicianFirstName,
+                    LastName = appointmentUpdateCommand.PhysicianLastName,
                 };
             }
+            // Will only change physician of appointment if it exists or is a different one then currently assigned to the appointment.
             else
             {
-                var casted_command = (AppointmentReadUpdateCommand) appointmentUpdateCommand; 
-                retrieved_physician.FirstName = casted_command.PhysicianFirstName;
-                retrieved_physician.LastName = casted_command.PhysicianLastName;
-                retrieved_physician.Email = casted_command.PhysicianEmail;
-                // Update eventual changes made
-                physicianRepo.Put(retrieved_physician);
                 appointment.Physician = retrieved_physician;
             }
 

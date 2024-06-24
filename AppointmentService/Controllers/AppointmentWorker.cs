@@ -26,7 +26,8 @@ namespace AppointmentService.Controllers
 
             Console.WriteLine("Message received at appointment service");
             Console.WriteLine("Message type: " + messageType);
-            Console.WriteLine(Encoding.UTF8.GetString(body));
+            var test = Encoding.UTF8.GetString(body);
+            Console.WriteLine(test);
 
             switch (messageType)
             {

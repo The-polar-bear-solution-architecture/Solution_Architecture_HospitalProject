@@ -9,6 +9,6 @@ namespace AppointmentService.DomainServices
 
         public Patient UpdatePatient (Patient Patient);
 
-        public Patient DeletePatient(Guid Id);
+        public Task<Patient> DeletePatient(Guid Id);
     }
 }

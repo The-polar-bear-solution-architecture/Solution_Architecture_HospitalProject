@@ -23,6 +23,7 @@ namespace AppointmentService.DB.Repository
 
         public Appointment DeleteAppointment(Guid id)
         {
+    
             Console.WriteLine(id);
             var appointment = GetAppointmentById(id);
             context.Remove(appointment);
@@ -37,14 +38,19 @@ namespace AppointmentService.DB.Repository
 
         public Appointment GetAppointmentById(Guid id)
         {
-            return context.Appointments.Include(c => c.Patient).Include(c => c.Physician).Include(c => c.PreviousAppointment).Include(c => c.Patient.GP).Where(a => a.Id == id).FirstOrDefault(); 
+            return context.Appointments.Include(c => c.Patient).Include(c => c.Physician).Include(c => c.PreviousAppointment).Include(c => c.Patient.GP).Where(a => a.Id.Equals(id)).FirstOrDefault(); 
         }
 
         public Appointment UpdateAppointment(Appointment appointment)
         {
-            //var edit = GetAppointmentById(appointment.Id);
-            context.Update(appointment);
-            //context.Update(edit);
+            var edit = GetAppointmentById(appointment.Id);
+            edit.Name = appointment.Name;
+            edit.AppointmentDate = appointment.AppointmentDate;
+            edit.Physician = appointment.Physician;
+            edit.Patient = appointment.Patient;
+            edit.PreviousAppointment = appointment.PreviousAppointment;
+
+            context.Update(edit);
             //edit = appointment;
             context.SaveChanges();
             return appointment;

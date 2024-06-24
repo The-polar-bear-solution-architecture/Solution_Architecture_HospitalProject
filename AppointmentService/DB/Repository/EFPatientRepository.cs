@@ -19,17 +19,21 @@ namespace AppointmentService.DB.Repository
             return Patient;
         }
 
-        public Patient DeletePatient(Guid Id)
+        public async Task<Patient> DeletePatient(Guid Id)
         {
             var patient = GetPatientById(Id);
+            Console.WriteLine(patient.Id);
             context.Remove(patient);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
             return patient;
         }
 
         public Patient GetPatientById(Guid Id)
         {
-            return context.Patients.Where(p => p.Id == Id).FirstOrDefault();
+            var patient = context.Patients.Where(p => p.Id.Equals(Id)).FirstOrDefault();
+            Console.WriteLine(patient.Id);
+            return patient;
+            
         }
 
         public Patient UpdatePatient(Patient Patient)

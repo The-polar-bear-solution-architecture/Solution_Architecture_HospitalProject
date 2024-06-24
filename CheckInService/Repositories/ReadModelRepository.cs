@@ -74,7 +74,7 @@ namespace CheckInService.Repositories
         }
 
         // Update appointment
-        public CheckInReadModel Update(AppointmentReadUpdateCommand model)
+        public CheckInReadModel Update(AppointmentUpdateCommand model)
         {
             try
             {
