@@ -16,33 +16,25 @@ namespace RabbitMQ.Messages.Configuration
         private const int DEFAULT_PORT = 5672;
         private static string DEFAULT_VIRTUAL_HOST = "/";
 
-        private static string _host;
-        private static string _exchange;
-        private static string _queue;
-        private static string _routingKey;
-        private static int _port;
-        private static string _virtualHost;
-
-        private static List<string> _errors;
-        private static bool _isValid;
-
         public static void UseRabbitMQMessageHandler(this IServiceCollection services, IConfiguration config)
         {
-            GetRabbitMQSettings(config, "RabbitMQHandler");
-            services.AddTransient<IReceiver>(_ => new RabbitMQReceiver(_host, _exchange, _queue, _routingKey, _port, _virtualHost));
+            var settings = GetRabbitMQSettings(config, "RabbitMQHandler");
+            services.AddTransient<IReceiver>(_ => new RabbitMQReceiver(
+                settings.Host, settings.Exchange, settings.Queue, settings.RoutingKey, settings.Port, settings.VirtualHost));
         }
 
         public static void UseRabbitMQMessagePublisher(this IServiceCollection services, IConfiguration config)
         {
-            GetRabbitMQSettings(config, "RabbitMQPublisher");
+            var settings = GetRabbitMQSettings(config, "RabbitMQPublisher");
             // Makes this service available for dependency injection.
-            services.AddTransient<IPublisher>(_ => new RabbitMQPublisher(_host, _exchange, _port, _virtualHost));
+            services.AddTransient<IPublisher>(_ => new RabbitMQPublisher(
+                settings.Host, settings.Exchange, settings.Port, settings.VirtualHost));
         }
 
-        private static void GetRabbitMQSettings(IConfiguration config, string sectionName)
+        private static RabbitMQSettings GetRabbitMQSettings(IConfiguration config, string sectionName)
         {
-            _isValid = true;
-            _errors = new List<string>();
+            var settings = new RabbitMQSettings();
+            var errors = new List<string>();
 
             var configSection = config.GetSection(sectionName);
             if (!configSection.Exists())
@@ -51,93 +43,108 @@ namespace RabbitMQ.Messages.Configuration
             }
 
             // get configuration settings
-            DetermineHost(configSection);
-            DetermineVirtualHost(configSection);
-            DeterminePort(configSection);
-            DetermineExchange(configSection);
+            settings.Host = DetermineHost(configSection, errors);
+            settings.VirtualHost = DetermineVirtualHost(configSection, errors);
+            settings.Port = DeterminePort(configSection, errors);
+            settings.Exchange = DetermineExchange(configSection, errors);
 
             if (sectionName == "RabbitMQHandler")
             {
-                DetermineQueue(configSection);
-                DetermineRoutingKey(configSection);
+                settings.Queue = DetermineQueue(configSection, errors);
+                settings.RoutingKey = DetermineRoutingKey(configSection, errors);
             }
 
             // handle possible errors
-            if (!_isValid)
+            if (errors.Any())
             {
                 var errorMessage = new StringBuilder("Invalid RabbitMQ configuration:");
-                _errors.ForEach(e => errorMessage.AppendLine(e));
+                errors.ForEach(e => errorMessage.AppendLine(e));
                 throw new InvalidOperationException(errorMessage.ToString());
             }
+
+            return settings;
         }
 
-        private static void DetermineHost(IConfigurationSection configSection)
+        private static string DetermineHost(IConfigurationSection configSection, List<string> errors)
         {
-            _host = configSection["Host"];
-            if (string.IsNullOrEmpty(_host))
+            var host = configSection["Host"];
+            if (string.IsNullOrEmpty(host))
             {
-                _errors.Add("Required config-setting 'Host' not found.");
-                _isValid = false;
+                errors.Add("Required config-setting 'Host' not found.");
             }
+            return host;
         }
 
-        private static void DeterminePort(IConfigurationSection configSection)
+        private static int DeterminePort(IConfigurationSection configSection, List<string> errors)
         {
             string portSetting = configSection["Port"];
             if (string.IsNullOrEmpty(portSetting))
             {
-                _port = DEFAULT_PORT;
+                return DEFAULT_PORT;
             }
             else
             {
                 if (int.TryParse(portSetting, out int result))
                 {
-                    _port = result;
+                    return result;
                 }
                 else
                 {
-                    _isValid = false;
-                    _errors.Add("Unable to parse config-setting 'Port' into an integer.");
+                    errors.Add("Unable to parse config-setting 'Port' into an integer.");
+                    return DEFAULT_PORT;
                 }
             }
         }
 
-        private static void DetermineExchange(IConfigurationSection configSection)
+        private static string DetermineExchange(IConfigurationSection configSection, List<string> errors)
         {
-            _exchange = configSection["Exchange"];
-            if (string.IsNullOrEmpty(_exchange))
+            var exchange = configSection["Exchange"];
+            if (string.IsNullOrEmpty(exchange))
             {
-                _isValid = false;
-                _errors.Add("Required config-setting 'Exchange' not found.");
+                errors.Add("Required config-setting 'Exchange' not found.");
             }
+            return exchange;
         }
 
-        private static void DetermineQueue(IConfigurationSection configSection)
+        private static string DetermineQueue(IConfigurationSection configSection, List<string> errors)
         {
-            _queue = configSection["Queue"];
-            if (string.IsNullOrEmpty(_queue))
+            var queue = configSection["Queue"];
+            if (string.IsNullOrEmpty(queue))
             {
-                _isValid = false;
-                _errors.Add("Required config-setting 'Queue' not found.");
+                errors.Add("Required config-setting 'Queue' not found.");
             }
+            return queue;
         }
 
-        private static void DetermineVirtualHost(IConfigurationSection configSection)
+        private static string DetermineRoutingKey(IConfigurationSection configSection, List<string> errors)
         {
-            string vhostSetting = configSection["VirtualHost"];
-            if (string.IsNullOrEmpty(vhostSetting))
+            var routingKey = configSection["RoutingKey"];
+            if (string.IsNullOrEmpty(routingKey))
             {
-                _virtualHost = DEFAULT_VIRTUAL_HOST;
+                errors.Add("Required config-setting 'RoutingKey' not found.");
             }
-            else
-            {
-                _virtualHost = configSection["VirtualHost"];
-            }
+            return routingKey;
         }
 
-        private static void DetermineRoutingKey(IConfigurationSection configSection)
+        private static string DetermineVirtualHost(IConfigurationSection configSection, List<string> errors)
         {
-            _routingKey = configSection["RoutingKey"] ?? "";
+            var virtualHost = configSection["VirtualHost"];
+            if (string.IsNullOrEmpty(virtualHost))
+            {
+                return DEFAULT_VIRTUAL_HOST;
+            }
+            return virtualHost;
         }
+
+        private class RabbitMQSettings
+        {
+            public string Host { get; set; }
+            public string Exchange { get; set; }
+            public string Queue { get; set; }
+            public string RoutingKey { get; set; }
+            public int Port { get; set; }
+            public string VirtualHost { get; set; }
+        }
+
     }
 }
