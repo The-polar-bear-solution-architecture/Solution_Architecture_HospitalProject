@@ -53,9 +53,10 @@ namespace AppointmentService.Controllers
             try
             {
                 var createdAppointment = repo.AddAppointment(appointmentToAdd);
+                
                 var appointmentCreated = new AppointmentCreated()
                 {
-                    AppointmentId = Guid.NewGuid(),
+                    AppointmentId = createdAppointment.Id,
                     ApointmentName = createdAppointment.Name,
                     AppointmentDate = createdAppointment.AppointmentDate,
                     PatientId = createdAppointment.Patient.Id,
@@ -67,6 +68,7 @@ namespace AppointmentService.Controllers
                     PhysicianEmail = createdAppointment.Physician.Email,
 
                 };
+                
                 await commandHandler.AppointmentCreated(appointmentCreated);
                 return Ok(createdAppointment);
             } catch (Exception e)
@@ -134,19 +136,25 @@ namespace AppointmentService.Controllers
             }
             if(appointmentDTO.Id != null)
             {
+                Physician physician = physicianRepo.GetPhysicianById(appointmentDTO.PhysicianId);
+                Patient patient = patientRepo.GetPatientById(appointmentDTO.PatientId);
+                
                 Appointment appointment = new Appointment()
                 {
                     Id = (Guid)appointmentDTO.Id,
                     Name = appointmentDTO.Name,
                     AppointmentDate = appointmentDTO.AppointmentDate,
-                    Physician = physicianRepo.GetPhysicianById(appointmentDTO.PhysicianId),
-                    Patient = patientRepo.GetPatientById(appointmentDTO.PatientId),
+                    Physician = physician,
+                    Patient = patient,
                     PreviousAppointment = previousAppointment
 
                 };
                 return appointment;
             } else
             {
+                Physician physician = physicianRepo.GetPhysicianById(appointmentDTO.PhysicianId);
+                Patient patient = patientRepo.GetPatientById(appointmentDTO.PatientId);
+
                 Appointment appointment = new Appointment()
                 {
                     Name = appointmentDTO.Name,

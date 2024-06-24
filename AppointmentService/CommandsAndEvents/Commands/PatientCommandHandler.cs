@@ -19,7 +19,7 @@ namespace AppointmentService.CommandsAndEvents.Commands
             var gp = _generalPractitionerRepository.GetPractitionerById(createdPatient.GeneralPractitioner.Id);
             if (gp == null)
             {
-                _generalPractitionerRepository.AddPractitioner(createdPatient.GeneralPractitioner);
+                gp = _generalPractitionerRepository.AddPractitioner(createdPatient.GeneralPractitioner);
             }
             var patient = new Patient()
             {
