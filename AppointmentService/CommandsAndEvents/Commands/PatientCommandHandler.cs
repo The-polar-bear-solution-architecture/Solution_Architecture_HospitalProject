@@ -6,7 +6,7 @@ namespace AppointmentService.CommandsAndEvents.Commands
 {
     public class PatientCommandHandler
     {
-        private readonly IPatientRepository _patientRepository;
+        private IPatientRepository _patientRepository;
         private readonly IGeneralPractitionerRepository _generalPractitionerRepository;
 
         public PatientCommandHandler(IPatientRepository patientRepository, IGeneralPractitionerRepository generalPractitionerRepository)
@@ -37,22 +37,19 @@ namespace AppointmentService.CommandsAndEvents.Commands
 
         public void PatientUpdated(PatientUpdated updatedPatient)
         {
-            var gp = _generalPractitionerRepository.GetPractitionerById(updatedPatient.GPId);
-            var patient = new Patient()
-            {
-                Id = updatedPatient.PatientID,
-                FirstName = updatedPatient.FirstName,
-                LastName = updatedPatient.LastName,
-                PhoneNumber = updatedPatient.PhoneNumber,
-                GP = gp
-            };
+            var gp = _generalPractitionerRepository.GetPractitionerById(updatedPatient.GeneralPractitioner.Id);
+            var patientToUpdate = _patientRepository.GetPatientById(updatedPatient.Id); 
+            patientToUpdate.FirstName = updatedPatient.FirstName;
+            patientToUpdate.LastName = updatedPatient.LastName;
+            patientToUpdate.PhoneNumber = updatedPatient.PhoneNumber;
+            patientToUpdate.GP = gp;
 
-            _patientRepository.UpdatePatient(patient);
+            _patientRepository.UpdatePatient(patientToUpdate);
         }
 
-        public void PatientDeleted(PatientDeleted deletedPatient)
+        public async void PatientDeleted(PatientDeleted deletedPatient)
         {
-            _patientRepository.DeletePatient(deletedPatient.Id);
+            await _patientRepository.DeletePatient(deletedPatient.Id);
         }
 
 

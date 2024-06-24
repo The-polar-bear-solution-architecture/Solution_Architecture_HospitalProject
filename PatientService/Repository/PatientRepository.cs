@@ -17,10 +17,11 @@ namespace PatientService.Repository
             patientDBContext.Add(patient);
             patientDBContext.SaveChanges();
         }
-        public void Put(Patient patient)
+        public Patient Put(Patient patient)
         {
             patientDBContext.Patients.Update(patient);
             patientDBContext.SaveChanges();
+            return patient;
         }
 
         public void Delete(Patient patient)
