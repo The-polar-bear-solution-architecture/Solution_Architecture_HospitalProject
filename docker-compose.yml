@@ -30,6 +30,8 @@ services:
       - mssql
       - eventstoredb
       - rabbitmq
+    links: 
+        - rabbitmq
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
@@ -61,7 +63,11 @@ services:
     ports:
     - 5672:5672
     - 15672:15672 
-
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:15672"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
   mssql:
     container_name: sql
     hostname: sql
@@ -86,6 +92,8 @@ services:
       - mssql
       - rabbitmq
       - eventstoredb
+    links: 
+      - rabbitmq
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
@@ -102,6 +110,9 @@ services:
       dockerfile: ImportPatientService/Dockerfile
     depends_on:
       - rabbitmq
+    links: 
+      - rabbitmq
+
   appointmentservice:
     ports:
         - 8044:443
@@ -114,6 +125,10 @@ services:
     - ASPNETCORE_URLS=https://+:443;http://+:80
     - ASPNETCORE_Kestrel__Certificates__Default__Password=test
     - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    depends_on:
+      - rabbitmq
+    links: 
+      - rabbitmq
     volumes:
       - ~/.aspnet/https:/https:ro
 
