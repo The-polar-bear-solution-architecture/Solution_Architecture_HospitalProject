@@ -14,19 +14,19 @@ namespace CheckInService.CommandsAndEvents.Commands.CheckIn
         // Alleen Gebruikt.
         [Required]
         public int AppointmentId { get; init; }
-        public Guid AppointmentGuid { get; init; } = Guid.NewGuid();
+        public Guid AppointmentGuid { get; init; }
         public string ApointmentName { get; init; }
         public DateTime AppointmentDate { get; init; }
 
         [Required]
         public int PatientId { get; init; }
-        public Guid PatientGuid { get; init; } = Guid.NewGuid();
+        public Guid PatientGuid { get; init; }
         public string PatientFirstName { get; init; }
         public string PatientLastName { get; init; }
 
         [Required]
         public int PhysicianId { get; init; }
-        public Guid PhysicianGuid { get; init; } = Guid.NewGuid();
+        public Guid PhysicianGuid { get; init; }
         public string PhysicianFirstName { get; init; }
         public string PhysicianLastName { get; init; }
 

@@ -43,9 +43,14 @@ namespace AppointmentService.DB.Repository
 
         public Appointment UpdateAppointment(Appointment appointment)
         {
-            //var edit = GetAppointmentById(appointment.Id);
-            context.Update(appointment);
-            //context.Update(edit);
+            var edit = GetAppointmentById(appointment.Id);
+            edit.Name = appointment.Name;
+            edit.AppointmentDate = appointment.AppointmentDate;
+            edit.Physician = appointment.Physician;
+            edit.Patient = appointment.Patient;
+            edit.PreviousAppointment = appointment.PreviousAppointment;
+
+            context.Update(edit);
             //edit = appointment;
             context.SaveChanges();
             return appointment;

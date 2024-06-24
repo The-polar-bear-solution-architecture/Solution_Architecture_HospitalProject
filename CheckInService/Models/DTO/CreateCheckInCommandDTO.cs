@@ -10,15 +10,15 @@ namespace CheckInService.Models.DTO
         public Status Status { get; set; } = Status.AWAIT;
 
         [Required]
-        public Guid AppointmentId { get; set; } = Guid.NewGuid();
+        public Guid AppointmentId { get; set; }
         public string ApointmentName { get; set; }
         public DateTime AppointmentDate { get; set; }      
 
-        public Guid PatientId { get; set; } = Guid.NewGuid();
+        public Guid PatientId { get; set; }
         public string PatientFirstName { get; set; }
         public string PatientLastName { get; set; }
         
-        public Guid PhysicianId { get; set; } = Guid.NewGuid();
+        public Guid PhysicianId { get; set; }
         public string PhysicianFirstName { get; set; }
         public string PhysicianLastName { get; set; }
         public string PhysicianEmail { get; set; }
