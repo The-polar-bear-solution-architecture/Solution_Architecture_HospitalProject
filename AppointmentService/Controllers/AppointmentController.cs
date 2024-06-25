@@ -29,14 +29,14 @@ namespace AppointmentService.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Appointment>> GetAllAppointments()
+        public ActionResult<IEnumerable<AppointmentRead>> GetAllAppointments()
         {
             Console.WriteLine("Dit is een test");
             return Ok(repo.GetAllAppointments());
         }
 
         [HttpGet("{Id:Guid}")]
-        public ActionResult<Appointment> GetAppointmentById(Guid Id)
+        public ActionResult<AppointmentRead> GetAppointmentById(Guid Id)
         {
             var appointment = repo.GetAppointmentById(Id);
             if(appointment == null) { 
@@ -46,28 +46,31 @@ namespace AppointmentService.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Appointment>> PostAppointment(AppointmentDTO appointmentDTO) {
+        public async Task<ActionResult<AppointmentRead>> PostAppointment(AppointmentDTO appointmentDTO) {
             var appointmentToAdd = TurnDTOToAppointment(appointmentDTO);
 
 
             try
             {
                 var createdAppointment = repo.AddAppointment(appointmentToAdd);
+
                 
                 var appointmentCreated = new AppointmentCreated()
                 {
-                    AppointmentId = createdAppointment.Id,
+                    AppointmentId = createdAppointment.AppointmentId,
                     ApointmentName = createdAppointment.Name,
                     AppointmentDate = createdAppointment.AppointmentDate,
-                    PatientId = createdAppointment.Patient.Id,
-                    PatientFirstName = createdAppointment.Patient.FirstName,
-                    PatientLastName = createdAppointment.Patient.LastName,
-                    PhysicianId = createdAppointment.Physician.Id,
-                    PhysicianFirstName = createdAppointment.Physician.FirstName,
-                    PhysicianLastName = createdAppointment.Physician.LastName,
-                    PhysicianEmail = createdAppointment.Physician.Email,
+                    PatientId = createdAppointment.PatientId,
+                    PatientFirstName = createdAppointment.PatientFirstName,
+                    PatientLastName = createdAppointment.PatientLastName,
+                    PhysicianId = createdAppointment.PhysicianId,
+                    PhysicianFirstName = createdAppointment.PhysicianFirstName,
+                    PhysicianLastName = createdAppointment.PhysicianLastName,
+                    PhysicianEmail = createdAppointment.PhysicianEmail,
 
                 };
+
+
                 
                 await commandHandler.AppointmentCreated(appointmentCreated);
                 return Ok(createdAppointment);
@@ -78,7 +81,7 @@ namespace AppointmentService.Controllers
         }
 
         [HttpPut("{Id:Guid}")]
-        public async Task<ActionResult<Appointment>> UpdateAppointment(Guid Id, AppointmentDTO appointmentDTO)
+        public async Task<ActionResult<AppointmentRead>> UpdateAppointment(Guid Id, AppointmentDTO appointmentDTO)
         {
             Appointment appointmentToUpdate = TurnDTOToAppointment(appointmentDTO);
             appointmentToUpdate.Id = Id;
@@ -87,22 +90,22 @@ namespace AppointmentService.Controllers
                 var updatedAppointment = repo.UpdateAppointment(appointmentToUpdate);
                 var appointmentUpdated = new AppointmentUpdated()
                 {
-                    AppointmentId = updatedAppointment.Id,
+                    AppointmentId = updatedAppointment.AppointmentId,
                     ApointmentName = updatedAppointment.Name,
                     AppointmentDate = updatedAppointment.AppointmentDate,
-                    PatientId = updatedAppointment.Patient.Id,
-                    PatientFirstName = updatedAppointment.Patient.FirstName,
-                    PatientLastName = updatedAppointment.Patient.LastName,
-                    PhysicianId = updatedAppointment.Physician.Id,
-                    PhysicianFirstName = updatedAppointment.Physician.FirstName,
-                    PhysicianLastName = updatedAppointment.Physician.LastName,
-                    PhysicianEmail = updatedAppointment.Physician.Email,
+                    PatientId = updatedAppointment.PatientId,
+                    PatientFirstName = updatedAppointment.PatientFirstName,
+                    PatientLastName = updatedAppointment.PatientLastName,
+                    PhysicianId = updatedAppointment.PhysicianId,
+                    PhysicianFirstName = updatedAppointment.PhysicianFirstName,
+                    PhysicianLastName = updatedAppointment.PhysicianLastName,
+                    PhysicianEmail = updatedAppointment.PhysicianEmail,
 
                 };
 
                 await commandHandler.AppointmentUpdated(appointmentUpdated);
 
-                return Ok(appointmentToUpdate);
+                return Ok(updatedAppointment);
             } catch(Exception e)
             {
                 return BadRequest(e.Message);
@@ -132,7 +135,7 @@ namespace AppointmentService.Controllers
             Appointment previousAppointment = null;
             if (appointmentDTO.PreviousAppointmentId != null)
             {
-                previousAppointment = repo.GetAppointmentById((Guid) appointmentDTO.PreviousAppointmentId);
+                previousAppointment = repo.GetWriteAppointmentById((Guid) appointmentDTO.PreviousAppointmentId);
             }
             if(appointmentDTO.Id != null)
             {
