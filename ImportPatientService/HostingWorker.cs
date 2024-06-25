@@ -22,27 +22,27 @@ namespace ImportPatientService
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             List<Patient> list = new List<Patient>();
-            int i = 0;
-            while (i < 2)
-            {
-                var raw = HTTPClient.GetPatientsFromCSV(httpClient).Result;
-                using (var reader = new StreamReader(raw))
-                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-                {
-                    var patients = csv.GetRecords<Patient>();
-                    foreach (var value in patients)
-                    {
-                        Console.WriteLine(value.FirstName);
-                        list.Add(value);
-                    }
-                }
 
-                ExternalPatientEvent externalEvent = new ExternalPatientEvent() { patientList = list };
-                await publisher.SendMessage("CSVPatient", externalEvent, "Import_Customers");
-                
-                i++;
-                Console.WriteLine($"Run geeindigt is op index {i}");
+            var raw = HTTPClient.GetPatientsFromCSV(httpClient).Result;
+            using (var reader = new StreamReader(raw))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+                var patients = csv.GetRecords<Patient>();
+                foreach (var value in patients)
+                {
+                    Console.WriteLine(value.FirstName);
+                    list.Add(value);
+                }
             }
+
+            ExternalPatientEvent externalEvent = new ExternalPatientEvent() { patientList = list };
+            await publisher.SendMessage("CSVPatient", externalEvent, "Import_Customers");
+
+            Console.WriteLine("Run ended.");
+
+            // Optionally, you can clear the list if it's needed for subsequent operations.
+            list.Clear();
+
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

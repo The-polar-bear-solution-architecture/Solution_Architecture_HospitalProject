@@ -22,13 +22,13 @@ builder.Services.UseRabbitMQMessageHandler(builder.Configuration);
 builder.Services.UseRabbitMQMessagePublisher(builder.Configuration);
 
 //Repositories
-builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddTransient<IPatientRepository, PatientRepository>();
 builder.Services.AddTransient<EventStoreRepository>();
-builder.Services.AddScoped<IGeneralPractitionerRepository, GeneralPractitionerRepository>();
+builder.Services.AddTransient<IGeneralPractitionerRepository, GeneralPractitionerRepository>();
 
 //SQL
 builder.Services.AddDbContext<PatientDBContext>(options =>
-  options.UseSqlServer(builder.Configuration.GetConnectionString("Braphia_PatientService")));
+  options.UseSqlServer(builder.Configuration.GetConnectionString("Braphia_PatientService")), ServiceLifetime.Singleton);
 
 //EventStore
 string eventSourceConnection = builder.Configuration.GetConnectionString("EventSourceDB");
