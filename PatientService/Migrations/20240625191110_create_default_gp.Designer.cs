@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PatientService.Domain;
 
@@ -11,9 +12,11 @@ using PatientService.Domain;
 namespace PatientService.Migrations
 {
     [DbContext(typeof(PatientDBContext))]
-    partial class PatientDBContextModelSnapshot : ModelSnapshot
+    [Migration("20240625191110_create_default_gp")]
+    partial class create_default_gp
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
