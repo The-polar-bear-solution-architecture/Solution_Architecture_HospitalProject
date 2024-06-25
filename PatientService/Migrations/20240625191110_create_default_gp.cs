@@ -68,7 +68,7 @@ namespace PatientService.Migrations
             migrationBuilder.InsertData(
                 table: "GeneralPractitioners",
                 columns: new[] { "Id", "Address", "Email", "FirstName", "LastName", "PhoneNumber" },
-                values: new object[] { new Guid("99463e24-c0cc-45d2-9b97-3e23e3556de3"), "Example street 123", "", "Tristan", "Schuring", "0312312413" });
+                values: new object[] { new Guid("99463e24-c0cc-45d2-9b97-3e23e3556de3"), "Example street 123", "tristan@mail.com", "Tristan", "Schuring", "0312312413" });
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Patients_GeneralPractitioners_GeneralPractitionerId",
