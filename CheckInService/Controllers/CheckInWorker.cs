@@ -1,8 +1,10 @@
 ﻿using CheckInService.CommandHandlers;
 using CheckInService.CommandsAndEvents.Commands;
 using CheckInService.CommandsAndEvents.Commands.Appointment;
+using CheckInService.CommandsAndEvents.Commands.Patient;
 using CheckInService.CommandsAndEvents.Events.Appointment;
 using CheckInService.CommandsAndEvents.Events.CheckIn;
+using CheckInService.CommandsAndEvents.Events.Patient;
 using CheckInService.Configurations;
 using CheckInService.Mapper;
 using CheckInService.Models;
@@ -22,6 +24,7 @@ namespace CheckInService.Controllers
         private readonly IPublisher publisher;
         private readonly IPublisher InternalPublisher;
         private readonly CheckInCommandHandler checkInCommandHandler;
+        private readonly PatientCommandHandler patientCommandHandler;
 
         public EventStoreRepository EventStoreRepository { get; }
         private readonly string RouterKey;
@@ -31,11 +34,13 @@ namespace CheckInService.Controllers
             IPublisher publisher,
             IRabbitFactory rabbitFactory,
             CheckInCommandHandler checkInCommandHandler, 
+            PatientCommandHandler patientCommandHandler,
             EventStoreRepository eventStoreRepository)
         {
             _messageHandler = messageHandler;
             this.publisher = publisher;
             this.checkInCommandHandler = checkInCommandHandler;
+            this.patientCommandHandler = patientCommandHandler;
             EventStoreRepository = eventStoreRepository;
 
             InternalPublisher = rabbitFactory.CreateInternalPublisher();
@@ -108,7 +113,25 @@ namespace CheckInService.Controllers
                         await publisher.SendMessage(delete_Event.MessageType, delete_Event, "NotificationAppointment");
                     }
                     break;
-                
+                case "POST":
+                    var PatientCreatePatientCommand = body.Deserialize<PatientCreate>();
+                    // Perform create operation
+                    var PatientCreateEvent = patientCommandHandler.RegisterPatient(PatientCreatePatientCommand);
+
+                    await EventStoreRepository.StoreMessage(nameof(CheckIn), nameof(PatientCreatedEvent), PatientCreatePatientCommand);
+                    // Nothing else need to be called. Because it does not affect the read model yet.
+                    break;
+                case "PUT":
+                    var UpdatePatient = body.Deserialize<PatientUpdate>();
+                    // Perform update operation.
+                    var UpdatePatientEvent = patientCommandHandler.ChangePatient(UpdatePatient);
+                    if(UpdatePatientEvent != null)
+                    {
+                        await EventStoreRepository.StoreMessage(nameof(CheckIn), nameof(PatientChangeEvent), UpdatePatient);
+                        // Eventual readmodels need to be updated
+                        await InternalPublisher.SendMessage(UpdatePatientEvent.MessageType, UpdatePatientEvent, RouterKey);
+                    }
+                    break;
                 default:
                     Console.WriteLine("No one");
                     break;
