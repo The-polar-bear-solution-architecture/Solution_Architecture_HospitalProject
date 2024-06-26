@@ -4,6 +4,7 @@ using AppointmentService.DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AppointmentService.Migrations
 {
     [DbContext(typeof(AppointmentServiceContext))]
-    partial class AppointmentServiceContextModelSnapshot : ModelSnapshot
+    [Migration("20240626120003_removed-read-model")]
+    partial class removedreadmodel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -130,16 +133,6 @@ namespace AppointmentService.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Physicians");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("a1d4539f-82c6-4531-9296-7c34b5cdf1d5"),
-                            Email = "Franks@example.com",
-                            FirstName = "Diederik",
-                            LastName = "Franks",
-                            Role = 0
-                        });
                 });
 
             modelBuilder.Entity("AppointmentService.Domain.Appointment", b =>

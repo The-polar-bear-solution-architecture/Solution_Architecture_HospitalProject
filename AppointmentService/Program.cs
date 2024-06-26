@@ -14,6 +14,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 //Using Docker DB
 builder.Services.AddDbContext<AppointmentServiceContext>(options => options.UseSqlServer("Data Source=sql;Initial Catalog=AppointmentService;User ID=sa;Password=Rick@Sanchez;Trust Server Certificate=True"), ServiceLifetime.Singleton);
+builder.Services.AddDbContext<AppointmentReadServiceContext>(options => options.UseSqlServer("Data Source=sql;Initial Catalog=AppointmentServiceRead;User ID=sa;Password=Rick@Sanchez;Trust Server Certificate=True"), ServiceLifetime.Singleton);
+
 // Using local DB
 //builder.Services.AddDbContext<AppointmentServiceContext>(options => options.UseSqlServer("Data Source =.; Initial Catalog = AppointmentService; Integrated Security = True; Encrypt = False; Trust Server Certificate=True"), ServiceLifetime.Singleton);
 
@@ -47,8 +49,10 @@ using (var scope = app.Services.CreateScope())
 {
     Console.WriteLine("Start migrations.");
     var db = scope.ServiceProvider.GetService<AppointmentServiceContext>();
+    var readDB = scope.ServiceProvider.GetService<AppointmentReadServiceContext>();
     // Will perform a migration when booting up the api.
     db.MigrateDB();
+    readDB.MigrateDB();
 }
 
 

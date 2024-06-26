@@ -16,14 +16,7 @@ namespace AppointmentService.DB
         public DbSet<GeneralPractitioner> GeneralPractitioners { get; set; }
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Physician> Physicians { get; set; }
-        public DbSet<AppointmentRead> appointmentsRead { get; set; }
 
-        //public DbSet<Role> Roles { get; set; }
-
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=AppointmentService;Integrated Security=True;Encrypt=False;Trust Server Certificate=True");
-        //}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

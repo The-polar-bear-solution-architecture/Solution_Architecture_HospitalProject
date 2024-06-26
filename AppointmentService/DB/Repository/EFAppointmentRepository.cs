@@ -8,10 +8,12 @@ namespace AppointmentService.DB.Repository
     {
 
         private readonly AppointmentServiceContext context;
+        private readonly AppointmentReadServiceContext readServiceContext;
 
-        public EFAppointmentRepository(AppointmentServiceContext context)
+        public EFAppointmentRepository(AppointmentServiceContext context, AppointmentReadServiceContext readServiceContext)
         {
             this.context = context;
+            this.readServiceContext = readServiceContext;
         }
 
         public AppointmentRead AddAppointment(Appointment appointment)
@@ -53,8 +55,8 @@ namespace AppointmentService.DB.Repository
                 appointmentRead.PreviousAppointmentId = appointment.PreviousAppointment.Id;
             }
 
-            context.appointmentsRead.Add(appointmentRead);
-            context.SaveChanges();
+            readServiceContext.appointmentsRead.Add(appointmentRead);
+            readServiceContext.SaveChanges();
             return appointmentRead;
         }
 
@@ -83,15 +85,15 @@ namespace AppointmentService.DB.Repository
                 appointmentToUpdate.PreviousAppointmentId = appointment.PreviousAppointment.Id;
             }
 
-            context.appointmentsRead.Update(appointmentToUpdate);
-            context.SaveChanges();
+            readServiceContext.appointmentsRead.Update(appointmentToUpdate);
+            readServiceContext.SaveChanges();
             return appointmentToUpdate;
         }
 
         private AppointmentRead DeleteReadAppointment(Guid Id) {
             var appointmentToDelete = GetAppointmentById(Id);
-            context.appointmentsRead.Remove(appointmentToDelete);
-            context.SaveChanges();
+            readServiceContext.appointmentsRead.Remove(appointmentToDelete);
+            readServiceContext.SaveChanges();
             return appointmentToDelete;
         }
 
@@ -108,12 +110,12 @@ namespace AppointmentService.DB.Repository
 
         public IEnumerable<AppointmentRead> GetAllAppointments()
         {
-            return context.appointmentsRead;
+            return readServiceContext.appointmentsRead;
         }
 
         public AppointmentRead GetAppointmentById(Guid Id)
         {
-            return context.appointmentsRead.Where(a => a.AppointmentId.Equals(Id)).FirstOrDefault();
+            return readServiceContext.appointmentsRead.Where(a => a.AppointmentId.Equals(Id)).FirstOrDefault();
         }
 
         public AppointmentRead UpdateAppointment(Appointment appointment)
