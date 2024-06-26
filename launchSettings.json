@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "dockerdemo": "StartDebugging",
+        "eventstoredemo": "StartDebugging",
+        "checkinservice": "StartDebugging",
+        "rabbitmq.messages": "StartDebugging",
+        "patientservice": "StartDebugging",
+        "importpatientservice": "StartDebugging"
+      }
+    }
+  }
+}

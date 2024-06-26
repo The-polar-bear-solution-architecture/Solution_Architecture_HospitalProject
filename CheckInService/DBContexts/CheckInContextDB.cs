@@ -1,7 +1,9 @@
 ﻿using CheckinService.Model;
 using CheckInService.Models;
-using CheckInService.Queries;
+using CheckInService.Models.Queries;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Polly;
 
 namespace CheckInService.DBContexts
 {
@@ -29,12 +31,13 @@ namespace CheckInService.DBContexts
         {
             base.OnModelCreating(modelBuilder);
 
-
+            
             modelBuilder.Entity<Appointment>().HasOne(physician => physician.Physician);
             modelBuilder.Entity<Appointment>().HasOne(patient => patient.Patient);
-        
-                
+            
             modelBuilder.Entity<CheckIn>().HasOne<Appointment>(appointment => appointment.Appointment);
+            modelBuilder.Entity<CheckIn>().HasAlternateKey(ci => ci.SerialNr);
+
             CreateViews(modelBuilder);
         }
 
@@ -48,6 +51,14 @@ namespace CheckInService.DBContexts
             JOIN Patients ON Appointments.PatientId = Patients.Id
             JOIN Physicians ON Appointments.PhysicianId = Physicians.Id; */
             modelBuilder.Entity<CheckInView>().HasNoKey().ToView("AppointmentCheckInView");
+        }
+
+        public void MigrateDB()
+        {
+            Policy
+                .Handle<Exception>()
+                .WaitAndRetry(10, r => TimeSpan.FromSeconds(10))
+                .Execute(() => Database.Migrate());
         }
     }
 }

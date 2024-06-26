@@ -33,6 +33,9 @@ namespace CheckInService.Migrations
                     b.Property<DateTime>("AppointmentDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("AppointmentSerialNr")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -63,10 +66,15 @@ namespace CheckInService.Migrations
                     b.Property<int>("AppointmentId")
                         .HasColumnType("int");
 
+                    b.Property<Guid>("SerialNr")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasAlternateKey("SerialNr");
 
                     b.HasIndex("AppointmentId");
 
@@ -89,6 +97,9 @@ namespace CheckInService.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("PatientSerialNr")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.ToTable("Patients");
@@ -98,6 +109,12 @@ namespace CheckInService.Migrations
                 {
                     b.Property<DateTime>("AppointmentDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid>("AppointmentSerialNr")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CheckInSerialNr")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Id")
                         .HasColumnType("int");
@@ -110,6 +127,9 @@ namespace CheckInService.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("PatientSerialNr")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("PhysicianFirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -117,6 +137,9 @@ namespace CheckInService.Migrations
                     b.Property<string>("PhysicianLastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("PhysicianSerialNr")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -145,6 +168,9 @@ namespace CheckInService.Migrations
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("PhysicianSerialNr")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 

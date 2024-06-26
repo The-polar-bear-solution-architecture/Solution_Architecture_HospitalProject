@@ -1,6 +1,8 @@
 ﻿using CheckInService.DBContexts;
 using CheckInService.Models;
-using CheckInService.Queries;
+using CheckInService.Models.Queries;
+using Microsoft.AspNetCore.Routing.Patterns;
+using Microsoft.EntityFrameworkCore;
 
 namespace CheckInService.Repositories
 {
@@ -33,11 +35,11 @@ namespace CheckInService.Repositories
             try
             {
                 checkInContextDB.Update(checkIn);
-                checkInContextDB.SaveChangesAsync().Wait();
+                checkInContextDB.SaveChanges(true);
             }
             catch
             {
-                Console.WriteLine("");
+                Console.WriteLine("Update failed.");
             }
         }
 
@@ -46,9 +48,34 @@ namespace CheckInService.Repositories
             return checkInContextDB.checkInsView.AsEnumerable();
         }
 
-        public CheckIn? Get(int id)
+        public IEnumerable<CheckIn> GetCheckIns()
         {
-            return checkInContextDB.checkIns.Find(id);
+            return checkInContextDB.checkIns
+                .Include(ap => ap.Appointment.Physician)
+                .Include(app => app.Appointment.Patient)
+                .ToList();
+        }
+
+        public CheckIn? Get(Guid serialNumber)
+        {
+            try
+            {
+                var jj = checkInContextDB.checkIns.
+                Include(p => p.Appointment.Physician).
+                Include(ppp => ppp.Appointment.Patient)
+                .Where(Patient => Patient.SerialNr.Equals(serialNumber)).First();
+                return jj;
+            }
+            catch
+            {
+                return null;
+            }
+            
+        }
+
+        public CheckInView GetView(int id)
+        {
+            return checkInContextDB.checkInsView.Find(id);
         }
     }
 }

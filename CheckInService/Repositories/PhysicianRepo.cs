@@ -22,6 +22,19 @@ namespace CheckInService.Repositories
             return checkInContextDB.Physicians.Find(id);
         }
 
+        public Physician? Get(Guid guid)
+        {
+            try
+            {
+                return checkInContextDB.Physicians.Where(p => p.PhysicianSerialNr.Equals(guid)).First();
+            }
+            catch
+            {
+                Console.WriteLine("Physician is not found");
+                return null;
+            }
+        }
+
         public void Post(Physician entity)
         {
             try
@@ -40,12 +53,17 @@ namespace CheckInService.Repositories
             try
             {
                 checkInContextDB.Update(entity);
-                checkInContextDB.SaveChangesAsync().Wait();
+                checkInContextDB.SaveChanges();
             }
             catch
             {
                 Console.WriteLine("");
             }
+        }
+
+        public void Delete(Guid entity)
+        {
+
         }
     }
 }

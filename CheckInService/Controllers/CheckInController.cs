@@ -1,9 +1,17 @@
 ﻿using CheckinService.Model;
-using CheckInService.Commands;
+using CheckInService.CommandHandlers;
+using CheckInService.CommandsAndEvents.Commands.Appointment;
+using CheckInService.CommandsAndEvents.Commands.CheckIn;
+using CheckInService.CommandsAndEvents.Events.CheckIn;
+using CheckInService.Configurations;
 using CheckInService.Mapper;
 using CheckInService.Models;
+using CheckInService.Models.DTO;
 using CheckInService.Repositories;
+using EventStore.Client;
 using Microsoft.AspNetCore.Mvc;
+using RabbitMQ.Messages.Interfaces;
+using RabbitMQ.Messages.Mapper;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,23 +22,48 @@ namespace CheckInService.Controllers
     public class CheckInController : ControllerBase
     {
         private readonly CheckInRepository checkInRepository;
+        private readonly CheckInCommandHandler checkInCommand;
+        private readonly EventStoreRepository eventStoreRepository;
+        private readonly ReadModelRepository readModelRepository;
+        private readonly IRabbitFactory RabbitFactory;
 
-        public CheckInController(CheckInRepository checkInRepository) {
+        private readonly IPublisher publisher;
+        // Will only send messages via an internal exchange.
+        private readonly IPublisher InternalPublisher;
+
+        private readonly string RouterKeyLocator;
+        private readonly string RouterKey;
+
+        public CheckInController(
+            CheckInRepository checkInRepository,
+            CheckInCommandHandler checkInCommand,
+            EventStoreRepository eventStoreRepository,
+            ReadModelRepository readModelRepository,
+            IRabbitFactory rabbitFactory,
+            IPublisher publisher) {
             this.checkInRepository = checkInRepository;
+            this.checkInCommand = checkInCommand;
+            this.eventStoreRepository = eventStoreRepository;
+            this.readModelRepository = readModelRepository;
+            RabbitFactory = rabbitFactory;
+            this.publisher = publisher;
+            InternalPublisher = rabbitFactory.CreateInternalPublisher();
+            RouterKeyLocator = "Notifications";
+            RouterKey = "ETL_Checkin";
         }
 
         // GET: api/<CheckInController>
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(checkInRepository.Get());
+            return Ok(readModelRepository.Get());
         }
 
         // GET api/<CheckInController>/5
-        [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        [HttpGet("{serialNr}")]
+        public IActionResult Get(Guid serialNr)
         {
-            var checkIn = checkInRepository.Get(id);
+            var checkIn = readModelRepository.Get(serialNr);
             if(checkIn == null)
             {
                 return BadRequest("CheckIn not found");
@@ -39,44 +72,70 @@ namespace CheckInService.Controllers
         }
 
         // PUT api/<CheckInController>/5
-        [HttpPut("{id}/MarkNoShow")]
-        public IActionResult PutNoShow(int id)
+        [HttpPut("MarkNoShow")]
+        public async Task<IActionResult> PutNoShow([FromBody] NoShowCheckIn InputCommand)
         {
-            CheckIn? checkIn = checkInRepository.Get(id);
-            if(checkIn == null)
+            NoShowCheckIn command = new NoShowCheckIn() { 
+                CheckInSerialNr = InputCommand.CheckInSerialNr, Status = Status.NOSHOW
+            };
+
+            // Message type is CheckInNoShowEvent
+            CheckInNoShowEvent? NoShowEvent = await checkInCommand.ChangeToNoShow(command);
+            if (NoShowEvent == null)
             {
                 return NotFound();
             }
+            // Add event to event store.
+            await eventStoreRepository.StoreMessage(nameof(CheckIn), NoShowEvent.MessageType, NoShowEvent);
 
-            checkIn.Status = Status.NOSHOW;
-            checkInRepository.Put(checkIn);
+            // Update read model
+            await InternalPublisher.SendMessage(NoShowEvent.MessageType, NoShowEvent, RouterKey);
 
-            return Ok("Marked appointment as noshow");
+            var responseBody = new
+            {
+                Success = true,
+                CheckinStatus = "No show",
+                Message = $"Appointment with Id {NoShowEvent.AppointmentSerialNr} is marked: No Show"
+            };
+            return Ok(responseBody);
         }
 
-        [HttpPut("{id}/MarkPresent")]
-        public IActionResult PutPresent(int id)
+        [HttpPut("MarkPresent")]
+        public async Task<IActionResult> PutPresentAsync([FromBody] PresentCheckin PresentCommand)
         {
-            CheckIn? checkIn = checkInRepository.Get(id);
-            if (checkIn == null)
+            PresentCheckin command = new PresentCheckin() { CheckInSerialNr = PresentCommand.CheckInSerialNr, Status = Status.PRESENT };
+
+            // Message type is CheckInPresentEvent
+            CheckInPresentEvent? PresentEvent = await checkInCommand.ChangeToPresent(command);
+            if (PresentEvent == null)
             {
                 return NotFound();
             }
-            checkIn.Status = Status.PRESENT;
-            checkInRepository.Put(checkIn);
-            // Event to notification physician.
-            Console.WriteLine("Physician will be notified");
-            return Ok("Marked check-in ready");
+            // Add event to event store.
+            await eventStoreRepository.StoreMessage(nameof(CheckIn), PresentEvent.MessageType, PresentEvent);
+
+            // Send update to read model.
+            await InternalPublisher.SendMessage(PresentEvent.MessageType, PresentEvent, RouterKey);
+
+            // Send notification to notification service physician.
+            await publisher.SendMessage(PresentEvent.MessageType, PresentEvent, RouterKeyLocator);
+
+            var responseBody = new
+            {
+                Success = true,
+                CheckinStatus = "Present",
+                Message = $"Appointment with Id {PresentEvent.AppointmentSerialNr} is marked: Present"
+            };
+            return Ok(responseBody);
         }
 
-        [HttpPost("")]
-        public IActionResult Post([FromBody] CreateCheckInCommand createCheckInCommand)
+        
+        [HttpDelete("Test EventSourceDB.")]
+        public async Task<IActionResult> DeleteAppointment()
         {
-            CheckIn checkIn = createCheckInCommand.MapToCheckin();
-
-            checkInRepository.Post(checkIn);
-            
-            return Ok("Marked check-in ready");
+            await InternalPublisher.SendMessage("Test", "Bazooka", "ETL_Checkin");
+            await eventStoreRepository.StoreMessage("Test", "TestType", new NoShowCheckIn() { Status = Status.AWAIT });
+            return Ok("Appointment deleted.");
         }
     }
 }
