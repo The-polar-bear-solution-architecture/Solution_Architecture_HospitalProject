@@ -1,5 +1,6 @@
 ﻿using AppointmentService.Domain;
 using AppointmentService.DomainServices;
+using Microsoft.EntityFrameworkCore;
 
 namespace AppointmentService.DB.Repository
 {
@@ -30,7 +31,7 @@ namespace AppointmentService.DB.Repository
 
         public Patient GetPatientById(Guid Id)
         {
-            var patient = context.Patients.Where(p => p.Id.Equals(Id)).FirstOrDefault();
+            var patient = context.Patients.Include(p => p.GP).Where(p => p.Id.Equals(Id)).FirstOrDefault();
             Console.WriteLine(patient.Id);
             return patient;
             

@@ -4,10 +4,11 @@ namespace AppointmentService.DomainServices
 {
     public interface IAppointmentRepository
     {
-        public Appointment AddAppointment(Appointment appointment);
-        public Appointment GetAppointmentById(Guid id);
-        public IEnumerable<Appointment> GetAllAppointments();
-        public Appointment UpdateAppointment(Appointment appointment);
-        public Appointment DeleteAppointment(Guid id);
+        public AppointmentRead AddAppointment(Appointment appointment);
+        public AppointmentRead GetAppointmentById(Guid id);
+        public IEnumerable<AppointmentRead> GetAllAppointments();
+        public AppointmentRead UpdateAppointment(Appointment appointment);
+        public AppointmentRead DeleteAppointment(Guid id);
+        public Appointment GetWriteAppointmentById(Guid id);
     }
 }

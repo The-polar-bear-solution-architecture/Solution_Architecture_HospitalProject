@@ -37,23 +37,27 @@ namespace PatientService.Controllers
                 {
                     return false;
                 }
-                foreach (ImportPatient patient in externalEvent.patientList)
+                if(externalEvent.patientList != null)
                 {
-                    var existingPatient = patientRepository.GetByDetails(patient.FirstName, patient.LastName, patient.PhoneNumber);
-                    if (existingPatient == null)
+                    foreach (ImportPatient patient in externalEvent.patientList)
                     {
-                        var x = new Patient();
-                        x.Id = Guid.NewGuid();
-                        x.GeneralPractitioner = gp;
-                        x.FirstName = patient.FirstName;
-                        x.LastName = patient.LastName;
-                        x.Address = patient.Address;
-                        x.PhoneNumber = patient.PhoneNumber;
-                        patientRepository.Post(x);
-                        await publisher.SendMessage("POST", x, "Created_Patient");
-                    }
+                        var existingPatient = patientRepository.GetByDetails(patient.FirstName, patient.LastName, patient.PhoneNumber);
+                        if (existingPatient == null)
+                        {
+                            var x = new Patient();
+                            x.Id = Guid.NewGuid();
+                            x.GeneralPractitioner = gp;
+                            x.FirstName = patient.FirstName;
+                            x.LastName = patient.LastName;
+                            x.Address = patient.Address;
+                            x.PhoneNumber = patient.PhoneNumber;
+                            patientRepository.Post(x);
+                            await publisher.SendMessage("POST", x, "Created_Patient");
+                        }
 
+                    }
                 }
+                
             }
             catch (Exception ex)
             {
