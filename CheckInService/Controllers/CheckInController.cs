@@ -91,7 +91,13 @@ namespace CheckInService.Controllers
             // Update read model
             await InternalPublisher.SendMessage(NoShowEvent.MessageType, NoShowEvent, RouterKey);
 
-            return Ok($"Marked appointment of checkin {NoShowEvent.CheckInSerialNr} as noshow");
+            var responseBody = new
+            {
+                Success = true,
+                CheckinStatus = "No show",
+                Message = $"Appointment with Id {NoShowEvent.AppointmentSerialNr} is marked: No Show"
+            };
+            return Ok(responseBody);
         }
 
         [HttpPut("MarkPresent")]
@@ -114,7 +120,13 @@ namespace CheckInService.Controllers
             // Send notification to notification service physician.
             await publisher.SendMessage(PresentEvent.MessageType, PresentEvent, RouterKeyLocator);
 
-            return Ok("Marked check-in ready");
+            var responseBody = new
+            {
+                Success = true,
+                CheckinStatus = "Present",
+                Message = $"Appointment with Id {PresentEvent.AppointmentSerialNr} is marked: Present"
+            };
+            return Ok(responseBody);
         }
 
         
